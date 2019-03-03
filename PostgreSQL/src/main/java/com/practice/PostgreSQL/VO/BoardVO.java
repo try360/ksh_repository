@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class BoardVO {
 
-	int board_id;
+	int board_id; //
 	String user_id;
 	String title;
 	String content;
