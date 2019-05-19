@@ -14,28 +14,52 @@
 <br>
 <input type="text" name="title" placeholder="제목을 입력하세요"></input>
 <br>
-<textarea name="content"></textarea>
+<textarea name="content" placeholder="내용을 입력하세요"></textarea>
 </form>
 <button id="insert_btn">글쓰기</button>
-
+<br>
+글쓰기 결과 : <div id="div_writing_result"> </div>
+<br>
+<button id="go_home">홈으로</button>
 
 
 <script>
 $(function(){
 	$('#insert_btn').click(function() {
+		
+		
 		var formData = $("#insertForm").serialize();
-        $.ajax({
-            url : "${pageContext.request.contextPath}/insert/regist", // 클라이언트가 요청을 보낼 서버의 URL 주소
-            data : formData, // HTTP 요청과 함께 서버로 보낼 데이터
-            type : "post",
-            dataType : "text",
-            success : function() {
-                alert(" 보낸 데이터  " + formData);
-            }
+		
+		if($("input[name=user_id]").val()==""){
+			alert("작성자를 입력하세요!");
+		}else if($("input[name=title]").val()==""){
+			alert("제목을 입력하세요!");
+        }else if($("textarea[name=content]").val()==""){
+        	alert("내용을 입력하세요!");
+        }else{
+        	  $.ajax({
+                  url : "${pageContext.request.contextPath}/insert/regist", // 클라이언트가 요청을 보낼 서버의 URL 주소
+                  data : formData, // HTTP 요청과 함께 서버로 보낼 데이터
+                  type : "post",
+                  dataType : "text",
+                  success : function() {
+                      $("#label_wirting_result").text("성공");                
+                  },
+                  error : function(){
+                      $("#label_wirting_result").text("실패");         
+                  }
 
-        });
+              });
+        }
     })
 	
+    $("#go_home").on("click",function(){
+        location.href="${pageContext.request.contextPath}/home" ; 
+    })
+    
+    
+    
+    
 })
 
 

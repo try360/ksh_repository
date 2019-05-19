@@ -5,36 +5,52 @@
 <html>
 <head>
 <title>Home</title>
+<style>
+td{
+text-align : center ;
+}
+thead{
+background-color : purple ;
+}
+#table_list{
+left : 40px ;
+}
+input[type=checkbox]{
+height : 20px;
+width : 20px;
+}
+</style>
 </head>
 <body>
      <button onclick="location='${pageContext.request.contextPath}/insert/write'">글쓰기로 이동</button>
-	<p id="time">The time on the server is ${serverTime}.</p>
+     <button id="btn_truncate">truncate</button>
+	  <p id="time">The time on the server is ${serverTime}.</p>
 
-	<div id="animate_test">여기는 animate test</div>
-	<br>
-	<br>
-	<form id="fowardForm" style="background-color: yellow">
-		<input type="text" name="text1"> <br> <select
-			name="select1">
-			<option selected disabled>보낼 값을 선택하세요
-			<option>
-			<option value="1">1
-			<option>
-			<option value="2">2
-			<option>
-			<option value="3">3
-			<option>
-		</select> <br>
-		<button id="submit">전송</button>
-	</form>
-
-<table>
+<table id="table_list" border="1" >
 <thead>
+        <tr> 
+             <td><input type="checkbox"></td>
+             <td>fore each index</td>
+             <td>게시글 번호</td>
+             <td>사용자 아이디</td>
+             <td>제목</td>
+             <td>내용</td>
+             <td>날짜</td>
+             <td>날짜 포맷 변환</td>
+          </tr>
 </thead>
 <tbody>
-	<c:forEach var="item" items="${list.board}" varStatus="status">
-	
-	
+	<c:forEach var="board_list" items="${board_list}" varStatus="status">
+		   <tr>
+		     <td><input type="checkbox"></td>
+		     <td>${status.index}</td>
+		     <td>${board_list.board_id}</td>
+		     <td>${board_list.user_id}</td>
+		     <td>${board_list.title}</td>
+		     <td>${board_list.content}</td>
+		     <td>${board_list.insert_date}</td>
+		     <td>${board_list.insert_date}</td>
+		   </tr>
 	</c:forEach>
 </tbody>
 </table>
@@ -67,10 +83,12 @@
 				dataType : "text",
 				success : function() {
 					alert(" 데이터 보내기 성공");
+					window.location.href="${pageContext.request.contextPath}/home"
 				}
 
 			});
 		})
 	</script>
+
 </body>
 </html>

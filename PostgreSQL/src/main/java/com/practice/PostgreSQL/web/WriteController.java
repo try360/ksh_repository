@@ -43,8 +43,8 @@ public class WriteController {
 	public String regist(Locale locale
 			, Model model
 			,@ModelAttribute BoardVO boardVO
-			,@RequestParam HashMap<String, Object> paramMap) throws Exception {
-	logger.info(" 넘어온 데이터 값 찍어보자    :  " + paramMap);
+	/* ,@RequestParam HashMap<String, Object> paramMap */) throws Exception {
+	logger.info(" 넘어온 데이터 값 찍어보자    :  " + boardVO);
 
 		Date date = new Date();
 		DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, locale);

@@ -7,8 +7,9 @@
 <title>login page</title>
 </head>
 <body>
-	<input type="button" id="button" onclick="location.href='${pageContext.request.contextPath}/home' " value="홈으로 ㄱㄱ">
-		<script>
+	<input type="button" id="login" onclick="location.href='${pageContext.request.contextPath}/list_board'" value="login">
+	<input type="button" id="sign_up" onclick="location.href='${pageContext.request.contextPath}/sign_up'" value="sign up"> 
+	<script>
 		
 	</script>
 </body>
