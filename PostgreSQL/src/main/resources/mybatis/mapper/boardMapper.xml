@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mybatis.mapper.BoardMapper">
+
+	<select id="selectAll_BoardList" parameterType="BoardVO" resultType="BoardVO">
+		<![CDATA[ 
+		select * from board  
+		where 1=1 
+		]]>
+	  <!--  <if test="searchOption != null and searchOption != '' " >
+	     <if test="searchkeyword != null and searchKeyword != '' ">
+	       and ${searchOption} = #{searchKeyword}
+	     </if>
+	   </if> -->
+		
+	</select>
+	
+	<insert id="reg_board" parameterType="BoardVO">
+		<![CDATA[   
+		insert into board values (default,#{user_id},#{title},#{content},now()) 
+		]]>
+	</insert>
+	
+	
+    <update id="truncate_board_list">
+        <![CDATA[   
+        truncate board
+        ]]>
+    </update>
+
+
+</mapper>
