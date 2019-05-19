@@ -11,6 +11,8 @@ public interface BoardService {
 	
 	public int reg_board(BoardVO boardVO) throws Exception;
 	
+	public int truncate_board_list() throws Exception;
+
 	
 	
 }
