@@ -20,6 +20,13 @@
 		insert into board values (default,#{user_id},#{title},#{content},now()) 
 		]]>
 	</insert>
+	
+	
+    <update id="truncate_board_list">
+        <![CDATA[   
+        truncate board
+        ]]>
+    </update>
 
 
 </mapper>
