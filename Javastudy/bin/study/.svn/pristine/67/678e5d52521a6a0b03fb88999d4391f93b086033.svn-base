@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.3.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basename" value="classpath:properties/message" />
+		<property name="defaultEncoding" value="EUC-KR" />
+		<!-- property name="cacheSeconds" value="60" / -->
+	</bean>
+	<!-- <context:component-scan base-package="kr.co.kt.agwne.service" /> -->
+	<!-- <bean id="configProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="location" value="classpath:properties/config.properties" />
+	</bean> -->
+	
+	<!-- <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:properties/database.properties" />
+		<property name="fileEncoding" value="UTF-8"></property>
+	</bean> -->
+	
+	<bean id="dataSource" class="org.apache.tomcat.jdbc.pool.DataSource" autowire="no">
+		<property name="driverClassName" value="#{db['jdbc.driverClassName']}"></property>
+		<property name="url" value="#{db['jdbc.url']}"></property>
+		<property name="username" value="#{db['jdbc.username']}"></property>
+		<property name="password" value="#{db['jdbc.password']}"></property>
+		
+		<property name="initialSize" value="10" />
+		<property name="maxActive" value="25" />
+		<property name="maxIdle" value="20" />
+		<property name="minIdle" value="10" />
+		<property name="testOnBorrow" value="true" />
+		<property name="validationQuery" value="SELECT 1" />
+		<!-- <property name="connectionProperties">
+			<props>
+				<prop key="oracle.net.CONNECT_TIMEOUT">120000</prop>
+				<prop key="oracle.jdbc.ReadTimeout">120000</prop>
+			</props>
+		</property> -->
+	</bean>	
+	
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="configLocation" value="classpath:/mybatis/mybatis-config.xml"></property>
+		<property name="mapperLocations" value="classpath:/mybatis/mapper/*.xml"></property>
+	</bean>
+	
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate" destroy-method="clearCache">
+		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"></constructor-arg>
+		<!-- <constructor-arg index="1" value="BATCH"/> --> 
+	</bean>
+	
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="#{config['mail.smtp.host']}" />
+		<property name="port" value="#{config['mail.smtp.port']}" />
+		<property name="username" value="#{config['mail.smtp.mail']}" />
+		<property name="protocol" value="smtp" />
+		<property name="defaultEncoding" value="utf-8" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">false</prop>
+				<prop key="mail.smtp.connectiontimeout">10000</prop>
+			</props>
+		</property>
+		
+	</bean>
+	
+	<!-- <bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="Exception">/error</prop>
+			</props>
+		</property>
+		<property name="defaultErrorView" value="/error" />
+	</bean> -->
+	
+	<!-- <context:property-placeholder location="classpath:/properties/*.properties" /> -->
+	<util:properties id="db" location="classpath:/properties/database.properties" />
+	<util:properties id="config" location="classpath:/properties/config.properties" />
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+
+	
+</beans>

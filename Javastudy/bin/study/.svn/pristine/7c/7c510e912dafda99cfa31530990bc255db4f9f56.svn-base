@@ -1,0 +1,142 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file OfficeServiceImpl.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.service.impl;
+
+import java.util.HashMap;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.co.kt.agwne.dao.OfficeDAO;
+import kr.co.kt.agwne.dto.OfficeVO;
+import kr.co.kt.agwne.service.OfficeService;
+
+@Service
+public class OfficeServiceImpl implements OfficeService {
+
+	@Inject
+	private OfficeDAO officeDAO;
+	
+	@Override
+	public Object t_office_list() throws Exception {
+		// TODO Auto-generated method stub
+		return officeDAO.t_office_list();
+	}
+	@Override
+	public Object t_office_list_top() throws Exception {
+		// TODO Auto-generated method stub
+		return officeDAO.t_office_list_top();
+	}
+	@Override
+	public int t_office_doc_reg(List<OfficeVO> voList) throws Exception {
+		// TODO Auto-generated method stub
+		return officeDAO.t_office_doc_reg(voList);
+	}
+	@Override
+	public int t_office_list2(int office_no) throws Exception {
+		// TODO Auto-generated method stub
+		return officeDAO.t_office_list2(office_no);
+	}
+	@Override
+	public List<OfficeVO> t_office_sub_list(HashMap<String, Object> listInfo) throws Exception {
+		// TODO Auto-generated method stub
+		return officeDAO.t_office_sub_list(listInfo);
+	}
+	
+	 @Override
+	    public Object office_reg(OfficeVO officeVO) throws Exception {
+	        return officeDAO.office_reg(officeVO);
+	    }
+	 
+	 @Override
+	 public Object office_list(HashMap<String, Object> listInfo) throws Exception{
+	  return officeDAO.office_list(listInfo);
+	 }
+	 
+	 @Override
+     public Object office_nm_list(HashMap<String, Object> listInfo) throws Exception{
+      return officeDAO.office_nm_list(listInfo);
+     }
+	 
+	 @Override
+	   public Object office_del(int office_no) throws Exception {
+	       return officeDAO.office_del(office_no);
+	   }
+	 
+	 @Override
+	   public int office_totalCnt(HashMap<String, Object> listInfo) throws Exception {
+	       return officeDAO.office_totalCnt(listInfo); 
+	   }
+	 
+	 @Override
+	   public boolean office_check(OfficeVO officeVO) throws Exception {
+	       Boolean result = (officeDAO.office_check(officeVO)!= null);
+	       return result;
+	   }
+	 
+	 @Override
+	   public Object office_update(OfficeVO officeVO) throws Exception {
+	       return officeDAO.office_update(officeVO);
+	   }
+	 
+	 @Override
+     public int office_cd_get(OfficeVO officeVO) throws Exception {
+         return officeDAO.office_cd_get(officeVO);
+     }
+	@Override
+	public OfficeVO t_my_office(String dept_code) throws Exception {
+		return officeDAO.t_my_office(dept_code);
+	}
+	@Override
+	public Object selectBonbu(String region) {
+		return officeDAO.selectBonbu(region);
+	}
+	@Override
+	public Object selectCenter(String bonbu) {
+		return officeDAO.selectCenter(bonbu);
+	}
+	@Override
+	public Object selectBranch(String center) {
+		return officeDAO.selectBranch(center);
+	}
+	@Override
+	public Object selectTeam(String branch) {
+		return officeDAO.selectTeam(branch);
+	}
+	@Override
+	public Object select_cmBonbuAll() {
+		return officeDAO.select_cmBonbuAll();
+	}
+	@Override
+	public Object select_cmBranchAll(String orgscode) {
+		return officeDAO.select_cmBranchAll(orgscode);
+	}
+	@Override
+	public Object select_cmOfficeAll(String orgscode) {
+		return officeDAO.select_cmOfficeAll(orgscode);
+	}
+	@Override
+	public Object select_mycmOffice(String dept_code) {
+		return officeDAO.select_mycmOffice(dept_code);
+	}
+	 
+}

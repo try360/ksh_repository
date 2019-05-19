@@ -1,0 +1,60 @@
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file ModelVO.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.dto;
+
+import java.util.Date;
+import lombok.Data;
+
+
+@Data
+public class ModelVO{
+
+	private int model_no;                     //모델 고유번호
+	private int seq;                          //모델 순서
+	private String model_cd;                  //모델 cd
+	private String model_nm;                  //모델 이름
+	private int shelf_num;                    //쉘프 넘버
+	private int port_num;                     //포트 넘버
+	private String del_yn;                    //삭제 여부 false true(삭제)
+	private String input_id;                  //최초 등록 아이디
+	private String update_id;                 //업데이트 아이디
+	private Date input_dt;                  //최초 등록 일자
+	private String searchTxt;                 //게시물 조회 문구
+	private Date time_stamp;
+    
+	
+	//2018-06-07 업무변경으로 인해 새로 작성된 VO;
+	
+	private int cost_no;
+	private String supply_nm;
+	//private String model_cd;
+	private String type;
+	private int line_num;
+	private String agw_cd;
+	private String model_nick;
+	private int cost_supply;			//물자비
+	private int cost_construct;			//공사비
+	private int cost_etc;				//경비
+	private int cost_total;				//총합
+	
+	private String input_name;
+	private String update_name;
+	
+}

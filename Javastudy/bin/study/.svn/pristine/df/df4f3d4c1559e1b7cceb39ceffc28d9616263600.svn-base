@@ -1,0 +1,144 @@
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file EmailServiceImpl.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.service.impl;
+
+import java.util.HashMap;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.co.kt.agwne.dao.EmailDAO;
+import kr.co.kt.agwne.dto.BusinessVO;
+import kr.co.kt.agwne.dto.UserInfoVO;
+import kr.co.kt.agwne.dto.UserRoleVO;
+import kr.co.kt.agwne.service.EmailService;
+
+@Service 
+public class EmailServiceImpl implements EmailService {
+	@Inject
+	private EmailDAO emailDAO ;
+	//이메일 리스트
+		@Override
+		public List<UserRoleVO> email_list_01(BusinessVO mailbsVO) throws Exception {
+			return emailDAO.email_list_01(mailbsVO);
+		}
+		@Override
+		public List<UserRoleVO> email_list_02(BusinessVO mailbsVO) throws Exception {
+			// TODO Auto-generated method stub
+			return emailDAO.email_list_02(mailbsVO);
+		}
+		@Override
+		public List<UserRoleVO> email_list_03(BusinessVO mailbsVO) throws Exception {
+			// TODO Auto-generated method stub
+			return emailDAO.email_list_03(mailbsVO);
+		}
+		@Override
+		public List<UserRoleVO> email_list_04(BusinessVO mailbsVO) throws Exception {
+			// TODO Auto-generated method stub
+			return emailDAO.email_list_04(mailbsVO);
+		}
+		@Override
+		public Object select4pExGetmail(int neoss_no) {
+			return emailDAO.select4pExGetmail(neoss_no);
+		}
+		@Override
+		public List<UserRoleVO> r_email_list_99(BusinessVO mailbsVO) throws Exception {
+			return  emailDAO.r_email_list_99(mailbsVO);
+		}
+		@Override
+		public List<UserRoleVO> r_email_list_01(BusinessVO mailbsVO) throws Exception {
+			// TODO Auto-generated method stub
+			return emailDAO.r_email_list_01(mailbsVO);
+		}
+		@Override
+		public Object select_teamCode(int neoss_no) {
+			return emailDAO.select_teamCode(neoss_no);
+		}
+		@Override
+		public Object select_4p_step01(HashMap<String, Object> deptMap) {
+			return emailDAO.select_4p_step01(deptMap);
+		}
+		@Override
+		public Object select_4p_step02(HashMap<String, Object> deptMap) {
+			return emailDAO.select_4p_step02(deptMap);
+		}
+		@Override
+		public Object select_4p_step03(HashMap<String, Object> deptMap) {
+			return emailDAO.select_4p_step03(deptMap);
+		}
+		@Override
+		public Object select_4p_step04(HashMap<String, Object> deptMap) {
+			return emailDAO.select_4p_step04(deptMap);
+		}
+		@Override
+		public Object select_4p_step05(HashMap<String, Object> deptMap) {
+			return emailDAO.select_4p_step05(deptMap);
+		}
+		@Override
+		public Object select_4p_stepEx(String oper_code) {
+			return emailDAO.select_4p_stepEx(oper_code);
+		}
+		@Override
+		public Object select_4p_step00(int neoss_no) {
+			return emailDAO.select_4p_step00(neoss_no);
+		}
+		@Override
+		public Object select_4p_process(BusinessVO bsVO) {
+			return emailDAO.select_4p_process(bsVO);
+		}
+		@Override
+		public HashMap<String, Object> select_teamCode_cd(String dept_code) {
+			return emailDAO.select_teamCode_cd(dept_code);
+		}
+		@Override
+		public List<UserInfoVO> select_4p_step05_cd(String cm_code) {
+			return emailDAO.select_4p_step05_cd(cm_code);
+		}
+		@Override
+		public int select_totalCnt(HashMap<String, Object> pageInfo) {
+			return emailDAO.select_totalCnt(pageInfo);
+		}
+		@Override
+		public Object select_totalList(HashMap<String, Object> pageInfo) {
+			return emailDAO.select_totalList(pageInfo);
+		}
+		@Override
+		public Object select_receiver(String gubun, int email_no) {
+			Object result = new Object();
+			if (gubun.equals("receiver")) {
+				result = emailDAO.select_receiver(email_no);
+			}
+			else if(gubun.equals("cc")) {
+				result = emailDAO.select_cc(email_no);
+			}
+			else if (gubun.equals("bcc")) {
+				result = emailDAO.select_bcc(email_no);
+			}
+			
+			return result;
+			
+		}
+		@Override
+		public Object selectOne_email(int email_no) {
+			return emailDAO.selectOne_email(email_no);
+		}
+}

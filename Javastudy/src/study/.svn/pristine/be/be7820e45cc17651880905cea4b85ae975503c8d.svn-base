@@ -1,0 +1,64 @@
+package kr.co.kt.agwne.dao.impl;
+
+import javax.inject.Inject;
+
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.stereotype.Repository;
+
+import kr.co.kt.agwne.dao.MainDAO;
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2010-11-22
+ * @ file UserApprValidation.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+@Repository
+public class MainDAOImpl implements MainDAO {
+
+	@Inject
+	private SqlSession session;
+	
+	private static final String Namespace = "kr.co.kt.agwne.mainMapper";
+	@Override
+	public Object select_business01() throws Exception {
+		return session.selectList(Namespace +".select_business01");
+	}
+	
+	@Override
+	public Object select_business02() throws Exception {
+		return session.selectList(Namespace +".select_business02");
+	}
+	
+	@Override
+	public Object select_business03() throws Exception {
+		return session.selectList(Namespace +".select_business03");
+	}
+
+	@Override
+	public Object select_board() throws Exception {
+		return session.selectList(Namespace +".select_board");
+	}
+
+	@Override
+	public Object select_data() throws Exception {
+		return session.selectList(Namespace +".select_data");
+	}
+
+	@Override
+	public Object select_qna() throws Exception {
+		return session.selectList(Namespace +".select_qna");
+	}
+
+}

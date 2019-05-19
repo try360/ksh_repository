@@ -1,0 +1,142 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<%@ taglib prefix="custom" uri="/tags/custom-taglib" %> 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<script src="/resources/js/manage.js"></script>
+<script>
+    /* 코드 입력시 타이틀 확인 */
+   function officeChkModule(f) {
+	  if (f.office_nm.value == "" && f.office_nm_new.value == "") {
+          alert("<spring:message code='required.office_nm' />");
+          f.office_nm.focus();
+          return false;
+      }
+        if (f.branch_nm.value == "") {
+            alert("<spring:message code='required.branch_nm' />");
+            f.branch_nm.focus();
+            return false;
+        }
+        $('#office_nm').removeAttr('disabled');
+        return true;
+    }
+   
+  /* 코드 삭제 확인 확인  현재 메세지 두개 보내는거 할줄 몰라서 여기에 남겨둠*/
+   function goOfficeDel(msg) {
+      var checkRow = ""
+      $("input[name='checkRow']:checked").each(function() {
+          checkRow = checkRow + $(this).val() + "@";
+      });
+      checkRow = checkRow.substring(0, checkRow.lastIndexOf("@"));
+      if (checkRow == '') {
+          alert("<spring:message code='del.necessary' />");
+          return false;
+      }
+      if (confirm(msg)) {
+          return true;
+      } else {
+          return false;
+      }
+  }
+   
+</script>
+</head>
+<body>
+<%@ include file = "/resources/inc/header_nav.jsp" %>
+<%@ include file = "/resources/inc/aside.jsp" %>
+<section>
+    <h1 class="req">운용 관리</h1>
+    <div class="contents_form"> 
+        <!-- 타이틀, 경로 -->
+        <div class="divDocTitle">공급기종관리</div>
+        <!-- 검색조건 -->
+        <div class="searchArea">
+            <form name="searchForm" method="post" action="office_list.do">
+                <fieldset>
+                    <legend>검색폼</legend>
+                       <select id="searchType" name="searchType">
+                       <option value="">전체</option>
+                        <c:forEach var="officeVO" items="${officeNmList}" varStatus="status" >
+                            <option value="${officeVO.office_nm}">${officeVO.office_nm}</option>
+                        </c:forEach> 
+                       </select>
+                       <input type="text" name="searchTxt" class="txtarea w180" value="${searchTxt}" placeholder="검색어">
+                       <input type="image" src="/resources/img/btn_search.gif" alt="검색">
+                </fieldset> 
+            </form>
+        </div>
+        <form name="delForm" method="post" action="office_del.do">
+        <table class="listTable" id="listTable" border="0" cellpadding="0" cellspacing="0">
+            <thead>
+            <tr>
+                <th width="60"><input type="checkbox" name="checkAllName" id="th_checkAll" onclick="checkAll();"/></th>
+                <th width="100">오피스 코드</th>
+                <th>오피스명</th>
+                <th width="300">브런치명</th>
+                <th width="100">등록자</th>
+                <th width="100">등록일</th>
+                <th width="30">&nbsp;</th>
+            </tr>
+            </thead>
+                    <tbody>
+                        <c:choose>
+                            <c:when test="${not empty list}">
+                                <c:forEach var="officeVO" items="${list}" varStatus="status">
+                                    <tr id="row-1-1" class="selectList">
+                                        <td><input type="checkbox" name="checkRow" value="${officeVO.office_no}" /></td>
+                                        <td>${officeVO.office_cd}</td>
+                                        <td class="left"><span class="title">${officeVO.office_nm}</span>
+                                            <span onclick="getOfficeNm(${officeVO.office_no})"class="ui-icon ui-icon-pencil"></span>
+                                        </td>
+                                        <td>${officeVO.branch_nm}</td>
+                                        <td>${officeVO.input_id}</td>
+                                        <td>${officeVO.input_dt}</td>
+                                        <td class="dragHandle"><span class="ui-icon ui-icon-triangle-2-n-s"></span></td>
+                                    </tr>
+                                </c:forEach>
+                            </c:when>
+                            <c:when test="${empty list}">
+                                <tr>
+                                    <td colspan="5" class="h100">"검색된 결과가 없습니다"</td>
+                                </tr>
+                            </c:when>
+                        </c:choose>
+                    </tbody>
+                </table>
+        <div class="btnArea">
+            <a onclick="return goOfficeDel('<spring:message code="office.del" />');"><input type="image" src="/resources/img/btn_delete.gif" alt="삭제" > </a>
+        </div>
+        <%@ include file="/resources/inc/paging.jsp" %>
+        </form>
+        <div class="writeArea">
+             <form id="officeWriteForm" name="officeWriteForm" method="post" action="office_reg.do" onSubmit="return officeChkModule(this);" enctype="multipart/form-data">
+                <fieldset>
+                    <legend>등록폼</legend>
+                    <select id="office_nm" name="office_nm" onchange="javascript:officeNmNew()">
+                        <c:forEach var="officeVO" items="${officeNmList}" varStatus="status" >
+                            <option value="${officeVO.office_nm}">${officeVO.office_nm}</option>
+                        </c:forEach> 
+                        <option value="">새로운 항목 추가</option>
+                    </select>
+                    <c:if test="${OfficeVO.office_no eq null }">
+                        <input type="hidden" name="office_no" id="office_no" value="0"> 
+                    </c:if>
+                    <c:if test="${OfficeVO.office_no ne null }">
+                        <input type="hidden" name="office_no" id="office_no" value="${OfficeVO.office_no}">
+                    </c:if>
+                    <input type="text" name="office_nm_new" id="office_nm_new" class="txtarea" placeholder="office_nm" value="${OfficeVO.office_nm}" style="visibility:hidden"/>
+                    <input type="text" name="branch_nm" id="branch_nm" class="txtarea" placeholder="branch_nm" value="${OfficeVO.branch_nm}"/>
+                    <input type="image" id="btnRegist" src="/resources/img/btn_regist.gif" alt="등록" style="visibility:visible"  />
+                    <input type="image" id="btnUpdate" src="/resources/img/btn_modify.gif" alt="수정" style="visibility:hidden"  />
+                    <img id="btnClear"  onclick="javascript:officeCancel()"src="/resources/img/btn_cancel.gif" alt="취소" style="visibility:hidden"  />
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</section>
+<div w3-include-html="/resources/inc/footer.jsp"></div>
+</body>
+</html>

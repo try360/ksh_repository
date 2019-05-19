@@ -1,0 +1,58 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="custom" uri="/tags/custom-taglib"%>
+
+<c:set var="page" value="1" />
+<c:if test="${!empty param.currentPage}"><c:set var="page" value="${param.currentPage}" /></c:if>
+<c:set var="indexPerPage" value="10" />
+<c:if test="${!empty param.indexPerPage}"><c:set var="indexPerPage" value="${param.indexPerPage}" /></c:if>
+<div class="paging" style="float:left; display:inline;">
+    <custom:paging name="paging" recordsPerPage="${recordsPerPage}" totalRecordCount="${totalRecordCount}" currentPage="${page}" indexPerPage="${indexPerPage}">
+	<ul>
+        <%-- First --%>
+        <c:if test="${!empty paging.firstPage.href}">
+        	<a href="${paging.firstPage.href}"><li><span class="ui-icon ui-icon-seek-first">처음</span></li></a>
+        </c:if>
+        <c:if test="${empty paging.firstPage.href}">
+        	<li><span class="ui-icon ui-icon-seek-first">처음</span></li>
+        </c:if>
+
+        <%-- Prev --%>
+        <c:if test="${!empty paging.previousPage.href}">
+        	<a href="${paging.previousPage.href}"><li><span class="ui-icon ui-icon-seek-prev">이전</span></li></a>
+        </c:if>
+        <c:if test="${empty paging.previousPage.href }">
+        	<li><span class="ui-icon ui-icon-seek-prev">이전</span></li>
+        </c:if>
+
+        <%-- Numbering --%>
+        <c:forEach var="numbering" items="${paging.pages}" varStatus="status">
+          <c:choose>
+            <c:when test="${numbering.index eq paging.currentPage}">
+                <li>${numbering.index}</li>
+            </c:when>
+
+            <c:otherwise>
+                <a href="${numbering.href}" title="${numbering.index} 페이지"><li>${numbering.index}</li></a>
+            </c:otherwise>
+          </c:choose>
+        </c:forEach>
+
+        <%-- Next --%>
+        <c:if test="${!empty paging.nextPage.href}">
+        	<a href="${paging.nextPage.href}"><li><span class="ui-icon ui-icon-seek-next">다음</span></li></a>
+        </c:if>
+        <c:if test="${empty paging.nextPage.href}">
+        	<li><span class="ui-icon ui-icon-seek-next">다음</span></li>
+        </c:if>
+
+        <%-- Last --%>
+        <c:if test="${!empty paging.lastPage.href}">
+        	<a href="${paging.lastPage.href}"><li><span class="ui-icon ui-icon-seek-end">마지막</span></li></a>
+        </c:if>
+        <c:if test="${empty paging.lastPage.href}">
+        	<li><span class="ui-icon ui-icon-seek-end">마지막</span></li>
+        </c:if>
+    </ul>
+    </custom:paging>
+</div>

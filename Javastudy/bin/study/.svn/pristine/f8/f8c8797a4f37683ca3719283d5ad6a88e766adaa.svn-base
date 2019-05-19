@@ -1,0 +1,62 @@
+package kr.co.kt.agwne.dao.impl;
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2010-11-22
+ * @ file UserApprService.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+import java.util.HashMap;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.stereotype.Repository;
+
+import kr.co.kt.agwne.dao.IncludeSearchDAO;
+import kr.co.kt.agwne.dto.ConfirmUserVO;
+import kr.co.kt.agwne.dto.LogVO;
+ 
+
+
+@Repository
+public class IncludeSearchDAOImpl implements IncludeSearchDAO {
+    @Inject
+    private SqlSession sqlSession;
+    
+    private static final String Namespace = "kr.co.kt.agwne.includeSearchMapper";
+
+	@Override
+	public List<HashMap<String, Object>> userSearchSelect(HashMap<String, Object> info) throws Exception {
+		return sqlSession.selectList(Namespace + ".confirmUserSelect", info);
+	}
+
+	@Override
+	public List<ConfirmUserVO> confrimUsrList_agw(ConfirmUserVO cfVO) throws Exception {
+		return sqlSession.selectList(Namespace + ".confrimUsrList_agw", cfVO);
+	}
+
+	@Override
+	public Object selectExMailingSearching(HashMap<String, Object> info) {
+		return sqlSession.selectList(Namespace +".selectExMailingSearching", info);
+	}
+
+	@Override
+	public void insertLog(LogVO vo) {
+		sqlSession.insert(Namespace +".insertLog", vo);
+	}
+    
+}

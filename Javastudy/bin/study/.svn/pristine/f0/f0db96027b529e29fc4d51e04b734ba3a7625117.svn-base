@@ -1,0 +1,57 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<script type="text/javascript" src="/resources/js/facility.js" charset="utf-8" ></script>
+<script type="text/javascript" src="/resources/js/jquery.form.min.js" charset="utf-8" ></script>
+<link rel="stylesheet" href="/resources/css/facility.css">
+</head>
+<body>
+<div id="popWrap">
+    <div class="contents_form">
+        <!-- 타이틀, 경로 -->
+            <div class="divDocTitle">MAC 등록</div>
+
+			<form name="writeForm" method="post" onSubmit="return FormChk(this,'reg');">
+			<fieldset>
+			<legend>MAC 등록하기</legend>
+            <table class="writeTable" border="0" cellpadding="0" cellspacing="0">
+                <tbody>
+                <tr>
+                    <th>S/N</th>
+                    <td>
+                    	<input type="text" name="serialCompanyCode" readonly="readonly"
+                    		value="HY4P" style="border: 0; width: 45px;">
+                    	<input type="text" name="serial_num" maxlength="10" style="width: 178px;">
+                    </td>
+                </tr>
+                <tr>
+                    <th>AGW-MAC</th>
+                    <td>
+                    	<input type="text" name="agwCompanyCode" readonly="readonly"
+                    		value="1853E0" style="border: 0; width: 45px;">
+                    	<input type="text" name="agw_mac" maxlength="6" style="width: 178px;"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th>EPON-MAC</th>
+                    <td>
+                    	<input type="text" name="eponCompanyCode" readonly="readonly"
+                    		value="0025A6" style="border: 0; width: 45px;">	
+                    	<input type="text" name="epon_mac" maxlength="6" style="width: 178px;"/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="btnArea">
+        	<input type="hidden" name="macNo" value="${vo.mac_no }">
+            <input type="image" src="/resources/img/btn_regist.gif" alt="등록" />
+            <img class="srchIcon" style="cursor: pointer;" src="/resources/img/btn_cancel.gif" alt="취소" onclick="javascript:window.close()"/>
+        </div>
+        </fieldset>
+        </form>
+    </div>
+</div>
+</body>
+</html>

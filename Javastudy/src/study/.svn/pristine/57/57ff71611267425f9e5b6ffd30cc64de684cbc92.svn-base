@@ -1,0 +1,1704 @@
+$(function(){
+	var del_url;
+	var pathname = $(location).attr("pathname");
+//	console.log(pathname);
+	//searchForm 기간부분 셋팅
+	dateLoading($(':radio[name="radio_date"]:checked').val());
+	selectDate($(':radio[name="radio_date"]:checked').val());
+	//처음 로딩시 월 날짜 셋팅해주기
+//	if($(':radio[name="radio_date"]').val()!=null || $(':radio[name="radio_date"]').val()!=''){
+//		$(".datepicker").val($.datepicker.formatDate('yy-mm',new Date()));
+//	}
+	if (pathname == "/4p/list") {
+		if(st_date != null || ed_date !=null){
+			$("#st_date").val(st_date);
+			$("#ed_date").val(ed_date);
+		}
+		//지역 검색 셋팅
+		if(office_cd != null && office_cd != ""){
+			office_select();
+		}
+	} else if (pathname == "/4p/request") {
+		del_url = "del_request?neoss_no="+ $('#neoss_no').val() +"&page=business/request";
+		if (supply_dt != null) {
+			$("#supply_dt").val(supply_dt);
+		}1
+		if (input_dt == '') input_dt = new Date();
+		$("#supply_dt").datepicker("option", {
+			minDate : input_dt
+		});
+		$("input[type='text']").focusin(function(){
+			$(this).select();
+		});
+		$("input[type='number']").keydown(function(e){
+    		onlyNum(e);
+    	});
+		$( "#direct_yn").checkboxradio();
+		
+		$("input[name='step_no']").click(function(){
+			step_no_clickBinding($(this));
+		});
+		$("input[name^='user_no_']").click(function(){
+			user_no_clickBinding($(this));
+		});
+		
+		if ($("#neoss_no").val() != "0") {
+			user_no_loadBinding();
+		}
+		
+		if ($("#neoss_no").val() == 0) {
+			$("input[name='step_no']").trigger("click");			
+		}
+		
+		$("#officeControlGroup").controlgroup();
+		$("#bonbu").on("selectmenuselect", function(e, ui){
+			cmBranchSelect($(this).val(), 'bonbu')
+		});
+		$("#branch").on("selectmenuselect", function(e, ui){
+			cmBranchSelect($(this).val(), 'branch');
+		});
+		$("select[name='office_no']").on("selectmenuselect", function(e, ui){
+			cmOfficeSelect($(this).val());
+		});
+	} else if (pathname == "/4p/request_view") {
+		del_url = "del_request?neoss_no="+ neoss_no +"&page=redirect:list ";
+		if(msg == "OK"){
+			location.href="list";
+		}
+		if(st_dt != null){
+			$("#st_dt").val(st_dt);
+		}
+		//tab id 초기 설정	
+		idx = 	idx.replace(/0/g,'');
+		if(status_cd != null || status_cd != '' ){
+			if(status_cd == '99'){
+				//breadCrumble 셋팅
+				var arg = "p_01";
+				$("#"+arg).before('<li class="active" id="p_99">반려</li>');
+				//승인반려 탭 셋팅
+				$("#tabs").hide();
+			}else{
+				$("#tabs").show();
+			}
+			
+			if( status_cd != '99' || status_cd != '01'){
+				//$("#tabs-1").attr("id","tabs-"+idx);
+				$(".selector").tabs();
+			    var tabs = $("#tabs").tabs();
+			    tabs.tabs({active:idx-1});
+			    for (var i = idx; i < 7; i++) {
+			    	$("#tabs0"+i).css({'pointer-events':'none'}); 
+				}
+			    $("#tabs0"+idx).css({'pointer-events':'auto'}); 
+			}
+		}
+		$("#history_btn").css("cursor", "pointer");
+		$('#history_btn').click(function(){
+			if($('#history_list').css("display") == "none"){
+				$('#history_list').show();
+				$("#history_btn > .ui-icon").removeClass("ui-icon-caret-1-s");
+				$("#history_btn > .ui-icon").addClass("ui-icon-caret-1-n");
+			}else{
+				$('#history_list').hide();
+				$("#history_btn > .ui-icon").removeClass("ui-icon-caret-1-n");
+				$("#history_btn > .ui-icon").addClass("ui-icon-caret-1-s");
+			}
+		});
+		managedIP.setIp($("#managed_ip").val());
+		gwIP.setIp($("#gw_ip").val());
+		megacoIP.setIp($("#megaco_ip").val());
+		//반려 버튼! 
+		$(".rejectBtn").click(function(){
+			var form = $(this).closest("form");
+			var status_cd = form.children("input[name='status_cd']");
+			console.log(status_cd.val());
+			var obj = $("#reply_write_contents_"+ status_cd.val());
+			if (obj.val() == "") {
+				alert("반려 의견을 입력해 주세요.");
+				obj.focus();
+				return false;
+			} else {
+				form.children("input[name='contents']").val(obj.val());
+			}
+//			form.children("input[name='prev_status']").val(status_cd.val());
+//			form.children("#status_cd").val("99");
+			form.attr("action", "/4p/process_back");
+			form.submit();
+		});
+		//재승인요청
+		$(".reject_request").css("cursor", "pointer");
+		$(".reject_request").click(function(){
+//			console.log("fsdsffssfd");
+			var form = $("#reject_request_form");
+			var status_cd = form.children("input[name='status_cd']");
+			var request_yn = form.children("input[name='request_yn']");
+			if(status_cd.val() == "99"){
+				status_cd.val("00");
+				request_yn.val("false");
+				if (confirm("반려된 건을 다시 요청 하시겠습니까?")) {
+					form.submit();
+				} else {
+					return false;
+				}
+        	} 
+		});
+		
+		var mac_before = $("input[name='mac_before']").val();
+		var mac = $("input[name='mac']");
+		$("#macAutoComplete").autocomplete({
+			  minLength: 4
+			, source: function(request, response) {
+				$.ajax({
+					url : "/4p/macSearching",
+					dataType: "json",
+					data :{
+						'mac' : mac_before + request.term
+					},
+					type : "post",
+					success : function(data){
+						response(data);
+					}
+					, error: function(data){
+						alert("조회 실패");
+					}
+				});
+			}
+			, select: function(event, ui){
+				var agw_mac = mac_before + ui.item.value;
+				mac.val(agw_mac);
+				
+				$.ajax({
+					url : "/4p/eponSearching",
+					dataType: "text",
+					data : {
+						'mac' : agw_mac
+					}, 
+					type : "post",
+					success : function(data) {
+						var epon_mac = formatMAC(data);
+						$("#epon_mac").val(epon_mac);
+					},
+					error : function(data) {
+						alert("조회실패");
+					}
+				});
+			}
+		});
+		
+		
+		if (mac.val() != "") {
+			$("input[name='mac_after']").val(mac.val().replace(mac_before, ""));
+		}
+		
+		$("#macAutoComplete").focusout(function(){
+			var arg = $(this).val().length; 
+			if(arg > 0 && arg < 6){
+				alert("MAC 정보를 정확하게 입력해주세요");
+				return;
+			}else if(arg > 0){
+				var agw_mac = mac_before + $(this).val();
+				$.ajax({
+					url : "/4p/eponSearching",
+					dataType: "text",
+					data : {
+						'mac' : agw_mac
+					}, 
+					type : "post",
+					success : function(data) {
+							var epon_mac = formatMAC(data);
+							$("#epon_mac").val(epon_mac);
+					},
+					error : function(data) {
+						alert("조회실패");
+					}
+				});
+			}
+			
+		});
+		
+		$(".btnPrint").click(function(){
+			var printOptions = {
+					  globalStyle : true
+					, mediaPrint : false
+					, stylesheet : "/resources/css/business4p.css"
+					, iframe : false
+					, noPrintSelector : "#breadcrumb, .tabArea, .btnArea, #neoss_history_area"
+//					, prepend : "Hello World!! <br/>"
+//					, append : "<br/> bye bye!"
+					, deferred: $.Deferred().done(function(){ 
+//									$("section").removeClass("printPage");
+//									console.log("Printing done", arguments);
+					            })
+			}
+//			$(".contents_form").addClass("printPage");
+			$(".contents_form").print(printOptions);
+		});
+		$(".reSending").css("cursor", "pointer");
+		$(".reSending").click(function(){
+			if (confirm("이메일을 재발송 하시겠습니까?")){
+				var form = $("#modelInfoForm");
+				var status_cd = form.children("input[name='status_cd']").val();
+				var process_no = form.children("input[name='process_no']").val();
+				if (status_cd == "01" && process_no == "0") {
+					form.children("input[name='status_cd']").val("00");
+				}
+				form.attr("action","reWriteMail");
+				form.submit();
+			}
+		});
+		
+		if($("#st_dt").val() == '') {
+			$("#st_dt").val(supply_dt);
+		}
+		if ($("#managed_ip").val() == managedIP.getIp()) {
+			IpDisabled("managedIP");
+		}
+		$("#managedIP .ip-input-item").keyup(function(e){
+			if (managedIP.getIp() == $("#managed_ip").val()) {
+				IpDisabled("managedIP");
+			} else {
+				IpEnabled("managedIP");
+			}
+//			console.log(e.keyCode);
+		});
+		$(".dupliIPChk").click(function(){
+			var item0 = $("#managedIP .ip-input-item:eq(0)");
+			var item1 = $("#managedIP .ip-input-item:eq(1)");
+			var item2 = $("#managedIP .ip-input-item:eq(2)");
+			var item3 = $("#managedIP .ip-input-item:eq(3)");
+			if (   (item0.val() == "" || item0.val() == undefined)
+				|| (item1.val() == "" || item1.val() == undefined)
+				|| (item2.val() == "" || item2.val() == undefined)
+				|| (item3.val() == "" || item3.val() == undefined)) {
+				alert("OLT IP를 입력해 주세요");
+				item0.focus();
+				item0.select();
+				return false;
+			} 
+/*			var olt_ip = managedIP.getIp();
+//			console.log(olt_ip);
+			
+			$.ajax({
+				url : "/4p/managedIpDupliChk",
+				data :{
+					'ip' : olt_ip
+				},
+				type : "post",
+				dataType : "text",
+				success : function(data){
+//					console.log(data);	
+					if (data == 0) {
+						//OK
+						$("#managedIpDupliChk").val(olt_ip);
+						$("#managed_ip").val(olt_ip);
+						IpDisabled("managedIP");
+					} else {
+						//NO
+						$("#managedIpDupliChk").val("");
+						alert("중복된 IP 입니다. 다시 입력해 주세요.")
+						item0.focus();
+						item0.select();
+						return false;
+					}
+				},
+				error: function(result){
+					alert("조회 실패");
+				}
+			});
+			*/
+			var obj = new Object();
+			//var olt_ip = managedIP.getIp();
+			//var code = "1005";
+			obj.req_cd ="1005";
+			obj.req_data = managedIP.getIp();
+			
+			ajaxRequestCheck(obj);
+			
+		});
+		if ($("#megaco_ip").val() == megacoIP.getIp()) {
+			IpDisabled("megacoIP");
+		}
+		$("#megacoIP .ip-input-item").keyup(function(e){
+			if (megacoIP.getIp() == $("#megaco_ip").val()) {
+				IpDisabled("megacoIP");
+			} else {
+				IpEnabled("megacoIP");
+			}
+//			console.log(e.keyCode);
+		});
+		$(".dupliMIPChk").click(function(){
+			var item0 = $("#megacoIP .ip-input-item:eq(0)");
+			var item1 = $("#megacoIP .ip-input-item:eq(1)");
+			var item2 = $("#megacoIP .ip-input-item:eq(2)");
+			var item3 = $("#megacoIP .ip-input-item:eq(3)");
+			if (   (item0.val() == "" || item0.val() == undefined)
+				|| (item1.val() == "" || item1.val() == undefined)
+				|| (item2.val() == "" || item2.val() == undefined)
+				|| (item3.val() == "" || item3.val() == undefined)) {
+				alert("AGW IP를 입력해 주세요");
+				item0.focus();
+				item0.select();
+				return false;
+			} 
+//			console.log(olt_ip);
+			
+	
+/* 		var megaco_ip = megacoIP.getIp();
+ 		$.ajax({
+				url : "/4p/megacoIpDupliChk",
+				data :{
+					'ip' : megaco_ip
+				},
+				type : "post",
+				dataType : "text",
+				success : function(data){
+//					console.log(data);	
+					if (data == 0) {
+						//OK
+						$("#megacoIpDupliChk").val(megaco_ip);
+						$("#megaco_ip").val(megaco_ip);
+						IpDisabled("megacoIP");
+					} else {
+						//NO
+						$("#megacoIpDupliChk").val("");
+						alert("중복된 IP 입니다. 다시 입력해 주세요.")
+						item0.focus();
+						item0.select();
+						return false;
+					}
+				},
+				error: function(result){
+					alert("조회 실패");
+				}
+			});*/
+			var obj = new Object();
+			//var megaco_ip = megacoIP.getIp();
+			//var code = "1006";
+			obj.req_cd ="1006";
+			obj.req_data =megacoIP.getIp();
+			ajaxRequestCheck(obj);
+		});
+	}
+	// --/4p/request_view
+	$("button[name='sendEms']").click(function(){
+		if(confirm($(this).attr('value')+" 하시겠습니까?")){
+			var obj = new Object();
+			var id = $(this).attr('id').split('_');
+			var code = id[1];
+			var doc_no = $("#doc_no").val() ;
+			var colcode = $("#colcode").val();
+			obj.req_cd=code;
+			if(code=="1000" ){
+				obj.req_data = doc_no;
+			}else if(code =="1002"){
+				obj.req_data = doc_no+"|"+colcode;
+			}else if (code =="1003"){
+				obj.req_data = colcode;
+			}
+			
+			ajaxRequestCheck(obj);
+			
+		}
+		return false;
+	});
+	$("li[id^='tabs']").click(function(){
+		var status = $(this).attr("id").replace("tabs", "");
+		var data = $(this).attr("data");
+		console.log(status +"::::"+ data);
+		if (data == "") { data = 0 };
+		var form = $("#modelInfoForm");
+		var form2 = $("#constructForm");
+		form.children("input[name='status_cd']").val(status);
+		form.children("input[name='process_no']").val(data);
+		form2.children("input[name='status_cd']").val(status);
+		if (status_cd == status) {
+			form.attr("action", "process_write");
+		} else {
+			form.attr("action", "process_modi");
+		}
+	});
+	
+	var windowCnt = 0;
+	var top = 40; 
+	var left = 40;
+    $(".imageList li .imgli").css("cursor", "pointer");
+    $(".imageList li .imgli").click(function(){
+    	var newWin;
+        var img = new Image();
+        img.src = $(this).attr("src");
+        img.onload = function() {
+//        	console.log("img:"+ img);
+//        	console.log("img.src:"+ img.src);
+//        	console.log("img.width:"+ img.width);
+//        	console.log("windowCnt:"+ windowCnt);        	
+        	var width = img.width;
+        	var height = img.height;
+        	var winTop = top * windowCnt;
+        	var winLeft = left * windowCnt;
+        	var winWidth = window.screen.availWidth;
+        	var winHeight = window.screen.availHeight;
+        	if (winWidth < (width + winLeft)) width = winWidth - (winLeft+10);
+        	if (winHeight < (height + winTop)) height = winHeight - winTop;
+        	var params = "width="+ width +", height=" + height;
+        	params += ", top="+ winTop +", left="+ winLeft;
+        	params += ", resizable=yes";
+//        	console.log("pramssssssssssssssssssssssssssss"+ params);
+        	newWin = window.open($(this).attr("src"), "", params);
+        	newWin.focus();
+        	windowCnt++;
+        	newWin.onbeforeunload = function(){
+//        		console.log("windowCnt"+ windowCnt);
+        		windowCnt--;
+        	}
+        };
+        return false;
+    })
+    // EMS 연동될때 개봉
+//    $("#colcode").keyup(function(){
+//    	var managedIp = $("#managed_ip").val();
+//    	var colcode = $(this).val();
+//    	
+//    	if (managedIp.length > 7 && colcode.length >= 9) {
+//    		sendColcode(managedIp, colcode);
+//    		console.log("managedIp="+ managedIp +";colcode="+ colcode);
+//    	}
+//    });
+    $(".searchArea input[name='searchTxt']").attr("placeholder", $(".searchArea select[name='searchType'] option:selected").text());
+    $(".searchArea select[name='searchType']").change(function(){
+    	var txt = $(this).find("option:checked").text();
+    	$(".searchArea input[name='searchTxt']").attr("placeholder", txt);
+    });
+    $("#detailSearchView").click(function(){
+    	var obj = $(".detailSearching");
+    	if (obj.css("display") == "block") {
+    		obj.hide();
+    		$(this).find("span").removeClass("ui-icon-triangle-1-n");
+    		$(this).find("span").addClass("ui-icon-triangle-1-s");
+    	} else {
+    		obj.show();
+    		$(this).find("span").removeClass("ui-icon-triangle-1-s");
+    		$(this).find("span").addClass("ui-icon-triangle-1-n");
+    	}
+    });
+    $("#myOrgCheck").checkboxradio();
+    $(".listTable:not(.notLink) tr:not(:first)").css("cursor", "pointer");
+    $(".listTable:not(.notLink) tr:not(:first)").click(function(){
+    	var obj = $(this);
+    	link(obj.attr("data"), obj);
+    });
+    //검은 막 띄우기
+    $("button[name=usrSearchBtn]").click(function(e){
+    	
+    	var btn_idx=$(this).attr('id').split('_');
+    	$(".window #confirm_no").val(btn_idx[1]);
+    	$(".window #w_gubun").val("request");
+    	//alert(btn_idx[1]);
+    	
+        e.preventDefault();
+        wrapWindowByMask();
+    });
+    $("button[name='exSearchBtn']").click(function(e){
+    	var btn_idx=$(this).attr('id').split('_');
+    	$(".window #confirm_no").val(btn_idx[1]);
+    	$(".window #w_gubun").val("4p/request_view");
+    	//alert(btn_idx[1]);
+    	
+        e.preventDefault();
+        wrapWindowByMask();
+    });
+
+    //닫기 버튼을 눌렀을 때
+    $(".window .close").click(function (e) {  
+        //링크 기본동작은 작동하지 않도록 한다.
+        e.preventDefault();  
+        $("#mask, .window").hide();  
+    });       
+
+    //검은 막을 눌렀을 때
+    $("#mask").click(function () {  
+        closeSearchPop();
+
+    });   
+    
+    $( "#dialog_request" ).dialog({
+    	autoOpen: false,
+    	width: 400,
+    	buttons: [
+    		{
+    			text: "예",
+    			click: function() {
+    				$( this ).dialog( "close" );
+    				  $.blockUI();
+    				var arry = $("#model_no").val().split('/');
+					$("#model_no option:selected").val(parseInt(arry[0]));
+					$("#tot_expense").val($("#tot_expense").val().replace(/\,/g,''));
+					$("#expense1").val($("#expense1").val().replace(/\,/g,''));
+					$("#expense2").val($("#expense2").val().replace(/\,/g,''));
+					$("#expense3").val($("#expense3").val().replace(/\,/g,''));
+					
+			    	if($(this).attr('class')=="save"){//저장
+			    		if($("#modFlag").val()=='N'){ //작성중이나, 신규요청일경우
+			    			$("#request_yn").attr('value','FALSE');
+			    			$("#status_cd").attr('value','00');
+			    		}
+			    		 
+			    	}else{//요청
+			    		$("#request_yn").attr('value','FALSE');
+			    		$("#status_cd").attr('value','01');
+			    	}
+    			    		
+    				$("#requestForm").submit();
+    			}
+    		},
+    		{
+    			text: "취소",
+    			click: function() {
+    				$( this ).dialog( "close" );
+    				
+    			}
+    		}
+    	]
+    });
+    
+  //dialog창 
+    $( "#alert" ).dialog({
+    	autoOpen: false,
+    	width: 400,
+    	buttons: [
+    		{
+    			text: "닫기",
+    			click: function() {
+    				$( this ).dialog( "close" );
+    			}
+    		}
+    		]
+    });
+
+    //검토요청시(팝업)
+    $("input[name=rstBtn02]").click(function(){
+    	//validation 체크
+    	var f = this.form;
+    	var $f = jQuery(f);
+    	var $b = jQuery(this);
+    	var $t, t;
+    	var result = true;
+    	
+    	$f.find("input, select").each(function(i){
+    		$t = jQuery(this);
+    		if($t.prop("required")){
+    			if(!jQuery.trim($t.val())){
+//    				alert($t.attr("id"));
+    				var placeholder = $t.attr("placeholder");
+    				alert("'"+ placeholder +"'를(을) 입력해 주세요.");
+    				$t.focus();
+    				result = false;
+    				return false;
+    			}
+    		}
+    	});
+
+    	if (result) {
+    		var user_no_01 = $("input[name='user_no_01']:checked").length;
+    		var user_no_02 = $("input[name='user_no_02']:checked").length;
+    		var user_no_03 = $("input[name='user_no_03']:checked").length;
+    		var user_no_04 = $("input[name='user_no_04']:checked").length;
+    		var user_no_05 = $("input[name='user_no_05']:checked").length;
+
+    		if ($("#household_no").val() == "0") {
+    			alert("세대수를 입력해 주세요");
+    			$("#household_no").focus();
+    			result = false;
+    			return false;
+    		}
+    		else if ($("#model_num").val() == "0") {
+    			alert("공급회선을 입력해 주세요");
+    			$("#model_num").focus();
+    			result = false;
+    			return false;
+    		}
+    		else if ($("#model_no").val() == "0") {
+	    		alert("공급장비를 선택해 주세요");
+	    		$("#model_no").focus();
+	    		result = false;
+	    		return false;
+    		}
+    		else if (user_no_01 == 0) {
+    			alert("투자확정자를 선택해 주세요.");
+    			$("input[name='user_no_01']:eq(0)").focus();
+    			result = false;
+    			return false;
+    		}
+    		else if (user_no_02 == 0) {
+    			alert("IP & MAC확정자를 선택해 주세요.");
+    			$("input[name='user_no_02']:eq(0)").focus();
+    			result = false;
+    			return false;
+    		}
+    		else if (user_no_03 == 0) {
+    			alert("MGID확정자를 선택해 주세요.");
+    			$("input[name='user_no_03']:eq(0)").focus();
+    			result = false;
+    			return false;
+    		}
+    		else if (user_no_04 == 0) {
+    			alert("착공(공사요청)확정자를 선택해 주세요.");
+    			$("input[name='user_no_04']:eq(0)").focus();
+    			result = false;
+    			return false;
+    		}
+    		else if (user_no_05 == 0) {
+    			alert("COLCODE 확정자를 선택해 주세요.");
+    			$("input[name='user_no_05']:eq(0)").focus();
+    			result = false;
+    			return false;
+    		}
+    	}
+    	
+    	if(result){
+    		$("#dialog_request").find('p').remove();
+    		$("#dialog_request").append('<p>&nbsp;&nbsp;'+$(this).attr('alt')+'하시겠습니까?</p>'); 
+    		$("#dialog_request").attr('class',$(this).attr('id'));
+    		
+    		$( "#dialog_request" ).dialog( "open" );
+    		event.preventDefault();
+    	}else { 
+    		return false;
+    	}
+    	
+    });
+
+
+    
+    $("#search_btn").click(function(){
+    	//날짜검색 validation
+    	var date_chk = $(':radio[name="radio_date"]:checked').val();
+    	if(date_chk == 'year' || date_chk =='month' || date_chk =='day'){
+    		if($("#st_date").val() == '' || $("#ed_date").val() == '' ){
+    			$("#alert").children('p').remove();
+    			$("#alert").append('<p>날짜를 정확히 선택해주세요.</p>');
+    			$( "#alert" ).dialog( "open" );
+    			event.preventDefault();
+    			return;
+    		}
+    	}
+    	
+    	if($("#office_no").val() == "title"){
+    		$("#office_no").val(null);
+    	}
+    	
+    	if($("input[name='myOrgCheck']").is(":checked") ){
+    		$("#onoffSwitch").attr("value","on");
+    	}else{
+    		$("#onoffSwitch").attr("value","off");
+    	}
+    	$("#searchForm").submit();
+    	
+    });
+    
+    
+    $("input[name=radio_date]").click(function(){
+    	var data = $(':radio[name="radio_date"]:checked').val();
+    	
+    	dateLoading(data);
+    	selectDate(data);
+    	
+    });
+    
+    $("#self_cancle").click(function(){
+    	window.close();
+    });
+    
+    $(".radioset").buttonset();
+    $(".button").button();
+	$(".datepicker").datepicker();
+	
+   // $(".datepicker").val($.datepicker.formatDate('yy-mm-dd',new Date()));//오늘 날짜로 셋팅
+    $(".selectmenu").selectmenu({});
+    $( ".slider" ).slider({
+        min : 0.5,
+        max : 10,
+        step: 0.5,
+        value : 5,
+        slide : function(e, ui){
+            $("#marketRate").text(ui.value);
+        },
+        create : function(e, ui){
+            $("#marketRate").text(ui.value);
+        }
+    });
+    $( "#tabs" ).tabs();
+  //href 클릭 이벤트 방지하기 수요공급요청에서만 tab 태그 사용함 
+	//$("#tabs ul li").css({'pointer-events':'none'}); 
+	
+    $( "#dialog-link, #icons li" ).hover(
+        function() {
+            $( this ).addClass( "ui-state-hover" );
+        },
+        function() {
+            $( this ).removeClass( "ui-state-hover" );
+        }
+    );
+    
+	$("img.delIcon").click(function(){
+		$("#dialog_del").find('p').remove();
+		$("#dialog_del").append('<p>삭제하실 경우 현재 공급요청에 대한 전체 내용이 삭제됩니다.</p>');
+		$("#dialog_del").append('<p>그래도 삭제 하시겠습니까?</p>');
+		$("#dialog_del").dialog("option","title","수요공급요청"); //타이틀창 제목 옵션주는 법
+		
+		$( "#dialog_del" ).dialog( "open" );
+		event.preventDefault();
+	});
+	$( "#dialog_del" ).dialog({
+    	autoOpen: false,
+    	width: 400,
+    	buttons: [
+    		{
+    			text: "확인",
+    			click: function() {
+    				$( this ).dialog( "close" );
+					location.href = del_url;
+    			    
+    			}
+    		},
+    		{
+    			text: "취소",
+    			click: function() {
+    				$( this ).dialog( "close" );
+    				
+    			}
+    		}
+    	]
+    });
+	
+	$("#share_cd").selectmenu({
+		change:function(event, ui){	
+			var str = $("#household_no").val(); 
+			var reg = /[^0-9]/g;
+			if(str == null || str == ''){
+				alert("세대수를 입력해주세요.");
+				return;
+			}else{
+				$("#household_no").val(str.replace(reg,''));
+				//공급회선 계산
+				model_num_chk();
+			}
+			
+		}
+	});
+	$("#household_no, #model_num").change(function(){
+		var reg = /[^0-9]/g;
+		$(this).val($(this).val().replace(reg,''));
+			//공급회선계산
+			model_num_chk();
+		
+	});
+	$("#device_num").selectmenu({
+		change : function(e, ui) {
+			var str = $(this).val();
+			
+			selectDevice(str);
+		}
+	});
+	$("#line_type, #model_no").selectmenu({
+		change : function(e, ui) {
+			var line = $("#line_type").val();
+			var device = $("#device_num").val();
+			
+			totalExpense(line, device);
+		}
+	});
+	
+	$(".imgDelete").css("cursor", "pointer");
+	$(".imgDelete").click(function(){
+		if (confirm("파일을 삭제하시겟습니까?")) {
+			var data = $(this).attr("id");
+			var li = $(this).parents("li");
+    		$.ajax({
+    			url : "/4p/attachDelAjax",
+    			data :{
+    				'ref_no' : data
+    			},
+    			type : "post",
+    			success : function(response){
+    				li.remove();	
+    			},
+    			error: function(result){
+    				alert("조회 실패");
+    			}
+    		});
+		} 
+	});
+	
+});
+// $(function) -- end
+
+function ajaxRequestCheck(arry){
+	var err ="세션이 만료 되었거나 오류입니다. 새로고침(f5)후 다시 시도해주세요.";
+	var connErr = "\n서버 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+	if(arry.req_cd == '1000'){//ems 전송시
+		arry.neoss_no = $("input[name=neoss_no]").val();
+		arry.pots_id = $("select[name=pots_id]").val();
+		arry.megacoIp = $("input[name=megacoIpDupliChk]").val();
+		arry.mg_id = $("input[name=mg_id]").val();
+		arry.start_lln = $("input[name=start_lln]").val();
+		arry.ipsec_ip = $("select[name=ipsec_ip]").val();
+		arry.ems_ip = $("select[name=ems_ip]").val();
+		
+	}
+	
+	$.blockUI();
+	
+	$.ajax({
+		url : "/4p/ajaxRequestIpEms",
+		data : JSON.stringify(arry),
+		type: "POST",	
+		dataType: "json",
+		contentType:"application/json",
+		success : function(result){
+			$.unblockUI();
+			//alert(result.code);
+		if(result.res_cd == "2005"){
+			if(result.res_msg == 0 ){
+				//NO
+				$("#managedIpDupliChk").val("");
+				alert(result.errMsg+"\n중복된 IP 입니다. 다시 입력해 주세요.")
+				item0.focus();
+				item0.select();
+				return false;
+			}else if(result.res_msg == 1) {
+				//OK
+				alert("사용 가능한  IP 입니다.");
+				$("#managedIpDupliChk").val(arry.req_data);
+				$("#managed_ip").val(arry.req_data);
+				IpDisabled("managedIP");
+			}else {
+				alert(result.err_msg+connErr);
+			}
+		}else if(result.res_cd == "2006"){
+			if(result.res_msg == 0 ){
+				//NO
+				$("#megacoIpDupliChk").val("");
+				alert("중복된 IP 입니다. 다시 입력해 주세요.\n"+result.err_msg);
+				item0.focus();
+				item0.select();
+				return false;
+			}else if(result.res_msg == 1) {
+				//OK
+				alert("사용 가능한  IP 입니다.");
+				$("#megacoIpDupliChk").val(arry.req_data);
+				$("#megaco_ip").val(arry.req_data);
+				IpDisabled("megacoIP");
+			}else {
+				alert(result.err_msg+connErr);
+			}
+			
+		}else{
+			if(result.res_msg == 1 ){
+				alert("정상적으로 처리되었습니다.");
+			}else if(result.res_msg == 0){
+				alert("처리 실패했습니다.\n"+result.err_msg);
+			}else{
+				alert(result.err_msg+connErr);
+			}
+		}	
+		},
+		error: function(request, status, error){
+			$.unblockUI();
+			alert(err);
+			alert("code:"+request.status+"\n message:"+request.responseText+"\n error:"+error);
+		}
+	});
+}
+
+function IpDisabled(id){
+	$("#"+ id +" .ip-input-container").css("background-color", "#ebebe4");
+	$("#"+ id +" .ip-input-item").css("background-color", "#ebebe4");
+	if (id == "managedIP") {
+		$("button.dupliIPChk").prop("disabled", true);
+	} 
+	else if (id == "megacoIP"){
+		$("button.dupliMIPChk").prop("disabled", true);
+	}
+	try {
+		$(".button").button("refresh");		
+	} catch(exception) {
+		console.log("business4p.js::IpDisabled(ip)::attempted to call method 'refresh'");
+	}
+}
+function IpEnabled(id){
+	$("#"+ id +" .ip-input-container").css("background-color", "transparent");
+	$("#"+ id +" .ip-input-item").css("background-color", "transparent");
+	if (id == "managedIP") {
+		$("button.dupliIPChk").prop("disabled", false);
+	} 
+	else if (id == "megacoIP"){
+		$("button.dupliMIPChk").prop("disabled", false);
+	}
+	try {
+		$(".button").button("refresh");		
+	} catch(exception){
+		console.log("business4p.js::IpEnabled(ip)::attempted to call method 'refresh'");
+	}
+}
+
+function rstReplyAjax(){
+    
+    var contents = $("textarea").val();
+    var neoss_no = $("#neoss_no").val();
+    var status_cd = $("#status_cd").val();
+    var request_yn = $("#request_yn").val();
+    
+    $.ajax({ 
+        url : "rstProcessAjax",
+        data : {
+            'contents' : contents,
+            'neoss_no' : neoss_no,
+            'status_cd': status_cd,
+            'request_yn': request_yn
+        },
+        type : "post",
+        success : function(result) {
+        	if(result.request_yn){
+        		if($(".replyData").length > 0 ){
+        			
+        			$(".replyData").last().after('<dl class="replyData"><dd>'+result.status+'<strong>'+result.input_id+'</strong> ('+result.input_dt+')</dd>'+'<dd>'+result.contents+'</dd></dl>');
+        		}else { 
+        			$(".replyArea").prepend('<dl class="replyData"><dd>'+result.status+'<strong>'+result.input_id+'</strong> ('+result.input_dt+')</dd>'+'<dd>'+result.contents+'</dd></dl>');
+        		}
+        		$("#reply_write_contents").val('');
+        		$( "#request_dialog" ).dialog( "close" );
+    			event.preventDefault();
+        	}	
+        },
+        error : function(result) {
+                alert("등록실패!" );
+        }
+    });  
+
+}
+
+	function uniqueArray(arr){
+		var a = {};
+		for(var i=0; i<arr.length; i++){
+			if(typeof a[arr[i]]=='undefined'){
+				a[arr[i]]=1;
+			}
+		}
+		
+		arr.length=0;
+		for(var i in a){
+			arr[arr.length]=i;
+		}
+		
+		return arr;
+	}
+	
+	function dateLoading(data){
+		//var data = $(obj).val(); 
+		if(data=='all'){
+			$("#search_date").css("visibility","hidden");
+	   	    		
+		}else{
+			$("#search_date").css("visibility","visible");
+		}
+		
+	}
+
+	var datepicker_year = {
+			dateFormat: "yy",
+		    closeText : "선택",
+		    stepMonths: 12,
+		    showButtonPanel:true	,
+		    onClose : function(dateText, obj){
+		        var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+		
+		        $(this).datepicker("option", "defaultDate", new Date(year, 0, 1));
+		        $(this).datepicker("setDate", new Date(year, 0, 1));
+		    }
+	}
+
+	var datepicker_month={
+		  	dateFormat : "yy-mm",
+		    closeText : "선택",
+		    stepMonths: 1,
+		    showButtonPanel:true,	
+		    onClose: function(dateText, obj){
+		        var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+		        var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+		
+		        $(this).datepicker("option", "defaultDate", new Date(year, month, 1));
+		        $(this).datepicker("setDate", new Date(year, month, 1));
+		    }
+	} 
+
+	var datepicker_day={
+			dateFormat : "yy-mm-dd",
+			stepMonths: 1,
+		    showButtonPanel:false	,
+		    onClose: function(dateText, obj){
+		        //alert($(this).attr('id'));
+		    }
+	}
+
+	function selectDate(data){
+		
+		$(".ui-datepicker-trigger").remove();
+		$(".datepicker").removeClass('hasDatepicker').datepicker();
+		$('.datepicker').val("");
+		
+		if(data == 'year' ){
+			
+			$.datepicker.setDefaults(datepicker_year);
+			
+			$(".datepicker").focus(function(){
+				$(".ui-datepicker-year").show();
+			    $(".ui-datepicker-calendar").hide();
+			    $(".ui-datepicker-month").hide()});
+			
+		}else if(data=='month'){
+			$.datepicker.setDefaults(datepicker_month);
+			
+			$(".datepicker").focus(function(){
+				$(".ui-datepicker-year").show();
+				$(".ui-datepicker-month").show();
+			    $(".ui-datepicker-calendar").hide();
+			  });
+			
+		}else if(data=='day'){
+			$.datepicker.setDefaults(datepicker_day);
+			$(".datepicker").focus(function(){
+				$(".ui-datepicker-year").show();
+			    $(".ui-datepicker-calendar").show();
+			    $(".ui-datepicker-month").show();
+			  });
+		}
+	}
+	
+	//공급회선계산
+	function model_num_chk(){
+		var cnt1 = $("#household_no").val();//세대수
+		var cnt2 = $("#share_cd").val(); //시장점유율
+		var arg1 ;
+		var cnt3; //공급회선
+		if(cnt1!='' && cnt2!=''){
+			arg1 = cnt2/100;
+			cnt3 = parseInt(cnt1*arg1);
+			
+			if (cnt3 > 32){
+				alert("32회선 이상 입력하실 수 없습니다.");
+				var val = parseInt(32/arg1);
+				cnt3 = 32;
+				$("#household_no").val(val);
+				$("#household_no").select();
+				$("#household_no").focus();
+			}
+			$("#model_num").val(cnt3);
+			model_abs(cnt3);
+		}
+			
+	}
+	//근사치 구하기
+	function model_abs(cnt3){
+		if(cnt3==null || cnt3==''){
+			cnt3=$("#model_num").val();
+		}
+		var arry= [];
+		var abs;
+		var min;
+		var result = 1;
+		
+		$.each($("#model_no").find("option"), function(i,o){
+			var arry2 = [];
+			if(o.text !='기종선택'){
+				arry2= o.text.split('/');
+				arry.push(arry2[1]);
+			}
+		});
+		arry.push(uniqueArray(arry));
+		min=arry[arry.length-2];
+		for (var i = 0; i < arry.length-1; i++) {
+			abs = arry[i] - cnt3;
+//			abs=((arry[i]-cnt3)<0)? 0-(arry[i]-cnt3): (arry[i]-cnt3);
+			if(abs<min){
+				min = abs;
+				result=arry[i];
+			}
+			
+			
+		}
+		
+//		alert("근사치는 "+result+" 입니다.");		
+		
+//		 if(result>0){
+			select_model(result, cnt3);
+//		}
+	}
+	
+	//공급기종선택하기
+	function select_model(arg, model_num){
+		var idx;
+//		alert(arg);
+		var origin_arr=[];
+		var line_arr=[]; //회선
+		var sup_arr=[];	 //공급사
+		var type_arr=[]; //타입
+		
+		$.each($("#model_no").find("option"), function(i,o){
+			var arr = [];
+			if(o.text !='기종선택'){
+				arr= o.value.split('/');
+				origin_arr.push(o.text);
+				line_arr.push(arr[1]);
+				sup_arr.push(arr[2]);
+				type_arr.push(arr[3]);
+			}
+		});
+		$("#model_no option").removeAttr("selected");
+		for (var i = 0; i < line_arr.length; i++) {
+			if(arg == line_arr[i]){
+				//if(sup_arr[i]=='우리넷'){
+					idx=i+1;
+//					alert(idx+" 변수:"+arg+" 회선수:"+line_arr[i]+" "+sup_arr[i]);
+					$('#model_no option:eq('+idx+')').attr('selected','selected');
+				//}
+			}
+		}
+		$("#model_no").selectmenu("destroy").selectmenu({style: "dropdown"});
+		
+		model_num = parseInt(model_num);
+		var device_num = parseInt(model_num / arg);
+		if(model_num % arg > 0) {
+			device_num++;
+		}
+		
+		
+		selectDevice(device_num);
+	}
+	
+	function selectDevice(device_num){
+		console.log(device_num > 1);
+		if(device_num > 1){
+			alert("공급 장비수가 1대 이상인경우\n" +
+					"장비수만큼의 요청건수로 장비수는 1대씩 입력되어 등록됩니다.\n등록 후에 목록에서 확인 가능합니다.\n\n" +
+					"예) 장비수2대 입력시 장비수 1대씩 2건의 요청으로 등록됩니다.\n")
+			$("#request").hide();
+		} else {
+			$("#request").show();
+		}
+		$("#device_num option").removeAttr("selected");
+		$("#device_num option").removeAttr("selected");
+		$("#device_num option[value='"+ device_num +"']").attr("selected", "selected");
+		$("#device_num").selectmenu("destroy").selectmenu({style: "dropdown"});
+		
+		var line_type = $("#line_type").val();
+		
+		totalExpense(line_type, device_num);
+		
+	}
+	
+	function totalExpense(line_type, device_num){
+		var rn = 0;
+		if (line_type == "1") {
+			rn = 20000 * device_num;
+		}
+		
+		var origin_arr
+		if ($("#model_no").val() == '') {
+			if (device_num > 0) alert("공급장비를 먼저 선택해 주세요.");
+			$("#device_num option").removeAttr("selected");
+			$("#device_num option:eq(0)").attr("selected", "selected");
+			$("#device_num").selectmenu("destroy").selectmenu({style: "dropdown"});
+			$("#line_type option").removeAttr("selected");
+			$("#line_type option:eq(0)").attr("selected", "selected");
+			$("#line_type").selectmenu("destroy").selectmenu({style: "dropdown"});
+			$("#model_no").focus();
+			origin_arr="////0/0/0/0".split("/");
+		} else {
+			origin_arr=$("#model_no option:selected").val().split('/');
+		}
+
+		var cost=[];
+		for (var j = 4;  j< 8; j++) {
+			cost.push(origin_arr[j]);
+		}
+		
+		$("#expense1").val((parseInt(cost[0]) * device_num) + rn );
+		$("#expense2").val(parseInt(cost[1]) * device_num);
+		$("#expense3").val(parseInt(cost[2]) * device_num);
+		var tot = parseInt($("#expense1").val()) + parseInt($("#expense2").val()) + parseInt($("#expense3").val());
+		$("#tot_expense").val(tot);
+	}
+	
+	function delAttach(obj){
+		var msg = confirm("파일을 삭제하시겠습니까?");
+		if(msg){
+    		var ref_no = $(obj).attr('id');
+    		$.ajax({
+    			url : "/4p/attachDelAjax",
+    			data :{
+    				'ref_no' : ref_no
+    			},
+    			type : "get",
+    			success : function(response){
+					$("#li"+ref_no).remove();	
+					$("#img"+ref_no).remove();	
+						
+    			},
+    			error: function(result){
+    				alert("조회 실패");
+    			}
+    		});
+		}
+	}
+	 //주소가져오기
+   /* function return_execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+            	  // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+                // 각 주소의 노출 규칙에 따라 주소를 조합한다.
+                // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+                var fullAddr = ''; // 최종 주소 변수
+                var extraAddr = ''; // 조합형 주소 변수
+                var jibunAddr = ''; //지번 주소 변수
+
+                // 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+                if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+                    fullAddr = data.roadAddress;
+                    //선택한 도로명 주소에 지번주소가 여러개인 경우
+                    jibunAddr = data.jibunAddress;
+
+                } else { // 사용자가 지번 주소를 선택했을 경우(J)
+                	alert("도로명 주소로 입력됩니다.");
+                    fullAddr = data.roadAddress;
+                    jibunAddr = data.jibunAddress;
+                }
+
+                // 사용자가 선택한 주소가 도로명 타입일때 조합한다.
+                if(data.userSelectedType === 'R'){
+                    //법정동명이 있을 경우 추가한다.
+                    if(data.bname !== '' && /[동|로|가]/g.test(data.bname)){
+                        extraAddr += data.bname;
+                    }
+                    // 건물명이 있을 경우 추가한다.
+                    if(data.buildingName !== '' && data.apartment == 'Y'){
+                        extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                    }
+                    
+                    if (extraAddr !== '') {
+                    	extraAddr = ' ('+ extraAddr +")";
+                    }
+                    
+                    if (fullAddr !== '') {
+                    	fullAddr += extraAddr;
+                    }
+                }
+
+                // 우편번호와 주소 정보를 해당 필드에 넣는다.
+                
+                
+                document.getElementById('post').value = data.zonecode; //5자리 새우편번호 사용
+                document.getElementById('post_old').value = data.postcode;
+                document.getElementById('address1').value = fullAddr;
+                document.getElementById('address_old').value = jibunAddr;
+
+                // 커서를 상세주소 필드로 이동한다.
+                document.getElementById('address2').focus();       	
+            }
+        }).open();
+    }*/
+
+	 function return_execDaumPostcode() {
+	        new daum.Postcode({
+	        	shorthand : false,
+	            oncomplete: function(data) {
+	            	
+	                // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+	                // 도로명 주소의 노출 규칙에 따라 주소를 조합한다.
+	                // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+	                var fullRoadAddr = data.roadAddress; // 도로명 주소 변수
+	                var extraRoadAddr = ''; // 도로명 조합형 주소 변수
+	                var jibunAddr = '';
+
+	                
+	                // 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+	                if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+	                	fullRoadAddr = data.roadAddress;
+	                	if (data.autoJibunAddress != '') {
+	                		jibunAddr = data.autoJibunAddress;
+	                	} else {
+	                		jibunAddr = data.jibunAddress;
+	                	}
+
+	                } else { // 사용자가 지번 주소를 선택했을 경우(J)
+	                	//alert("도로명 주소만 입력됩니다.");
+	                	jibunAddr = data.jibunAddress;
+	                	if (data.autoRoadAddress != '') {
+	                		fullRoadAddr = data.autoRoadAddress;
+	                	} else {
+	                		fullRoadAddr = data.roadAddress;
+	                	}
+	                }
+
+	                
+	                // 법정동명이 있을 경우 추가한다. (법정리는 제외)
+	                // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
+	                if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+	                    extraRoadAddr += data.bname;
+	                }
+	                // 건물명이 있고, 공동주택일 경우 추가한다.
+	                if(data.buildingName !== ''){
+	                   extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+	                }
+	                // 도로명, 지번 조합형 주소가 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
+	                if(extraRoadAddr !== ''){
+	                    extraRoadAddr = ' (' + extraRoadAddr + ')';
+	                }
+//	                console.log(fullRoadAddr);
+//	                console.log(data.buildingName);
+//	                console.log(extraRoadAddr);
+	                // 도로명, 지번 주소의 유무에 따라 해당 조합형 주소를 추가한다.
+	                if(fullRoadAddr !== ''){
+	                	fullRoadAddr += extraRoadAddr;
+	                }
+
+	                
+	                // 우편번호와 주소 정보를 해당 필드에 넣는다.
+	                document.getElementById('post').value = data.zonecode; //5자리 새우편번호 사용
+	                document.getElementById('address1').value = fullRoadAddr;
+	                document.getElementById('post_old').value = data.postcode;
+	                document.getElementById('address_old').value = jibunAddr;  //구주소까지 같이 쓸 경우
+					// 커서를 상세주소 필드로 이동한다.
+	                document.getElementById('address2').focus();   
+	               
+	                // 사용자가 '선택 안함'을 클릭한 경우, 예상 주소라는 표시를 해준다.
+	                if(data.autoRoadAddress) {
+	                    //예상되는 도로명 주소에 조합형 주소를 추가한다.
+	                    var expRoadAddr = data.autoRoadAddress + extraRoadAddr;
+	                    document.getElementById('address2').innerHTML = '(예상 도로명 주소 : ' + expRoadAddr + ')';
+
+	                } else if(data.autoJibunAddress) {
+	                    var expJibunAddr = data.autoJibunAddress;
+	                    document.getElementById('address2').innerHTML = '(예상 지번 주소 : ' + expJibunAddr + ')';
+
+	                } else {
+	                    document.getElementById('address2').innerHTML = '';
+	                }
+	            }
+	        }).open();
+	    }
+    function wrapWindowByMask(){
+ 
+        //화면의 높이와 너비를 구한다.
+        var maskHeight = $(document).height();  
+        var maskWidth = $(document).width();  
+        //마스크의 높이와 너비를 화면 것으로 만들어 전체 화면을 채운다.
+        $("#mask").css({"width":maskWidth,"height":maskHeight});  
+        $(".window").css({"top": (($(window).height()-$(".window").outerHeight())/2+$(window).scrollTop())+"px","left": (($(window).width()-$(".window").outerWidth())/2+$(window).scrollLeft())+"px",
+        	"display":"inline-block","vertical-align":"middle"});  
+        $("body").css("overflow","hidden");//body 스크롤바 없애기
+ 
+       // $("#mask").fadeIn(0);      
+        $("#mask").fadeTo("fast",0.6);    
+ 
+        $(".window").show();
+        $(".window #emp_name").focus();
+ 
+    }
+
+    closeSearchPop = function(){
+    	$("body").css("overflow","auto");//body 스크롤바 생성
+    	 $("#mask").hide();
+    	 $(".window input").val(''); 
+         $(".window #bodyResult tr").remove(); 
+         $(".window #notice span").remove();
+         $(".window").hide(); 
+    }
+    
+    function sendColcode(managedIp, colcode){
+    	$.ajax({
+    		url : "rspColcodeAjax", 
+    		data : {
+    			'managed_ip' : managedIp,
+    			'colcode' : colcode
+    		}, 
+    		type : "post",
+    		dataType : "json",
+    		success : function(result) {
+    			receiveFMInfo(result);
+    		}, 
+    		error : function(result) {
+    			receiveFMInfo("0")
+    		}
+    	});
+    }
+    
+    function receiveFMInfo(result) {
+    	if (result == "0" || result == null) {
+    		$("#tabs-4 #office_nm").val("");
+    		$("#tabs-4 #address").val("");
+    	} else {
+	    	$("#tabs-4 #office_nm").val(result.office_nm);
+	    	$("#tabs-4 #address").val(result.address);
+    	}
+    }
+    
+	function excel_down(){
+	      var formData = $("#searchForm").serialize().replace(/%/g, '%25'); //한번 더 인코딩
+	      $.fileDownload("/4p/bs_excel_download", {
+	        	data : formData,
+	        	type: "GET",
+	        	dataType:"text",
+
+	            successCallback: function (url) {
+	            	//alert("success");
+	               // $preparingFileModal.dialog('close');
+	            },
+	            failCallback: function (responseHtml, url) {
+	            	alert("엑셀추출 실패 잠시후 다시 시도해주세요.");
+	               // $preparingFileModal.dialog('close');
+	               // $("#error-modal").dialog({ modal: true });
+	            }
+	        });
+	        // 버튼의 원래 클릭 이벤트를 중지 시키기 위해 필요합니다.
+	       return false;
+
+	        
+	}
+    
+	function office_select(obj){
+		
+		var level = $(obj).attr("id").split("_");
+		var orgscode = $("select[name=office_"+level[1]+"]").val();
+		//alert(orgscode)
+		if(orgscode==''){
+			$('#office_search_box select').each(function(index){
+				var i = $(this).attr("id").split("_");
+				var title ;
+				if(i[1] > level[1]){
+					title = selDept(i[1]);
+					$("select[name="+$(this).attr("name")+"] option").remove();
+					$(this).append('<option value="">--'+title+'--</option>');
+				}
+			});
+		}else{
+			level = parseInt(level[1]);
+			$.ajax({
+				url : "/4p/subOfficeAjaxNew",
+				data :{
+					'orgscode' : orgscode,
+					'level'		 : level+1
+					
+				},
+				type : "POST",
+				success : function(response){
+					var idx =0;
+					$('#office_search_box select').each(function(index){
+						var i = $(this).attr("id").split("_");
+						//alert(i[1]+"=="+level);
+						
+						if(i[1] > level){
+							title = selDept(i[1]);
+							$("select[name="+$(this).attr("name")+"] option").remove();
+							$(this).append('<option value="">--'+title+'--</option>');
+						}
+					});
+					for(key in response){
+						idx= response[key].level;
+						$("#office_"+idx).append("<option value='"+response[key].orgscode+"'>"+response[key].orgnameabbr+"</option>");
+						
+						if('${searchInfo.office_cd}' != null && '${searchInfo.office_cd}' != ""){
+							if(response[key].orgscode == '${searchInfo.office_no}'){
+								$('#office_'+idx+' option:eq('+key+')').attr('selected','selected');
+							}
+						}else {
+							$('#office_'+idx+' option:eq(0)').attr('selected','selected');
+						}
+					}
+				//	$("#office_"+idx).selectmenu("refresh");
+				},
+				error: function(result){
+					alert("조회 실패");
+				}
+			});
+		}
+	}    
+    function link(data, obj){
+		if( $(obj).attr('class') == '00'){
+			popLink('request?neoss_no='+ data +'&modFlag=0', 850, 900);
+		}else{
+			location.href="request_view?rstNo="+ data +"&"+ param;
+		}
+	}
+    
+    	function selDept(level){
+		var title;
+		switch(parseInt(level)){
+		case 0:
+			title ="본부";
+			break;
+		case 1:
+			title ="지사/센터";
+			break;
+		case 2:
+			title ="부서";
+			break;
+		case 3:
+			title ="팀";
+			break;
+		}
+		
+		return title;
+	}
+
+    function wrapWindowByMask(){
+        //화면의 높이와 너비를 구한다.
+        
+        var maskHeight = $(document).height();  
+        var maskWidth = $(document).width();  
+        //마스크의 높이와 너비를 화면 것으로 만들어 전체 화면을 채운다.
+        $("#mask").css({"width":maskWidth,"height":maskHeight});  
+        $(".window").css({"top": (($(window).height()-$(".window").outerHeight())/2+$(window).scrollTop())+"px","left": (($(window).width()-$(".window").outerWidth())/2+$(window).scrollLeft())+"px",
+        	"display":"inline-block","vertical-align":"middle"});  
+        $("body").css("overflow","hidden");//body 스크롤바 없애기
+        //애니메이션 효과 - 일단 0초동안 까맣게 됐다가 60% 불투명도로 간다.
+       // $("#mask").fadeIn(0);      
+        $("#mask").fadeTo("fast",0.6);    
+ 
+        $(".window").show();
+ 
+    }
+        
+    function open_pop(data1,data2, obj){
+    	popLink('history_view?neoss_no='+data1+'&history_no='+data2, 820, 900);
+	}
+    
+function cmBranchSelect(val, gubun) {
+	var branch = $("select[name='branch']");
+	var office_no = $("select[name='office_no']");
+	if (gubun == 'bonbu') {
+		branch.children("option").remove();
+	}
+	office_no.children("option").remove();
+	 
+	$.ajax({
+		url : "/4p/cmBonbuRequest",
+		dataType: "json",
+		data : {
+			  'orgscode' : val
+			, 'gubun' : gubun
+		}, 
+		type : "post",
+		success : function(data) {
+			var option;
+			if (gubun == 'bonbu') {
+				branch.append("<option value=''>-- 지사 --</option>");
+				option = branch;
+			} 
+			else if (gubun == 'branch') {
+				option = office_no;
+			}
+			
+			office_no.append("<option value=''>-- 부서 --</option>");
+			for (key in data) {
+				var vo = data[key];
+				option.append("<option value='"+ vo.orgscode +"'>"+ vo.orgname +"</option>");					
+			}
+			branch.selectmenu("refresh");
+			office_no.selectmenu("refresh");
+		},
+		error : function(data) {
+			alert("조회실패");
+		}
+	});
+}
+
+function cmOfficeSelect(val) {
+	$.ajax({
+		url : "/4p/cmOfficeRequest",
+		dataType: "json",
+		data : {
+			  'orgscode' : val
+			, 'neoss_no' : $("#neoss_no").val()
+		}, 
+		type : "post",
+		success : function(data) {
+			if (data != undefined) {
+				authMemberAdd("01", data.list01);
+				authMemberAdd("02", data.list02);
+				authMemberAdd("03", data.list03);
+				authMemberAdd("04", data.list04);
+				authMemberAdd("05", data.list05);
+				if ($("#neoss_no").val() == 0) {
+					$("input[name='step_no']").trigger("click");
+				} else {
+					user_no_loadBinding();
+				}
+			} 
+		},
+		error : function(data) {
+			alert("조회실패");
+		}
+	});
+}
+
+function authMemberAdd(id, data) {
+	var th = $("#user_th_"+ id);
+	var ul = $("#user_no_"+ id +"_"); 
+	th.children("p").remove();
+	ul.children("li").remove();
+	
+	if (data != undefined) {
+		var p = "<p><input type='checkbox' name='step_no' id='user_no_"+ id +"'><label for='user_no_"+ id +"'>"+ data[0].dept_name +"</label></p>";
+		th.append(p);
+		for (key in data) {
+			var vo = data[key];
+			var li = "<li>" +
+					"<input type='checkbox' required name='user_no_"+ id +"' id='user_no_"+ id +"_"+ vo.user_no +"' value='"+ vo.user_no +"' "+ (vo.chk == '1' ? 'checked' : '') +" />" + 
+					"<label for='user_no_"+ id +"_"+ vo.user_no +"' title='"+ vo.emp_name +" ("+ vo.phone_number +")'><span class='title'>"+ vo.emp_name +" ("+ toTelNum(vo.phone_number) +")</span></label>" +
+					"</li>";
+			ul.append(li);
+		}
+		
+		$("input[name='step_no']").click(function(){
+			step_no_clickBinding($(this));
+		});
+		$("input[name^='user_no_']").click(function(){
+			user_no_clickBinding($(this));
+		});
+	}
+}
+
+function step_no_clickBinding(obj) {
+	var id = obj.attr("id");
+	var result = obj.is(":checked");
+	if (result == true){
+		$(".manageArea input[name='"+ id +"']").prop("checked", true);
+	} else {
+		$(".manageArea input[name='"+ id +"']").prop("checked", false);
+	}
+}
+function user_no_clickBinding(obj) {
+	var id = obj.attr("name");
+	var all = $("input[id^='"+ id +"']:not(input[name='step_no'])").length;
+	var cnt = $("input[id^='"+ id +"']:not(input[name='step_no']):checked").length;
+	console.log("all:"+ all +";cnt:"+ cnt);
+	if (all == cnt) {
+		$("input[id='"+ id +"']").prop("checked", true);					
+	} else {
+		$("input[id='"+ id +"']").prop("checked", false);
+	}
+}
+function user_no_loadBinding() {
+	for (var i=1; i<=5; i++) {
+		var id = "user_no_0"+ i;
+		var all = $("input[id^='"+ id +"']:not(input[name='step_no'])").length;
+		var cnt = $("input[id^='"+ id +"']:not(input[name='step_no']):checked").length;
+		if (all == cnt) {
+			$("input[id='"+ id +"']").prop("checked", true);					
+		} else {
+			$("input[id='"+ id +"']").prop("checked", false);
+		}				
+	}
+}

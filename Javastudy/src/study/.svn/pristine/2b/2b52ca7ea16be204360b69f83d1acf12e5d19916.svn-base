@@ -1,0 +1,282 @@
+$(function(){
+	
+	//rowspan 설정작업
+	var sCnt1 = 0;
+	var sCnt6 = 0;
+	$("#approval_list #listTable01 > tbody > tr").each(function(){
+		var arg = $(this).attr('id');
+		if(arg == 'TrStep01'){
+			sCnt1 = sCnt1+1;
+		}
+	});
+	$("#approval_list #listTable06 > tbody > tr").each(function(){
+		var arg = $(this).attr('id');
+		if(arg == 'TrStep06'){
+			sCnt6 = sCnt6+1;
+		}
+	});	
+	if(sCnt1>0){
+		$("#TrStep01").prepend('<th id="ThStep02" width="50" rowspan="'+sCnt1+'">투자확정</span></th>')
+	}
+	if(sCnt6>0){
+		$("#TrStep06").prepend('<th id="ThStep06" width="50" rowspan="'+sCnt6+'">착공</span></th>')
+	}
+	//alert(sCnt1);
+	$("#scrollArea tbody tr").dblclick(function(){
+		var index = $(this).attr("data");
+		index = index.replace("data_","");
+		$('input[name="req_bonbu_post"]').val($("#req_bonbu_"+index).val());
+		var url = "role_agw_pop";
+		var popOption ="width=900, height=600, resizable=no, scrollbars=yes, status=no"; 
+		var title = "ror_agw_pop"
+		window.open("", title, popOption);
+		
+		var frm = document.post_pop;
+		frm.target = title;
+		frm.action = url;
+		frm.submit();
+	});
+	
+	function wrapWindowByMask(){
+	 	 
+	    //화면의 높이와 너비를 구한다.
+	    var maskHeight = $(document).height();  
+	    var maskWidth = $(document).width();  
+	    //마스크의 높이와 너비를 화면 것으로 만들어 전체 화면을 채운다.
+	    $("#mask").css({"width":maskWidth,"height":maskHeight});  
+	    $(".window").css({"top": (($(window).height()-$(".window").outerHeight())/2+$(window).scrollTop())+"px","left": (($(window).width()-$(".window").outerWidth())/2+$(window).scrollLeft())+"px",
+	    	"display":"inline-block","vertical-align":"middle"});  
+	    $("body").css("overflow","hidden");//body 스크롤바 없애기
+
+	   // $("#mask").fadeIn(0);      
+	    $("#mask").fadeTo("fast",0.6);    
+
+	    $(".window").show();
+	    $(".window #emp_name").focus();
+	    
+	    
+
+	}
+	$(document).ready(function(){
+	//검은 막 띄우기
+	$("button[name=usrSearchBtn]").click(function(e){
+		var btn_idx=$(this).attr('id').split('_');
+		$(".window #confirm_no").val(btn_idx[1]);
+		$(".window #w_gubun").val("userRoleAgw");
+		//alert(btn_idx[1]);
+		
+	    e.preventDefault();
+	    wrapWindowByMask();
+	});
+
+	//닫기 버튼을 눌렀을 때
+	$(".window .close").click(function (e) {  
+	    //링크 기본동작은 작동하지 않도록 한다.
+	    e.preventDefault();  
+	    $("#mask, .window").hide();  
+	});       
+
+	//검은 막을 눌렀을 때
+	$("#mask").click(function () {  
+	    closeSearchPop();
+
+	});   
+
+	closeSearchPop = function(){
+		$("body").css("overflow","auto");//body 스크롤바 생성
+		 $("#mask").hide();
+		 $(".window input").val(''); 
+	     $(".window #bodyResult tr").remove(); 
+	     $(".window #notice span").remove();
+	     $(".window").hide(); 
+	}
+	});
+	//등록
+	$("#approval_list img[name=regIconbtn]").click(function(){
+		var req_bonbu = $("#approval_list #req_bonbu").val();
+		var arg = $(this).attr('id').split('_');
+		arg = arg[1];
+		var url = "popup_approval_user.do?erp_job=01&req_bonbu="+req_bonbu+"&step="+arg;
+		var popOption ="width=800, height=600, resizable=no, scrollbars=yes, status=no"; 
+		window.open(url, "", popOption);
+		
+	});
+	
+	
+	//수정
+	$("#approval_list img[name=modIconbtn]").click(function(){
+		var arg = $(this).attr('id').split('_');
+		arg = arg[1];
+		
+		if(arg == '01'){
+			if($("input[name=dft_step01]:radio:checked").length == 0){
+				alert("[투자확정단계]의 default 승인자를 지정 해 주십시오.");
+				return;
+			}
+		}else if(arg == '06'){
+			if($("input[name=dft_step06]:radio:checked").length == 0){
+				alert("[착공단계]의 default 승인자를 지정 해 주십시오.");
+				return;
+			}
+		}
+		var title = $("#modIconbtn_"+arg).attr('alt');
+		$("#pop_userRoleAgw_submit").find('p').remove();
+		$("#pop_userRoleAgw_submit").append('<p>&nbsp;&nbsp;'+title+' 하시겠습니까?</p>');
+		$("#pop_userRoleAgw_submit").attr('class',$(this).attr('id'));
+		$( "#pop_userRoleAgw_submit" ).dialog( "open" );
+		event.preventDefault();
+	});
+	//삭제
+	$("#approval_list img[name=delIconBtn]").click(function(){
+		var arg = $(this).attr('id').split('_');
+		arg = arg[1];
+		
+		if($("input[name=checkBoxBtn"+arg+"]:checkbox:checked").length == 0){
+			alert($(this).attr('alt') +"할 승인자를 선택 해 주십시오.");
+			return;
+		}
+		
+		var arg2;
+		var chk=true;
+		$("input:checkbox[name=checkBoxBtn"+arg+"]").each(function(){
+			if(this.checked){
+				var arg2 = $(this).attr('id').split('_');
+				if($("#dft_"+arg2[1]).prop('checked')){
+					alert("defualt 승인자는 삭제할 수 없습니다.");
+					chk = false;
+					return false;
+				}
+			
+			}
+		});
+		
+		if(chk){
+			var title = $("img[name=delIconBtn]").attr('alt');
+			$("#pop_userRoleAgw_submit").find('p').remove();
+			$("#pop_userRoleAgw_submit").append('<p>'+title+' 하시겠습니까?</p>');
+			$("#pop_userRoleAgw_submit").attr('class',$(this).attr('id'));
+			$( "#pop_userRoleAgw_submit" ).dialog( "open" );
+			event.preventDefault();
+			
+		}else{
+			$("input:checkbox[name=checkBoxBtn"+arg+"]").each(function(){
+				if(this.checked){
+					var arg3 = $(this).attr('id').split('_');
+					if($("#dft_"+arg3[1]).prop('checked')){
+						$("#chk_"+arg3[1]).prop("checked",false);
+					}
+				
+				}
+			});
+			
+		}
+		
+		return;
+		
+	});
+	
+	$( "#pop_userRoleAgw_submit" ).dialog({
+    	autoOpen: false,
+    	width: 400,
+    	buttons: [
+    		{
+    			text: "예",
+    			click: function() {
+    				$( this ).dialog( "close" );
+    				$.blockUI();
+    				var arg = $(this).attr('class').split('_');
+    				var cls = arg[0];
+    				arg = arg[1];
+    				var step = arg;
+    				if(cls=='modIconbtn'){
+    					var url = "role_agw_update";
+    					var paramName = "approval_no";
+    					var arry = new Array();
+    					if(arg == '01'){
+    						$("input:radio[name=dft_step01]").each(function(){
+    							if(this.checked){
+    								arry.push($(this).val());
+    							}
+    						});
+    					}else if(arg == '06'){
+    						$("input:radio[name=dft_step06]").each(function(){
+    							if(this.checked){
+    								arry.push($(this).val());
+    							}
+    						});
+    					}
+    					//ajax날리기
+    				    $.ajax({ 
+    				        url : "role_agw_update",
+    				        data : {
+    				            "approval_no" : arry,
+    				            "step"		  : step
+    				        },
+    				        success : function(result) {
+    				        	$.unblockUI();
+    				        		if(result == 'success'){
+    				        			alert('저장되었습니다.');
+    				        			opener.parent.location.reload();
+    				        		}else if(result == 'fail'){
+    				        			alert('저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    				        			location.reload();
+    				        		}
+    				        },
+    				        error : function(request, status, error) {
+    				                alert("code:" +request.status+"\n"+"message:"+request.responseText+"\n"+"error: "+ error);
+    				        }
+    				    }); 
+    					
+    				}else if(cls=='delIconbtn'){
+    					var arry = new Array();
+    					$("input:checkbox[name=checkBoxBtn"+arg+"]").each(function(){
+    						if(this.checked){
+    							arry.push($(this).val());
+    						}
+    					});
+    					
+    				    $.ajax({ 
+    				        url : "role_agw_delete",
+    				        data : {
+    				            "approval_no" : arry
+    				        },
+    				        success : function(result) {
+    				        	$.unblockUI();
+    				        		if(result == 'success'){
+    				        			alert('삭제되었습니다.');
+    				        			location.reload();
+    				        		}else if(result == 'fail'){
+    				        			alert('삭제에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    				        			location.reload();
+    				        		}
+    				        },
+    				        error : function(request, status, error) {
+    				                alert("code:" +request.status+"\n"+"message:"+request.responseText+"\n"+"error: "+ error);
+    				        }
+    				    }); 
+    					
+    					
+    				}
+    			    
+    			}
+    		},
+    		{
+    			text: "취소",
+    			click: function() {
+    				$( this ).dialog( "close" );
+    				
+    			}
+    		}
+    	]
+    });
+
+	
+	$("img[name=insertCancle]").click(function(){
+		var idx = $(this).attr("id").replace("insertCancle_","");
+		$("#user_no_"+idx).val("0");
+		$("#appr_name_"+idx).text("");
+		$("#emp_name_"+idx).text("");
+	});
+	
+});
+

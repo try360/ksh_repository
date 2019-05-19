@@ -1,0 +1,145 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<jsp:useBean id="paramFn" class="kr.co.kt.common.ParamValidatChk" />
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<script type="text/javascript">
+var sh_data = "${sh_data}";
+</script>
+<script type="text/javascript" src="/resources/js/facility.js" charset="utf-8" ></script>
+<script type="text/javascript" src="/resources/js/jquery.form.min.js" charset="utf-8" ></script>
+<link rel="stylesheet" href="/resources/css/facility.css">
+</head>
+<body>
+<%@ include file = "/resources/inc/header_nav.jsp" %>
+<%@ include file = "/resources/inc/aside.jsp" %>
+<section id="reform-section">
+    <h1 class="list">Reform-AGW</h1>
+
+    <div class="contents_form">
+        <!-- 타이틀, 경로 -->
+        <div class="divDocTitle">시설 관리</div>
+
+		<div class="searchArea">
+		<fieldset>
+		<legend>검색폼</legend>
+            <div id="tabs">
+                <ul>
+                    <li id="tabs01"><a href="#tabs-1">자재코드검색</a></li>
+                    <li id="tabs02"><a href="#tabs-2">옵션검색</a></li>
+                </ul>
+                <div id="tabs-1">
+                <form name="searchForm_text" method="get" action="list">
+                    <div id="codeSearching">
+                        <input type="text" name="device_cd" placeholder="ex) K9004162" maxlength="8"
+                        	<c:if test="${not empty sh_text }">value="${sh_text }"</c:if> />
+                        <button type="submit" class="ui-button"><span class="ui-icon ui-icon-search"></span></button>
+                    </div>
+                </form>
+                </div>
+                <div id="tabs-2">
+                <form name="searchForm_option" method="get" action="list">
+                    <div id="optionSearching">
+                        <ul id="tdx_type">
+                            <label class="title" for="tdx_type">교환기타입</label>
+                            <li><input type="checkbox" name="tdx_type" id="tdx_type_0" /><label for="tdx_type">전체</label></li>
+                            <li><input type="checkbox" name="tdx_type" id="tdx_type_1" value="1" /><label for="tdx_type">1형</label></li>
+                            <li><input type="checkbox" name="tdx_type" id="tdx_type_2" value="2" /><label for="tdx_type">2형</label></li>
+                            <li><input type="checkbox" name="tdx_type" id="tdx_type_3" value="3" /><label for="tdx_type">3형</label></li>
+                            <li><input type="checkbox" name="tdx_type" id="tdx_type_4" value="4" /><label for="tdx_type">4형</label></li>
+                        </ul>
+                        <ul id="device_gb">
+                            <label class="title" for="device_gb">종류</label>
+                            <li><input type="checkbox" name="device_gb" id="device_gb_0" /><label for="device_gb">전체</label></li>
+                            <li><input type="checkbox" name="device_gb" id="device_gb_1" value="BB" /><label for="device_gb">백보드</label></li>
+                            <li><input type="checkbox" name="device_gb" id="device_gb_2" value="PB" /><label for="device_gb">파워보드</label></li>
+                            <li><input type="checkbox" name="device_gb" id="device_gb_3" value="LB" /><label for="device_gb">가입자보드</label></li>
+                            <li><input type="checkbox" name="device_gb" id="device_gb_4" value="SF" /><label for="device_gb">쉘프</label></li>
+                        </ul>
+                        <ul id="vendor_nm">
+                            <label class="title" for="vendor_nm">제조사</label>
+                            <li><input type="checkbox" name="vendor_nm" id="vendor_nm_0" /><label for="vendor_nm">전체</label></li>
+                            <li><input type="checkbox" name="vendor_nm" id="vendor_nm_1" value="1" /><label for="vendor_nm">삼성</label></li>
+                            <li><input type="checkbox" name="vendor_nm" id="vendor_nm_2" value="2" /><label for="vendor_nm">한화</label></li>
+                            <li><input type="checkbox" name="vendor_nm" id="vendor_nm_3" value="3" /><label for="vendor_nm">LG</label></li>
+                            <li><input type="checkbox" name="vendor_nm" id="vendor_nm_4" value="4" /><label for="vendor_nm">머큐리</label></li>
+                        </ul>
+                        <ul id="vendor_nm">
+                            <label class="title" for="use_yn">사용여부</label>
+                            <li><input type="radio" name="use_yn" id="use_yn_1" value="true" /><label for="use_yn">사용</label></li>
+                            <li><input type="radio" name="use_yn" id="use_yn_2" value="false" /><label for="use_yn">미사용</label></li>
+                        </ul>
+                        <button type="submit">검색</button>
+                        <button type="reset">초기화</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+		</fieldset>		
+		</div>
+    	<table class="listTable"  border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 0 ; margin-right: 45px;" >
+    		<thead>
+    		<tr>
+    			<th width="5%">번호</th>
+				<th width="20%">설비바코드</th>
+    			<th width="15%">자재명</th>
+    			<th width="15%">자재종류</th>
+    			<th width="15%">제조사</th>
+				<th width="10%">사용여부</th>
+				<th width="20%">사용날짜</th>
+    		</tr>
+    		</thead>
+        </table>
+        <div id="arcodion" style="height: 350px; overflow: hidden; overflow-y: scroll;">
+			<table class="listTable arcodion" border="0" cellspacing="0" cellpadding="0" style="border-top: 0; margin-right: 0;">
+    		<tbody>
+            <c:choose>
+                <c:when test="${not empty reformFacilList}">
+                    <c:forEach var="reformVO" items="${reformFacilList}" varStatus="status">
+                    <tr class="list">
+                        <td width="5%">
+                            <input type="hidden" value="${reformVO.rnum}" id="rNo" name="rNo"/>
+                                ${reformVO.rnum}
+                        </td>
+                        <td width="20%">
+                        	<input type="hidden" value="${reformVO.barcode}" id="barcode" name="barcode"/>
+                        	${reformVO.barcode}
+                        </td>
+                        <td width="15%">${reformVO.device_nm}</td>
+                        <td width="15%">${reformVO.device_info}</td>
+                        <td width="15%">${reformVO.vendor_nm}</td>
+                        <td width="10%">
+                            <c:if test="${reformVO.use_yn eq 'Y'}">사용중(doc_no)</c:if>
+                            <c:if test="${reformVO.use_yn eq 'N'}">유휴</c:if>
+                        </td>
+                        <td width="20%">
+                        	<c:if test="${reformVO.use_yn eq 'Y'}">${feformVO.use_dt}</c:if>
+                        	<c:if test="${reformVO.use_yn eq 'N'}"></c:if>
+                        </td>
+                    </tr>
+                        <tr class="detail"></tr>
+                    </c:forEach>
+                </c:when>
+            </c:choose>
+    		</tbody>
+    	</table>
+        </div>
+        <div class="btnArea">
+            <form name="excelUploadForm" id="excelUploadForm" enctype="multipart/form-data" method="post" action="excelUpload" onSubmit="return FormChkModule(this);">
+                <fieldset>
+                    <legend>엑셀 업로드 폼</legend>
+                    <input type="file" name="excelFile" />
+                    <input type="image" src="/resources/img/b_save.gif" alt="저장" />
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</section>
+<%@ include file = "/resources/inc/footer.jsp" %>
+
+</body>
+</html>

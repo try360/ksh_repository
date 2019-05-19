@@ -1,0 +1,274 @@
+/**
+ *
+ */
+package kr.co.kt.agwne.web;
+
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Map;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import kr.co.kt.agwne.dto.ApprovalInfoVO;
+import kr.co.kt.agwne.dto.UserInfoVO;
+import kr.co.kt.agwne.service.UserInfoService;
+import kr.co.kt.agwne.service.UserRoleService;
+import kr.co.kt.common.LdapAuthenticate;
+import kr.co.kt.common.ParamValidatChk;
+import kr.co.kt.common.SecurityUtil;
+
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2010-11-22
+ * @ file LoginController.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+@Controller
+@RequestMapping("/**")
+public class LoginController extends ParamValidatChk {
+	private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
+	
+	@Autowired
+    private UserInfoService userInfoService;
+	
+	@Autowired
+    private UserRoleService userRoleService;
+	
+	@Autowired
+	private LdapAuthenticate ldapAuthenticate;
+
+	@GetMapping("/login")
+	public String loginView(HttpSession session) {
+		if (session.getAttribute("userinfo") != null) {
+			return "redirect:/main";
+		}
+
+		session.invalidate();
+		return "login";
+	}
+	
+    @PostMapping("/signin")
+    public String login(
+    		  @RequestParam(value="user_id", required=true) String user_id
+    		, @RequestParam(value="password", required=true) String password 
+    		, @RequestParam(value="check_save_id", required=false) String check_save_id
+    		, HttpSession session 
+    		, Model model
+    		, HttpServletRequest request
+    		, HttpServletResponse response) throws Exception {
+     	
+     	String errorCd = ldapAuthenticate.ChkLogin(user_id, password);
+//     	logger.info("##### login.do: user_id:"+user_id+", password:"+password);
+     	if (errorCd.equals("00") || errorCd.equals("10")) {
+     		// 쿠키
+     		if (isEmpty(check_save_id)) check_save_id = "off";
+     		if (check_save_id.equals("on")) {
+	     		String cookie_id = getCookie(request, "user_id");
+	     		if (cookie_id.equals(user_id)) {
+	     			//그대로 유지
+	     		} else {
+	     			delCookie(response, "user_id");
+	     			response = createCookie(response, "user_id", user_id);
+	     		}
+     		} else {
+     			delCookie(response, "user_id");
+     		}
+     		
+     		//세션 생성
+     		UserInfoVO userInfo = ldapAuthenticate.getUserInfo();
+     		if (userInfo == null) {
+     			response.setCharacterEncoding("EUC-KR");
+         		PrintWriter writer = ldapAuthenticate.errorInfo(errorCd, response);
+         		writer.println("<script type='text/javascript'>");
+         		writer.println("alert('존재하지 않는 사용자 계정입니다.');");
+         		writer.println("history.back();");
+         		writer.println("</script>");
+         		writer.flush();
+         		return null;
+     		}
+     		if(userInfo.getRole().equals("02")) {
+     			UserInfoVO vo = new UserInfoVO();
+     			SecurityUtil util = new SecurityUtil();
+     			vo.setUser_id(user_id);
+     			vo.setPasswd(util.encryptSHA256(password));
+     			userInfoService.updateTmPw(vo);
+     			//logger.info("TM update Success >>>>>>>>>>>>>>>>>>>>>  "+password);
+     		}
+     		String loginTime = new SimpleDateFormat("yyyy-MM-dd a kk:mm:ss").format(Calendar.getInstance().getTime());
+     		userInfo.setLogin_time(loginTime);
+//     		logger.info("##SESSION: userinfo["+userInfo.toString()+"]");
+     		session.setAttribute("userinfo", userInfo);
+     		session.setAttribute("user_no", userInfo.getUser_no());
+     		session.setAttribute("user_id", userInfo.getNo_emp());
+     		session.setAttribute("user_name", userInfo.getEmp_name());
+     		session.setAttribute("dept_name", userInfo.getDept_name());
+     		session.setAttribute("bonbu_name", userInfo.getBonbu_name());
+     		session.setAttribute("bonbu", userInfo.getBonbu());
+     		session.setAttribute("dept_code", userInfo.getDept_code());
+     		session.setAttribute("login_time", userInfo.getLogin_time());
+     		session.setAttribute("region_name", userInfo.getRegion_name());
+     		session.setAttribute("region", userInfo.getRegion());
+     		session.setAttribute("org", userInfo.getOrg());
+     		session.setAttribute("role", userInfo.getRole());
+     		session.setAttribute("role_nm", userInfo.getRole().equals("01")?"결재처리자":userInfo.getRole().equals("02")?"전체관리자":"사용자");
+     		/////////////////////////
+     		
+    		ApprovalInfoVO approvalInfoVO = new ApprovalInfoVO();
+            approvalInfoVO.setUser_id(userInfo.getNo_emp());
+            // AGW
+            approvalInfoVO.setErp_job("01");
+            Map<String, ApprovalInfoVO> amap = userRoleService.approvalMap(approvalInfoVO);            
+            session.setAttribute("approvalMap_AGW", amap);
+            // REFORM
+            approvalInfoVO.setErp_job("02");
+            amap = userRoleService.approvalMap(approvalInfoVO);
+     		session.setAttribute("approvalMap_ReformAGW", amap);
+     		// 4P
+     		approvalInfoVO.setErp_job("03");
+            amap = userRoleService.approvalMap(approvalInfoVO);            
+     		session.setAttribute("approvalMap_4PAGW", amap);     		
+     		
+     		String remoteIP = request.getHeader("X-FORWARDED-FOR");
+//     		logger.info("#[user_ip]1########################"+remoteIP);
+     		if(remoteIP == null || "".equals(remoteIP)) {
+     			remoteIP = request.getRemoteAddr();
+     		}
+     		session.setAttribute("ip", remoteIP);
+//     		logger.info("#[user_ip]2########################"+remoteIP);
+     		userInfo.setIp(remoteIP);
+     		userInfoService.loginHist(userInfo);
+
+     		return "redirect:/main";
+     	} else {
+     		response.setCharacterEncoding("EUC-KR");
+     		PrintWriter writer = ldapAuthenticate.errorInfo(errorCd, response);
+     		writer.flush();
+     		return null;
+     	}
+    }
+    
+    @RequestMapping("/logout.do")
+    public String logout(Model model, HttpSession session,HttpServletRequest request, HttpServletResponse response) throws Exception {
+    	UserInfoVO userInfo = new UserInfoVO();
+    	userInfo.setIp((String)session.getAttribute("ip"));
+    	userInfo.setUser_id((String)session.getAttribute("user_id"));
+    	userInfoService.logoutHist(userInfo);
+
+    	logger.info("[SSO KEY COOKEY DELETE] >>>>");
+          Cookie[] cookies = request.getCookies();
+          String[] ckNames = {"struid"};
+//           if(cookies != null){
+               for (int i =0; i<ckNames.length; i++){
+                    Cookie ck = new Cookie(ckNames[i], null);
+                  	ck.setMaxAge(0);
+				    ck.setDomain("neoss-ne.kt.co.kr");
+                  	response.addCookie(ck);
+                   logger.info(ckNames[i]+" 삭제 완료");
+               }
+//            }
+    	logger.info("#[logout]########################"+ session.getAttribute("user_name"));
+    	session.invalidate();
+
+    	return "redirect:login";
+    }
+
+	@RequestMapping(value="/ssoSignin")
+	public String ssoSignin(
+			 	HttpSession session
+			, HttpServletRequest request
+			, HttpServletResponse response
+	) throws Exception {
+		String id = getCookie(request,"struid");
+		logger.info("[getCookie] :  >>>  "+ id);
+		if(id!=null||!id.equals("")){
+			UserInfoVO userInfoVO = new UserInfoVO();
+			userInfoVO.setNo_emp(id);
+			UserInfoVO userInfo = userInfoService.userInfo_one(userInfoVO);
+			//logger.info("[UserInfo] :  >>>  "+ userInfo.toString());
+			if (userInfo == null) {
+				logger.info("[userNull!!!!!!!!!]");
+				session.invalidate();
+				response.setContentType("text/html; charset=UTF-8");
+				response.setCharacterEncoding("utf-8");
+				PrintWriter writer=response.getWriter();
+				writer.println("<script type='text/javascript'>");
+				writer.println("alert('시스템에 존재하지 않는 사용자 계정입니다.');");
+				writer.println("location.href='/login';");
+				writer.println("</script>");
+				writer.flush();
+				return null;
+			}
+			String loginTime = new SimpleDateFormat("yyyy-MM-dd a kk:mm:ss").format(Calendar.getInstance().getTime());
+			userInfo.setLogin_time(loginTime);
+			logger.info("##SESSION: userinfo["+userInfo.toString()+"]");
+			session.setAttribute("userinfo", userInfo);
+			session.setAttribute("user_no", userInfo.getUser_no());
+			session.setAttribute("user_id", userInfo.getNo_emp());
+			session.setAttribute("user_name", userInfo.getEmp_name());
+			session.setAttribute("dept_name", userInfo.getDept_name());
+			session.setAttribute("bonbu_name", userInfo.getBonbu_name());
+			session.setAttribute("bonbu", userInfo.getBonbu());
+			session.setAttribute("dept_code", userInfo.getDept_code());
+			session.setAttribute("login_time", userInfo.getLogin_time());
+			session.setAttribute("region_name", userInfo.getRegion_name());
+			session.setAttribute("region", userInfo.getRegion());
+			session.setAttribute("org", userInfo.getOrg());
+			session.setAttribute("role", userInfo.getRole());
+			session.setAttribute("role_nm", userInfo.getRole().equals("01")?"결재처리자":userInfo.getRole().equals("02")?"전체관리자":"사용자");
+
+			ApprovalInfoVO approvalInfoVO = new ApprovalInfoVO();
+			approvalInfoVO.setUser_id(userInfo.getNo_emp());
+			// AGW
+			approvalInfoVO.setErp_job("01");
+			Map<String, ApprovalInfoVO> amap = userRoleService.approvalMap(approvalInfoVO);
+			session.setAttribute("approvalMap_AGW", amap);
+			// REFORM
+			approvalInfoVO.setErp_job("02");
+			amap = userRoleService.approvalMap(approvalInfoVO);
+			session.setAttribute("approvalMap_ReformAGW", amap);
+			// 4P
+			approvalInfoVO.setErp_job("03");
+			amap = userRoleService.approvalMap(approvalInfoVO);
+			session.setAttribute("approvalMap_4PAGW", amap);
+
+			String remoteIP = request.getHeader("X-FORWARDED-FOR");
+	//     		logger.info("#[user_ip]1########################"+remoteIP);
+			if(remoteIP == null || "".equals(remoteIP)) {
+				remoteIP = request.getRemoteAddr();
+			}
+			session.setAttribute("ip", remoteIP);
+	//     		logger.info("#[user_ip]2########################"+remoteIP);
+			userInfo.setIp(remoteIP);
+			userInfoService.loginHist(userInfo);
+			return "redirect:/main";
+		}else{
+			return "/";
+		}
+
+	}
+
+}

@@ -1,0 +1,171 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<% pageContext.setAttribute("enter", "\n"); %>
+<!DOCTYPE html> 
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<link type="text/css" rel="stylesheet" href="/resources/css/board.css" />
+<script type="text/javascript" src="/resources/js/board.js" charset="utf-8"></script>
+<script type="text/javascript">
+var bbs_gb = "${bbsVO.bbs_gb}";
+</script>
+<script type="text/javascript">
+function FormChkModule(f){
+	if (f.contents.value.length < 5) {
+		alert("내용을 입력해 주세요");
+		f.contents.focus();
+		return false;
+	}
+	return true;
+}
+</script>
+</head>
+<body>
+<%@ include file = "/resources/inc/header_nav.jsp" %>
+<%@ include file = "/resources/inc/aside.jsp" %>
+	<section>
+        <h1 class="list">${sub_title }</h1>
+		
+		<form id="delForm" name="delForm" method="post"
+			action="/board/board_del.do" onSubmit="return goDel(this);">
+			<input type="hidden" name="bbs_no" value="${bbsVO.bbs_no}">
+			<input type="hidden" name="bbs_gb" value="${bbsVO.bbs_gb}"> 
+			<div class="contents_form">
+				<!-- WRITE -->
+				<div class="btnArea">
+					<c:if test="${sessionScope.role eq '02' || bbsVO.input_id eq sessionScope.user_id }">
+					<a href="write?bbs_no=${bbsVO.bbs_no}&${parameters}"><img class="srchIcon" src="/resources/img/btn_modify.gif" alt="수정" /></a>
+					<a href="delete?bbs_no=${bbsVO.bbs_no }&${parameters}" onclick="return goDel('<spring:message code="del.notice" />');"><img src="/resources/img/btn_delete.gif" alt="삭제" /></a>
+					</c:if> 
+					<a href="list?${parameters}"><img class="srchIcon" src="/resources/img/btn_list.gif" alt="목록" /></a>
+				</div>
+				<div class="leftBtnArea" >
+	            <c:if test="${not empty nextVO}"> 
+	                <a href="content?bbs_no=${nextVO.bbs_no}&${parameters}" title="${next_title}"><img src="/resources/img/btn_bbs_prev.gif" alt="이전" /></a>
+				</c:if>
+				<c:if test="${empty nextVO }">
+					<img src="/resources/img/btn_bbs_prev.gif" alt="이전" />
+				</c:if>
+				<c:if test="${not empty prevVO }">
+					<a href="content?bbs_no=${prevVO.bbs_no}&${parameters}" title="${prev_title}"><img src="/resources/img/btn_bbs_next.gif" alt="다음" /></a>
+				</c:if>
+				<c:if test="${empty prevVO }">
+					<img src="/resources/img/btn_bbs_next.gif" alt="다음" />
+	            </c:if>
+				</div>
+				<table class="viewTable" border="0" cellpadding="0" cellspacing="0">
+					<tbody>
+						<tr>
+							<th>작성자</th>
+							<td>
+								<fmt:formatDate value="${bbsVO.input_dt }" pattern="yyyy/MM/dd kk:mm" var="input_dt" />
+								<b>${bbsVO.input_name}</b> (${input_dt})
+							</td>
+						</tr>
+						<tr>
+							<th>제목</th>
+							<td>
+								<c:if test="${bbsVO.email_yn }">
+	                     		<span class="ui-icon ui-icon-mail-closed"></span>
+	                     		</c:if>
+								${bbsVO.title}</td>
+						</tr>
+						<tr>
+							<th>내용</th>
+							<td>${bbsVO.contents}</td>
+						</tr>
+						<c:if test="${not empty attachList }">
+						<tr>
+							<th>첨부파일</th>
+							<td>
+								<ul id="attachList">
+									<c:forEach var="vo" items="${attachList }">
+									<c:set var="filesize" value="${vo.filesize }" />
+									<c:set var="KBfilesize" value="${filesize/1024 }" />
+									<c:set var="MBfilesize" value="${KBfilesize/1024 }" />
+									<fmt:formatNumber var="KBfilesize" value="${KBfilesize }" pattern="#.#" />
+									<fmt:formatNumber var="MBfilesize" value="${MBfilesize }" pattern="#.#" />
+									
+									<li><a href="/fileDownload?no=${vo.attach_no }">${vo.filename }</a> <em>(${(filesize<1048576)? KBfilesize : MBfilesize }${(filesize<1048576)? 'K' : 'M' }B)</em></li>
+									</c:forEach>
+								</ul>
+							</td>
+						</tr>
+						</c:if>
+					</tbody>
+				</table>
+				<div class="btnArea">
+					<c:if test="${sessionScope.role eq '02' || bbsVO.input_id eq sessionScope.user_id }">
+					<a href="write?bbs_no=${bbsVO.bbs_no}&${parameters}"><img class="srchIcon" src="/resources/img/btn_modify.gif" alt="수정" /></a>
+					<a href="delete?bbs_no=${bbsVO.bbs_no }&${parameters}" onclick="return goDel('<spring:message code="del.notice" />');"><img src="/resources/img/btn_delete.gif" alt="삭제" /></a>
+					</c:if> 
+					<a href="list?${parameters}"><img class="srchIcon" src="/resources/img/btn_list.gif" alt="목록" /></a>
+				</div>
+				<div class="leftBtnArea" >
+	            <c:if test="${not empty nextVO}"> 
+	                <a href="content?bbs_no=${nextVO.bbs_no}&${parameters}" title="${next_title}"><img src="/resources/img/btn_bbs_prev.gif" alt="이전" /></a>
+				</c:if>
+				<c:if test="${empty nextVO }">
+					<img src="/resources/img/btn_bbs_prev.gif" alt="이전" />
+				</c:if>
+				<c:if test="${not empty prevVO }">
+					<a href="content?bbs_no=${prevVO.bbs_no}&${parameters}" title="${prev_title}"><img src="/resources/img/btn_bbs_next.gif" alt="다음" /></a>
+				</c:if>
+				<c:if test="${empty prevVO }">
+					<img src="/resources/img/btn_bbs_next.gif" alt="다음" />
+	            </c:if>
+				</div>
+			</div>
+		</form>
+		
+		<div class="replyArea" id="replyList">
+            <form method="POST" name="replyForm" action="reply_reg" onSubmit="return FormChkModule(this);"> 
+            <input type="hidden" name="bbs_no" value="${bbsVO.bbs_no }">
+            <input type="hidden" name="bbs_gb" value="${bbsVO.bbs_gb }" />
+            <input type="hidden" name="currentPage" value="${currentPage }" />
+            <input type="hidden" name="searchType" value="${searchType }" />
+            <input type="hidden" name="searchTxt" value="${searchTxt }" />
+            <input type="hidden" name="email_yn" value="${bbsVO.email_yn }" />
+            <fieldset>
+            <legend>댓글폼</legend>
+                <table class="replyTable" border="0" cellspacing="0" cellpadding="0">
+                    <tbody>
+                    <tr>
+                        <td><textarea id="reply_write_contents" name="contents" placeholder="댓글을 작성하세요"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="image" src="/resources/img/btn_regist.gif"  id="replyWrite_btn" alt="등록"/>
+                            <img src="/resources/img/btn_cancel.gif" id="replyCancel_btn" alt="취소" />
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+            </form>
+            <a name="replyList"></a>
+            <c:if test="${not empty replyList }">
+            <div id="replyDiv">
+            <c:forEach var="replyVO" items="${replyList}" varStatus="status">
+            <fmt:formatDate value="${replyVO.input_dt }" pattern="yyyy/MM/dd kk:mm" var="input_dt"/>
+	            <dl class="replyData"> 
+	                <dd><strong>${replyVO.input_name}</strong> (${input_dt})</dd>
+	                <dd>
+	                	${fn:replace(replyVO.contents, enter, '<br />')} &nbsp;
+	                	<c:if test="${sessionScope.role eq '02' || sessionScope.user_id eq replyVO.input_id }">
+	                	<img src="/resources/img/btn_s_del.gif" class="replyDel" alt="댓글삭제" data="${replyVO.reply_no }" />
+	                	</c:if>
+	                </dd>
+	            </dl>
+            </c:forEach>
+            </div>
+            </c:if>
+        </div>
+	</section>
+	<%@ include file = "/resources/inc/footer.jsp" %>
+</body>
+</html>

@@ -1,0 +1,37 @@
+package kr.co.kt.agwne.dao;
+
+import java.util.HashMap;
+import java.util.List;
+
+import kr.co.kt.agwne.dto.ConfirmUserVO;
+import kr.co.kt.agwne.dto.LogVO;
+
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2010-11-22
+ * @ file UserApprService.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+public interface IncludeSearchDAO {  
+
+	public List<HashMap<String, Object>> userSearchSelect(HashMap<String, Object> info) throws Exception;
+	//문서별 승인 담당자 불러오기 
+	public List<ConfirmUserVO> confrimUsrList_agw(ConfirmUserVO cfVO) throws Exception;
+	
+	public Object selectExMailingSearching(HashMap<String, Object> info);
+	
+	public void insertLog(LogVO vo);
+} 

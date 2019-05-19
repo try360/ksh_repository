@@ -1,0 +1,107 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<%@ taglib prefix="custom" uri="/tags/custom-taglib" %> 
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<link rel="stylesheet" href="/resources/css/userAppr.css">
+<link rel="stylesheet" href="/resources/js/jquery-ui-1.12.1.custom/jquery-ui.css">
+<script src="/resources/js/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
+<script src="/resources/js/userInfo.js" charset="euc-kr"></script>
+</head>
+<body>
+<section id="approval_list">
+    <h1 class="list">결재부서 조회</h1>
+    <div class="contents_form">
+        <!-- 타이틀, 경로 -->
+        <div class="divDocTitle">${org_name}</div>
+        <!-- 검색조건 -->
+        <div class="searchArea">
+            <form id="searchForm" name="searchForm" method="post" action="popup_org.do">
+            <input type="hidden" id="crud" name="crud" value="a"/>
+            <input type="hidden" id="orgcode" name="orgcode" value="${orgcode}"/>
+            <fieldset>
+                <legend>검색폼</legend>
+                <select id="bonbu" name="bonbu">
+<%-- 	              <option value="430202" ${bonbu eq '430202'?'selected':'' }>고객최우선본부</option>
+	              <option value="430260" ${bonbu eq '430260'?'selected':'' }>영업본부</option>
+	              <option value="430301" ${bonbu eq '430301'?'selected':'' }>전략채널본부</option>
+	              <option value="430323" ${bonbu eq '430323'?'selected':'' }>Customer운영본부</option>
+	              <option value="430343" ${bonbu eq '430343'?'selected':'' }>Digital Transformation TF</option>
+	              <option value="430344" ${bonbu eq '430344'?'selected':'' }>업무지원단</option> --%>
+	              <option value="430393" ${bonbu eq '430393'?'selected':'' }>수도권강북고객본부</option>
+	              <option value="430657" ${bonbu eq '430657'?'selected':'' }>수도권강남고객본부</option>
+	              <option value="430948" ${bonbu eq '430948'?'selected':'' }>수도권서부고객본부</option>
+	              <option value="431172" ${bonbu eq '431172'?'selected':'' }>부산고객본부</option>
+	              <option value="431467" ${bonbu eq '431467'?'selected':'' }>대구고객본부</option>
+	              <option value="431640" ${bonbu eq '431640'?'selected':'' }>전남고객본부</option>
+	              <option value="431762" ${bonbu eq '431762'?'selected':'' }>전북고객본부</option>
+	              <option value="431839" ${bonbu eq '431839'?'selected':'' }>충남고객본부</option>
+	              <option value="432047" ${bonbu eq '432047'?'selected':'' }>충북고객본부</option>
+	              <option value="432119" ${bonbu eq '432119'?'selected':'' }>강원고객본부</option>
+	              <option value="432207" ${bonbu eq '432207'?'selected':'' }>제주고객본부</option>
+                  <option value="423374" ${bonbu eq '423374'?'selected':'' }>네트워크지원담당</option>
+                  <option value="423383" ${bonbu eq '423383'?'selected':'' }>네트워크전략본부</option>
+                  <option value="423408" ${bonbu eq '423408'?'selected':'' }>네트워크운용본부</option>
+                  <option value="428890" ${bonbu eq '428890'?'selected':'' }>INS본부</option>
+                  <option value="432541" ${bonbu eq '432541'?'selected':'' }>네트워크연구기술지원단</option>
+                  <option value="382973" ${bonbu eq '382973'?'selected':'' }>강북네트워크운용본부</option>
+                  <option value="383040" ${bonbu eq '383040'?'selected':'' }>강남네트워크운용본부</option>
+                  <option value="383126" ${bonbu eq '383126'?'selected':'' }>충청네트워크운용본부</option>
+                  <option value="383167" ${bonbu eq '383167'?'selected':'' }>호남네트워크운용본부</option>
+                  <option value="383212" ${bonbu eq '383212'?'selected':'' }>대구네트워크운용본부</option>
+                  <option value="383251" ${bonbu eq '383251'?'selected':'' }>부산네트워크운용본부</option>
+               </select>
+                <select id="searchType" name="searchType">
+	                <option value="orgname" ${searchType eq 'orgname'?'selected':'' }>부서</option>
+	                <option value="porgscode" ${searchType eq 'porgscode'?'selected':'' }>조직</option>
+                </select>
+                <input type="text" name="searchTxt" class="txtarea w180" value="${searchTxt}" placeholder="검색어"/>                
+                <img class="srchIcon" src="/resources/img/btn_search.gif" style="cursor:pointer" alt="검색"/>
+            </fieldset>
+            </form>
+        </div>
+        <!-- LIST -->
+        <div class="btnArea">
+            <!-- <img class="modIcon" src="/resources/img/btn_modify.gif" style="cursor:pointer" alt="수정" /> -->
+        </div>
+        <form:form id="listForm" name="listForm" method="post" action="userRole_write.do">
+        	<input type="hidden" id="crud" name="crud" value="${approvalList.crud}"/>
+ 	        <table class="listTable" id="listTable" border="0" cellspacing="0" cellpadding="0">
+	            <thead>
+		            <tr>
+		                <th>본부</th>
+		                <th width="500">부서</th>
+		            </tr>
+	            </thead>
+	            <tbody>
+		            <c:choose> 
+		                <c:when test="${not empty approvalList}">    
+			                <c:forEach var="orgVO" items="${approvalList.list}" varStatus="status"> 
+			                    <tr style="cursor:pointer">
+	                                <td><input type="hidden" id="bonbu" name="list[${status.index}].bonbu" value="${orgVO.bonbu}" />${orgVO.bonbuname}</td>
+	                                <td><input type="hidden" id="orgscode" name="list[${status.index}].orgscode" value="${orgVO.orgscode}" />${orgVO.office_nm}
+	                                	<input type="hidden" id="orgname" name="list[${status.index}].orgname" value="${orgVO.orgname}" />
+	                                	<input type="hidden" id="porgscode" name="list[${status.index}].porgscode" value="${orgVO.porgscode}" />
+	                                </td>
+			                    </tr>
+			                </c:forEach>
+		                </c:when>
+		                <c:otherwise> 
+		                <tr>
+		                     <td colspan="6" class="h100">"검색된 결과가 없습니다"</td>
+		                </tr>
+		                </c:otherwise>		                  
+	                 </c:choose> 
+	            </tbody>
+	        </table>
+        </form:form>
+        <%@ include file="/resources/inc/paging.jsp" %>
+    </div>
+</section>
+</body>
+</html>

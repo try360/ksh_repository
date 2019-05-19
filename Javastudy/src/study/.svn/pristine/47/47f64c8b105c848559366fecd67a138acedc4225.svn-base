@@ -1,0 +1,132 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
+<%@ taglib uri="/tags/custom-taglib" prefix="custom" %> 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<script type="text/javascript" src="/resources/js/userRole.js"></script>
+<link type="text/css" rel="stylesheet" href="/resources/css/board.css" />
+</head>
+<script type="text/javascript">
+$(document).ready(function(){
+	if("${message}" != ""){
+		alert("${message}");
+	}
+});
+</script>
+<body>
+<%@ include file = "/resources/inc/header_nav.jsp" %>
+<%@ include file = "/resources/inc/aside.jsp" %>
+<section id="userRole_list">
+    <h1 class="list">승인자 관리</h1>
+    <div class="contents_form">
+        <!-- 타이틀, 경로 -->
+        <c:choose>
+        	<c:when test="${erp_job eq '01'}">
+        		<div class="divDocTitle">AGW</div>
+        	</c:when>
+        	<c:when test="${erp_job eq '02'}">
+        		<div class="divDocTitle">Reform-AGW</div>
+        	</c:when>
+        	<c:when test="${erp_job eq '03'}">
+        		<div class="divDocTitle">4P-AGW</div>
+        	</c:when>
+        	<c:otherwise>
+        		<div class="divDocTitle">AGW</div>
+        	</c:otherwise>
+        </c:choose>        
+        <!-- 검색조건 -->
+        <div class="searchArea">
+            <form id="searchForm" name="searchForm" method="post" action="userRole_list.do">
+            <input type="hidden" id="crud" name="crud" value="a"/>
+            <input type="hidden" id="erp_job" name="erp_job" value="${erp_job}"/>
+            <fieldset>
+                <legend>검색폼</legend>
+                <select id="step" name="step">
+	                <option value="01" ${step eq '01'?'selected':'' }>투자확정</option>
+	                <option value="02" ${step eq '02'?'selected':'' }>IP확정</option>
+	                <option value="03" ${step eq '03'?'selected':'' }>MGID확정</option>
+	                <option value="04" ${step eq '04'?'selected':'' }>COLCODE확정</option>
+	                <option value="05" ${step eq '05'?'selected':'' }>MAC등록</option>
+	                <option value="06" ${step eq '06'?'selected':'' }>착공</option>
+	                <option value="07" ${step eq '07'?'selected':'' }>준공</option>
+                </select>
+                <select id="searchType" name="searchType">
+	                <option value="emp_name" ${searchType eq 'emp_name'?'selected':'' }>사원명</option>
+	                <option value="dept_name" ${searchType eq 'dept_name'?'selected':'' }>부서명</option>
+	                <option value="appr_name" ${searchType eq 'appr_name'?'selected':'' }>본부명</option>
+                </select>
+                <input type="text" name="searchTxt" class="txtarea w180" value="${searchTxt}" placeholder="검색어"/>
+                <img class="srchIcon" src="/resources/img/btn_search.gif" style="cursor:pointer" alt="검색"/>
+            </fieldset>
+            </form>
+        </div>
+        <!-- LIST -->
+        <div class="btnArea">
+        	<img class="regIcon" src="/resources/img/btn_regist.gif" style="cursor:pointer" alt="등록" />
+            <!-- <img class="modIcon" src="/resources/img/btn_modify.gif" style="cursor:pointer" alt="수정" /> -->
+            <img class="delIcon" src="/resources/img/btn_delete.gif" style="cursor:pointer" alt="삭제" />
+        </div>
+        <form:form id="listForm" name="listForm" method="post" action="approvalInfo_list_modify.do">
+        	<input type="hidden" id="crud" name="crud" value="${approvalInfoList.crud}"/>
+        	<input type="hidden" id="step" name="step" value="${step}"/>
+        	<input type="hidden" id="searchType" name="searchType" value="${searchType}"/>
+            <input type="hidden" id="searchTxt" name="searchTxt" value="${searchTxt}"/>
+            <input type="hidden" id="erp_job" name="erp_job" value="${erp_job}"/>
+ 	        <table class="listTable" id="listTable" border="0" cellspacing="0" cellpadding="0">
+	            <thead>
+		            <tr>
+		                <th width="30"><input type="checkbox" id="checkAll" name="checkAll"></th>
+		                <th width="200">요청본부(부서)</th>
+		                <th width="200">승인본부(부서)</th>
+		                <th width="200">소속</th>
+		                <th width="200">부서</th>
+		                <th>승인자</th>
+		                <th width="60">디폴트</th>
+		            </tr>
+	            </thead>
+	            <tbody>
+		            <c:choose> 
+		                <c:when test="${not empty approvalInfoList}">    
+			                <c:forEach var="approvalInfoVO" items="${approvalInfoList.list}" varStatus="status"> 
+			                    <tr style="cursor:pointer">
+			                        <td><input type="checkbox" id="del" name="list[${status.index}].del" value="${approvalInfoVO.del}" ${approvalInfoVO.del=="1"?"checked":""} ></td>
+			                        <td><input type="hidden" id="req_bonbu" name="list[${status.index}].req_bonbu" value="${approvalInfoVO.req_bonbu}" />${approvalInfoVO.req_name}</td>
+	                                <td><input type="hidden" id="appr_bonbu" name="list[${status.index}].appr_bonbu" value="${approvalInfoVO.appr_bonbu}" />${approvalInfoVO.appr_name}</td>
+			                        <td><input type="hidden" id="org_code" name="list[${status.index}].org_code" value="${approvalInfoVO.org_code}" />${approvalInfoVO.org_name}</td>
+			                        <td><input type="hidden" id="dept_code" name="list[${status.index}].dept_code" value="${approvalInfoVO.dept_code}" />${approvalInfoVO.dept_name}</td>
+			                        <td><input type="hidden" id="no_emp" name="list[${status.index}].no_emp" value="${approvalInfoVO.no_emp}" />${approvalInfoVO.emp_name}</td>			                        	
+			                        <td><input type="hidden" id="dft" name="list[${status.index}].dft" value="${approvalInfoVO.dft}" />${approvalInfoVO.dft=='1'?'선택':'미선택'}
+			                        	<input type="hidden" id="step" name="list[${status.index}].step" value="${approvalInfoVO.step}" />
+			                        	<input type="hidden" id="approval_no" name="list[${status.index}].approval_no" value="${approvalInfoVO.approval_no}" />
+			                        </td>			                        
+			                    </tr>
+			                </c:forEach>
+		                </c:when>
+		                <c:otherwise> 
+		                <tr>
+		                     <td colspan="7" class="h100">"검색된 결과가 없습니다"</td>
+		                </tr>
+		                </c:otherwise>		                  
+	                 </c:choose> 
+	            </tbody>
+	        </table>
+        </form:form>
+        <form id="selectTd" name="selectTd" method="post" action="userRole_write.do">
+            <input type="hidden" id="crud" name="crud" value="${approvalInfoVO.crud}"/>
+            <input type="hidden" id="searchType" name="searchType" value="${approvalInfoVO.searchType}"/>
+            <input type="hidden" id="searchTxt" name="searchTxt" value="${approvalInfoVO.searchTxt}"/>
+            <input type="hidden" id="no_emp" name="no_emp" value="${approvalInfoVO.no_emp}"/>
+            <input type="hidden" id="erp_job" name="erp_job" value="${approvalInfoVO.erp_job}"/>
+            <input type="hidden" id="step" name="step" value="${approvalInfoVO.step}"/>
+            <input type="hidden" id="approval_no" name="approval_no" value="${approvalInfoVO.approval_no}"/>
+        </form>    
+        <%@ include file="/resources/inc/paging.jsp" %>
+    </div>
+</section>
+<%@ include file = "/resources/inc/footer.jsp" %>
+</body>
+</html>

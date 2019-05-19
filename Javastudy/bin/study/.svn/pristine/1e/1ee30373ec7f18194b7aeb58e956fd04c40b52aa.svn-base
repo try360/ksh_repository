@@ -1,0 +1,104 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
+<%@ taglib uri="/tags/custom-taglib" prefix="custom" %> 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <%@ include file = "/resources/inc/meta.jsp" %>    
+    <script type="text/javascript" src="/resources/js/index.js"></script>
+	<link type="text/css" rel="stylesheet" href="/resources/css/index.css" />
+</head>	
+<body>
+
+<div id="wrap">
+    <div id="l_title">
+        <div>
+            <img src="/resources/img/logo.png" alt="AGW-Ne" />
+            <span></span>
+        </div>
+    </div>
+    <div class="l_center" id="l_container">
+
+            <div class="login_box">
+                <div class="login_box_sub">
+                    <div id="login_box_img"><strong>광전화 망설계</strong> 시스템</div>
+                    <form name="loginForm" method="post" action="signin" onSubmit="return FormChkModule(this);">
+                    <fieldset>
+                        <legend>로그인폼</legend>
+                        <table id="l_form" border="1" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr height="74">
+                                <td width="25"></td>
+                                <td colspan="3"><img src="/resources/img/login_boxtxt.gif" alt="MEMBER LOGIN"><!-- <span>아이디, 비밀번호는 <b>사번</b>으로 입력해 주세요.</span> --></td>
+                                <td width="25"></td>
+                            </tr>
+                            <tr height="31">
+                                <td width="25"></td>
+                                <td>
+                                    <input class="l_text" id="user_id" name="user_id" type="text" value="${cookie.user_id.value}" placeholder="아이디" tabindex="1" />
+                                </td>
+                                <td width="10"></td>
+                                <td rowspan="3">
+                                    <input type="image" class="loginIcon" src="/resources/img/login_btn.gif" alt="로그인" >
+                                </td>
+                                <td width="25"></td>
+                            </tr>
+                            <tr height="7">
+                                <td width="25"></td>
+                                <td></td>
+                                <td width="10"></td>
+                                <td width="25"></td>
+                            </tr>
+                            <tr height="31">
+                                <td width="25"></td>
+                                <td>
+                                    <input class="l_text" id="password" name="password" type="password" value="" placeholder="비밀번호"  tabindex="2" />
+                                </td>
+                                <td width="10"></td>
+                                <td width="25"></td>
+                            </tr>
+                            <tr height="45">
+                                <td width="25"></td>
+                                <td>
+                                    <input id="check_save_id" name="check_save_id" type="checkbox" ${not empty cookie.user_id.value? 'checked': ''} /><label for="check_save_id">아이디 저장</label>
+                                </td>
+                                <td colspan="3"></td>
+                            </tr>
+                        </tbody>
+                        </table>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+		<div class="info">
+	            해당 사이트 문의는 담당자에게 연락 바랍니다.<br>
+	            네트워크연구기술지원단 > 통화서비스기술지원팀 - <b>차재현</b>
+        </div>
+    </div>
+	<div class="oldSite">
+	    <p>구)NeOSS-Ne 사이트 이동 하시려면 <a href="http://147.6.82.13" target="_blank">[NeOSS-Ne]</a> 로고를 클릭 해 주세요.</p>
+	</div>
+</div>
+
+<script type="text/javascript">
+var message = "${message}";
+
+function FormChkModule(f){
+	if (f.user_id.value == ""){
+		alert("아이디를 입력해 주세요");
+		f.user_id.focus();
+		return false;
+	}
+	if (f.password.value == ""){
+		alert("비밀번호를 입력해 주세요");
+		f.password.focus();
+		return false;
+	}
+	return true;
+}
+
+</script>
+</body>
+</html>

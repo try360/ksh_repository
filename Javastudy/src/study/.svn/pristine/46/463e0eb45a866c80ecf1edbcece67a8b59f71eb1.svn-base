@@ -1,0 +1,90 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<%@ taglib prefix="custom" uri="/tags/custom-taglib" %> 
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<link rel="stylesheet" href="/resources/css/userAppr.css">
+<script type="text/javascript" src="/resources/js/userRoleAgw.js" charset="euc-kr"></script>
+</head>
+<body >
+<section id="approval_list">
+    <h1 class="list">승인자관리 본부 등록</h1>
+    <div class="contents_form">
+        <!-- 타이틀, 경로 -->
+        		<div class="divDocTitle">신규 등록</div>
+        <!-- LIST -->
+        <div class="btnArea">
+            <img class="modIcon" id="modIconbtn" name="modIconbtn" src="/resources/img/btn_regist.gif" style="cursor:pointer" alt="등록" />
+        </div>
+        <form:form id="listForm" name="listForm" method="post" action="role_agw_update">
+	        <input type="hidden" name="appr_no_01" id="appr_no_01" value="${userRoleAgwOne.appr_no_01 }">
+	        <input type="hidden" name="appr_no_06" id="appr_no_06" value="${userRoleAgwOne.appr_no_06 }">
+ 	        <table class="listTable" id="listTable" border="0" cellspacing="0" cellpadding="0" >
+	            <thead>
+		            <tr>
+		            	<th width="180">공급요청 본부</th>
+		                <th width="110">요청단계</th>
+		                <th width="">승인자 부서</th>
+		                <th width="80">승인자 이름</th>
+		                <th width="50">검색</th>
+		                <th width="50">취소</th>
+		            </tr>
+	            </thead>
+	            <tbody>
+			                    <tr style="cursor:pointer">
+			                    	<td rowspan="2">
+			                    	<input type="hidden" id="req_name_01" name="req_name_01" value="" >
+			                    	<select id="req_bonbu_01" name="req_bonbu_01">
+			                    	<c:choose>
+			                    		<c:when test="${not empty bonbuList  }">
+			                    			<c:forEach var="vo" items="${bonbuList}" varStatus="status">
+			                    				<option value="${vo.orgscode }">${vo.orgnameabbr }</option>
+			                    			</c:forEach>
+			                    		</c:when>
+			                    	</c:choose>
+			                    	</select>
+			                    	</td>
+	                                <td>투자확정</td>
+	                                <td><span id="appr_name_01">${userRoleAgwOne.appr_name_01}</span></td>
+	                                <td><input type="hidden" id="user_no_01" name="user_no" value="${userRoleAgwOne.user_no_01}" /><span id="emp_name_01">${userRoleAgwOne.emp_name_01}</span></td>
+	                                <td><button name="usrSearchBtn" id="b_01" ><span class="ui-icon ui-icon-search"></span></button></td>
+	                                <td><img src="/resources/img/ico_delete.gif" alt="delete" name="insertCancle" id="insertCancle_01"/></td>
+			                    </tr>
+			                    <tr style="cursor:pointer">
+	                                <td>착공(공사요청)</td>
+	                                <td><span id="appr_name_06">${userRoleAgwOne.appr_name_06}</span></td>
+	                                <td><input type="hidden" id="user_no_06" name="user_no" value="${userRoleAgwOne.user_no_06}" /><span id="emp_name_06">${userRoleAgwOne.emp_name_06}</span></td>
+	                                <td><button name="usrSearchBtn" id="b_06" ><span class="ui-icon ui-icon-search"></span></button></td>
+	                                <td><img src="/resources/img/ico_delete.gif" alt="delete" name="insertCancle" id="insertCancle_06"/></td>
+				                    </tr>
+		                <tr>
+		                     <!-- <td colspan="6" class="h100">"검색된 결과가 없습니다"</td> -->
+		                </tr>
+		       </tbody>         
+	        </table>
+        </form:form>
+    </div>
+		<div id="mask"></div>
+		<div class="window">
+			<jsp:include page="../include/pop_usrSearch.jsp" flush="false"></jsp:include>
+		</div>
+		<!-- 승인요청처리프로그레스창 -->
+		<div id="submit_mask"></div>   
+		<div id="pop_userRoleAgw_submit" title="AGW 승인자 수정" ><p></p></div>
+</section>
+</body>
+<script>
+	if('${msg}' == "OK"){
+		//alert('${msg}');
+		window.close();
+		opener.parent.location.reload();
+	}
+	
+</script>
+</html>

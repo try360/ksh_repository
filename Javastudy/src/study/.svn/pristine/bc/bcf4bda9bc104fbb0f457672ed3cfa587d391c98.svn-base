@@ -1,0 +1,157 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file OfficeDAOImpl.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.dao.impl;
+
+import java.util.HashMap;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.stereotype.Repository;
+
+import kr.co.kt.agwne.dao.OfficeDAO;
+import kr.co.kt.agwne.dto.OfficeVO;
+ 
+
+@Repository
+public class OfficeDAOImpl implements OfficeDAO {
+
+    @Inject
+    private SqlSession sqlSession;
+
+    private static final String Namespace = "kr.co.kt.agwne.officeMapper";
+
+  
+    
+    @Override
+    public List<OfficeVO> t_office_list() throws Exception{
+        return sqlSession.selectList(Namespace + ".t_office_list");    
+    }
+    @Override
+    public List<OfficeVO> t_office_list_top() throws Exception{
+        return sqlSession.selectList(Namespace + ".t_office_list_top");    
+    }
+    @Override
+    public int t_office_list2(int office_no) throws Exception{
+        return sqlSession.selectOne(Namespace + ".t_office_list2",office_no);    
+    }
+    
+    @Override
+    public List<OfficeVO> t_office_sub_list(HashMap<String, Object> listInfo) throws Exception{
+        return sqlSession.selectList(Namespace + ".t_office_sub_list", listInfo);    
+    }
+    
+    @Override
+    public Object office_reg(OfficeVO officeVO) throws Exception{
+        return sqlSession.insert(Namespace + ".office_reg", officeVO);  
+    }
+    
+    @Override
+    public Object office_list(HashMap<String, Object> listInfo) throws Exception{
+        return sqlSession.selectList(Namespace + ".office_list",listInfo);    
+    }
+    
+    @Override
+    public Object office_nm_list(HashMap<String, Object> listInfo) throws Exception{
+        return sqlSession.selectList(Namespace + ".office_nm_list",listInfo);    
+    }
+    
+    @Override
+    public Object office_del(int office_no) throws Exception{
+        return sqlSession.update(Namespace + ".office_del", office_no);  
+    }
+    
+    @Override
+    public int office_totalCnt(HashMap<String, Object> listInfo)  throws Exception{
+        return sqlSession.selectOne(Namespace + ".office_totalCnt", listInfo);
+    }
+    
+    @Override
+    public Object office_check(OfficeVO officeVO) throws Exception {
+        return sqlSession.selectOne(Namespace + ".office_check", officeVO);  
+    }
+    
+    @Override
+    public Object office_update(OfficeVO officeVO) throws Exception {
+        return sqlSession.insert(Namespace + ".office_update", officeVO);  
+    }
+    @Override
+    public int office_cd_get(OfficeVO officeVO) throws Exception {
+        int no = 0;
+        try {
+            no = sqlSession.selectOne(Namespace + ".office_cd_get", officeVO);
+        } catch (Exception e) {
+            no = 0;
+        }
+        return no;
+    }
+	@Override
+	public int t_office_doc_reg(List<OfficeVO> officeVO) throws Exception {
+		
+		int cnt = 0;
+		OfficeVO vo = new OfficeVO();
+		for (int i = 0; i < officeVO.size(); i++) {
+			vo =(OfficeVO) officeVO.get(i);
+			cnt=+sqlSession.insert(Namespace + ".t_office_doc_reg", vo);
+		}
+		if(cnt != 1) {
+			throw new Exception();
+		}
+		return cnt;
+	}
+	@Override
+	public OfficeVO t_my_office(String dept_code) throws Exception {
+		return sqlSession.selectOne(Namespace + ".t_my_office",dept_code);
+	}
+	@Override
+	public Object selectBonbu(String region) {
+		return sqlSession.selectList(Namespace +".selectBonbu", region);
+	}
+	@Override
+	public Object selectCenter(String bonbu) {
+		return sqlSession.selectList(Namespace +".selectCenter", bonbu);
+	}
+	@Override
+	public Object selectBranch(String center) {
+		return sqlSession.selectList(Namespace +".selectBranch", center);
+	}
+	@Override
+	public Object selectTeam(String branch) {
+		return sqlSession.selectList(Namespace +".selectTeam", branch);
+	}
+	@Override
+	public Object select_cmBonbuAll() {
+		return sqlSession.selectList(Namespace +".select_cmBonbuAll");
+	}
+	@Override
+	public Object select_cmBranchAll(String orgscode) {
+		return sqlSession.selectList(Namespace +".select_cmBranchAll", orgscode);
+	}
+	@Override
+	public Object select_cmOfficeAll(String orgscode) {
+		return sqlSession.selectList(Namespace +".select_cmOfficeAll", orgscode);
+	}
+	@Override
+	public Object select_mycmOffice(String dept_code) {
+		return sqlSession.selectOne(Namespace +".select_mycmOffice", dept_code);
+	}
+    
+}

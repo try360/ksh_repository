@@ -1,0 +1,17 @@
+package kr.co.kt.common.excel;
+
+import java.util.List;
+
+import lombok.Data;
+
+@Data
+public class ExcelWriteOption {
+
+	private String savePath;
+	private String filePath;
+	private String fileName;
+	private String sheetName;
+	private List<String> titles;
+	private List<String[]> contents;
+
+}

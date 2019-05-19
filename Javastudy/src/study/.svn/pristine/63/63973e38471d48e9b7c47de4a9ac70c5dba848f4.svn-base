@@ -1,0 +1,66 @@
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file CommonConstants.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.tcpconn;
+
+public class CommonConstants {
+		
+	//webClinet -> Demon (OUT)
+	public final static short WEB_IP_REQ					=		0x0bb8;		//고정아이피 중복확인요청 (3000)
+	public final static short WEB_MEGACO_IP_REQ				=		0x0bb9;		//메가코아이피 중복확인요청 (3001)
+	public final static short WEB_FACILITIES_REGI_REQ		=		0x0bba;		//시설정보 등록요청 (3002)
+	public final static short WEB_COLCODE_UDT_REQ			=		0x0bbb;		//colcode 변경 요청 (3003)
+	public final static short WEB_FACILITIES_DEL_REQ		= 		0x0bbc;		//시설정보 삭제 요청 (3004)	
+	public final static short WEB_KEEP_ALIVE_REQ			=		0x0bbf;		//heart beat 요청 (3007)
+	
+	//Demon -> webClient(IN)
+	public final static short WEB_IP_RSP					= 		0x0fa0;    //고정아이피 중복확인응답 (4000)
+	public final static short WEB_MEGACO_IP_RSP				= 		0x0fa1;    //메가코아이피 중복확인응답 (4001)
+	public final static short WEB_FACILITIES_RSP			= 		0x0fa2;    //시설정보 중복확인응답 (4002)
+	public final static short WEB_COLCODE_UDT_RSP			=		0x0fa3;		//colcode 변경 요청 응답 (4003)
+	public final static short WEB_FACILITIES_DEL_RSP		=		0x0fa4;		//시설정보 삭제  응답 (4004)
+	public final static short WEB_KEEP_ALIVE_RSP			=		0x0fa7;		//heart beat 응답 (4007)
+		
+		
+		public final static short 	RESERVE_VALUE				=	 	0x0000;
+		public final static int 	RSP_RESULT_SUCCESS		=		0x0000;
+		public final static int 	RSP_RESULT_FAIL				=		0x0001;
+		
+		
+		//AGW_Ne -> EMS (OUT)
+		public final static short NE_FACILITIES_REGI_REQ		=		0x03e8;		//시설정보등록요청(1000)
+		public final static short NE_FACILITIES_REGI_RSP		=		0x03e9;		//시설정보요청응답(1001)
+		public final static short NE_COLCODE_REQ				=		0x03ea;		//colcode요청(1002)
+		public final static short NE_FACILITIES_DEL_REQ			=		0x03eb;		//시설정보삭제요청(1003)
+		public final static short NE_COMPLETION_RSP				=		0x03ec;		//준공정보처리응답(1004)
+		public final static short NE_IP_REQ						=		0x03ed;		//고정아이피 중복확인요청 (1005)
+		public final static short NE_MEGACO_IP_REQ				=		0x03ee;		//메가코아이피 중복확인요청 (1006)
+		public final static short KEEP_ALIVE_RSP				=		0x03ef;		//heart beat 응답 (1007)	
+		
+		//EMS -> AGW_Ne(IN)
+		public final static short EMS_FACILITIES_REGI_RSP 		=		0x07d0;		 //시설정보등록응답 (2000)
+		public final static short EMS_FACILITIES_REGI_REQ		=  		0x07d1;		 //시설정보요청(2001)
+		public final static short EMS_COLCODE_RSP				=  		0x07d2;		 //COLCODE 응답(2002)
+		public final static short EMS_FACILITIES_DEL_RSP		=  		0x07d3;		//시설정보삭제응답(2003)
+		public final static short EMS_COMPLETION_REQ			= 		0x07d4;    //준공정보처리요청(2004)
+		public final static short EMS_IP_RSP					= 		0x07d5;    //고정아이피 중복확인응답 (2005)
+		public final static short EMS_MEGACO_IP_RSP				= 		0x07d6;    //메가코아이피 중복확인응답 (2006)
+		public final static short KEEP_ALIVE_REQ				= 		0x07d7;    //heart beat 요청 (2007)
+
+}

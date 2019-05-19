@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kt.agwne.processMapper">
+<resultMap id="process_contents" type="HashMap">
+	<result javaType = "int" column="process_no_01" property="process_no_01"/>
+	<result javaType = "int" column="process_no_02" property="process_no_02"/>
+	<result javaType = "int" column="process_no_03" property="process_no_03"/>
+	<result javaType = "int" column="process_no_04" property="process_no_04"/>
+	<result javaType = "int" column="process_no_05" property="process_no_05"/>
+	<result javaType = "int" column="process_no_06" property="process_no_06"/>
+	<result javaType = "int" column="process_no_07" property="process_no_07"/>		
+	<result javaType = "String" column="contents_01" property="contents_01"/>
+	<result javaType = "String" column="contents_02" property="contents_02"/>
+	<result javaType = "String" column="contents_03" property="contents_03"/>
+	<result javaType = "String" column="contents_04" property="contents_04"/>
+	<result javaType = "String" column="contents_05" property="contents_05"/>
+	<result javaType = "String" column="contents_06" property="contents_06"/>
+	<result javaType = "String" column="contents_07" property="contents_07"/>				
+</resultMap>
+	<!-- 2018-04-28 배수산
+		수요공급요청검토및승인이력들 -->
+  <insert id="process_reg" parameterType="psVO" useGeneratedKeys="true" keyProperty="process_no" keyColumn="process_no"> 
+        <![CDATA[ 
+         INSERT into agwne.t_process 
+                    (
+                        neoss_no
+                        ,status_cd
+                        ,contents
+                        ,del_yn
+                        ,input_id
+                        ,update_id
+                        ,input_dt
+                        ,time_stamp
+                        , return_yn
+                     )
+              values( 
+                       #{neoss_no}
+                       ,#{status_cd}
+                       ,#{contents}
+                       ,FALSE
+                       ,#{input_id}
+                       ,#{update_id}
+                       ,now()
+                       ,now()
+        ]]>
+        <if test="return_yn">
+        	, true
+        </if>
+        <if test="!return_yn">
+        	, false
+        </if>
+        <![CDATA[
+                   )
+        ]]>
+		
+			<selectKey keyProperty="process_no" resultType="int" order="AFTER">
+		        <![CDATA[
+		            select CURRVAL('agwne.t_process_process_no_seq')
+		        ]]>
+			</selectKey>
+    </insert>
+    
+    <update id="process_modi" parameterType="psVO" >
+    	UPDATE agwne.t_process SET
+           contents	= #{contents}
+           ,update_id	= #{update_id}
+           ,time_stamp	= now()
+		WHERE process_no = #{process_no}	
+    </update>
+    
+    <update id="process_current_yn_update" parameterType="int" >
+    	UPDATE agwne.t_process SET
+           current_yn = FALSE
+		WHERE neoss_no = #{neoss_no} and del_yn is false	
+    </update>
+    
+    <insert id="process_modelInfo_reg" parameterType="psVO"> 
+        <![CDATA[ 
+         insert into agwne.t_olt_pots_fms_mac (
+                neoss_no
+                , gubun
+                , kuksa_nm
+                , olt_nm
+                , managed_ip
+                , subnetmask
+                , gw_ip
+                , inet_tie
+                , olt_user_id
+                , olt_in_dt
+                , pots_id
+                , mg_id
+                , start_lln
+                , ems_ip
+                , colcode
+                , mac
+                , megaco_ip 
+                , ipsec_ip
+                )values(
+                  #{neoss_no}
+                , #{gubun} 
+                , #{kuksa_nm}
+                , #{olt_nm}
+                , #{managed_ip}
+                , #{subnetmask}
+                , #{gw_ip}
+                , #{inet_tie}
+                ]]>
+                <if test="olt_user_id != null and olt_user_id != ''">
+                <![CDATA[
+                , #{olt_user_id}
+                , to_timestamp(#{olt_in_dt}, 'yyyy-mm-dd hh24:mi:ss')
+                ]]>
+                </if>
+                <if test="olt_user_id == null or olt_user_id == ''">
+                , (select olt_user_id from agwne.t_olt_pots_fms_mac where del_yn = false and neoss_no = #{neoss_no} and gubun=#{gubun})
+                , (select olt_in_dt from agwne.t_olt_pots_fms_mac where del_yn = false and neoss_no = #{neoss_no} and gubun=#{gubun})
+                </if>
+                <![CDATA[                
+                , #{pots_id}
+                , #{mg_id}
+                , #{start_lln}
+                , #{ems_ip}
+                , #{colcode}
+                , #{mac}
+                , #{megaco_ip}
+                , #{ipsec_ip}
+				) ON CONFLICT (neoss_no, gubun) DO UPDATE SET
+				
+                  kuksa_nm 		= #{kuksa_nm}
+                , olt_nm		= #{olt_nm}
+                , managed_ip	= #{managed_ip}
+                , subnetmask	= #{subnetmask}
+                , gw_ip			= #{gw_ip}
+                , inet_tie		= #{inet_tie}
+                ]]>
+                <if test="olt_user_id != null and olt_user_id != ''">
+                <![CDATA[
+                , olt_user_id	= #{olt_user_id}
+                , olt_in_dt		= to_timestamp(#{olt_in_dt}, 'yyyy-mm-dd hh24:mi:ss')
+                ]]>
+                </if>
+                <![CDATA[                
+                , pots_id		= #{pots_id}
+                , mg_id			= #{mg_id}
+                , start_lln		= #{start_lln}
+                , ems_ip		= #{ems_ip}
+                ]]>
+                <if test="pots_user_id != null and pots_user_id != ''">
+                <![CDATA[
+                , pots_user_id	= #{pots_user_id}
+                , pots_in_dt	= to_timestamp(#{pots_in_dt}, 'yyyy-mm-dd hh24:mi:ss')
+                ]]>
+                </if>
+                <![CDATA[                
+                , colcode		= #{colcode}
+                ]]>
+                <if test="fm_user_id != null and fm_user_id != ''">
+                <![CDATA[
+                , fm_user_id	= #{fm_user_id}
+                , fm_in_dt		= to_timestamp(#{fm_in_dt}, 'yyyy-mm-dd hh24:mi:ss')
+                ]]>
+                </if>
+                <![CDATA[                
+                , mac			= #{mac}
+                ]]>
+                <if test="mac_user_id != null and mac_user_id != ''">
+                <![CDATA[
+                , mac_user_id	= #{mac_user_id}
+                , mac_in_dt 	= to_timestamp(#{mac_in_dt}, 'yyyy-mm-dd hh24:mi:ss')
+                ]]>
+                </if>
+                <![CDATA[                
+                , megaco_ip		= #{megaco_ip}
+                , ipsec_ip		= #{ipsec_ip}
+				
+        ]]>
+    </insert>
+    
+	<select id="process_modelInfo_view" parameterType="map" resultType="mdVO">
+	<![CDATA[
+		select a.neoss_no
+			 , a.gubun
+			 , a.kuksa_nm
+			 , a.olt_nm
+			 , a.inet_tie
+			 , a.managed_ip
+			 , a.subnetmask
+			 , a.gw_ip
+			 , a.olt_user_id
+			 , olt.emp_name as olt_user_name
+			 , olt.dept_name as olt_dept_name
+			 , olt.phone_number as olt_phone_number
+			 , a.olt_in_dt
+			 , a.pots_id, d.nm as pots_nm, d.ip as pots_ip
+			 , a.mg_id
+			 , a.start_lln
+			 , a.ems_ip, e.ktis_ip, e.mih_ip
+			 , a.pots_user_id
+			 , pots.emp_name as pots_user_name
+			 , pots.dept_name as pots_dept_name
+			 , pots.phone_number as pots_phone_number
+			 , a.pots_in_dt
+			 , a.colcode
+			 , a.fm_user_id
+			 , fm.emp_name as fm_user_name
+			 , fm.dept_name as fm_dept_name
+			 , fm.phone_number as fm_phone_number
+			 , a.fm_in_dt
+			 , a.mac
+			 , c.epon_mac
+			 , a.mac_user_id
+			 , mac.emp_name as mac_user_name
+			 , mac.dept_name as mac_dept_name
+			 , mac.phone_number as mac_phone_number
+			 , a.mac_in_dt 
+			 , a.megaco_ip
+			 , a.ipsec_ip
+			 , fac.address
+			 , b.office_nm
+			 , ipsec.ip as ipsec_info_ip
+			 , ipsec.nm as ipsec_info_nm
+		  FROM agwne.t_olt_pots_fms_mac a
+			   LEFT OUTER JOIN agwne.t_org_user as olt on (a.olt_user_id = olt.no_emp)
+			   LEFT OUTER JOIN agwne.t_org_user as pots on (a.pots_user_id = pots.no_emp)
+			   LEFT OUTER JOIN agwne.t_org_user as fm on (a.fm_user_id = fm.no_emp)
+			   LEFT OUTER JOIN agwne.t_org_user as mac on (a.mac_user_id = mac.no_emp)
+			   LEFT OUTER JOIN agwne.t_facilities as fac on (a.colcode = fac.colcode and a.managed_ip = fac.managed_ip)
+			   LEFT OUTER JOIN agwne.t_bonbu_level as b on (fac.office_cd = b.orgscode)
+			   LEFT OUTER JOIN agwne.t_mac as c on (a.mac = c.agw_mac and c.del_yn = false)
+			   left outer join agwne.t_pots as d on (a.pots_id = d.id)
+			   left outer join agwne.t_agw_4p_gw_ems_info as e on (a.ems_ip = cast(e.id as varchar(10)))
+			   left outer join agwne.t_ipsec_info ipsec on (a.ipsec_ip = cast(ipsec.id as varchar(50)))
+		 WHERE a.del_yn = false
+		   and a.gubun=#{gubun}
+		   and a.neoss_no=#{neoss_no} 	
+	]]>
+	</select>
+    	<select id="process_info_ajax" parameterType="psVO" resultType="psVO">
+	 <![CDATA[ 
+		SELECT  
+				process_no  
+		        ,contents
+		        ,input_id
+				,b.emp_name
+				,b.dept_name
+				,b.office_nm
+				,b.phone_number
+		        ,input_dt 
+		        ,update_id
+		        ,time_stamp
+		        ,status_cd
+		
+		FROM 
+				agwne.t_process a, agwne.t_org_user b
+		
+		WHERE  
+				a.input_id = b.no_emp
+		AND 
+				process_no= #{process_no}
+		]]>
+	</select>
+	<select id="process_list" parameterType="int" resultType="psVO">
+    	<!-- SELECT 
+			row_number()over(order by process_no asc ) as rnum,
+			a.process_no, a.neoss_no, a.status_cd, a.contents, a.del_yn, a.input_id, a.update_id, a.input_dt, a.time_stamp , a.current_yn
+			, emp.emp_name, emp.phone_number, emp.email_address,  emp.ex_agency_nm as office_nm, emp.dept_name as branch_nm
+		FROM(
+			select  
+					process_no
+					,neoss_no
+	                ,status_cd
+	                ,contents
+	                ,del_yn
+	                ,input_id
+	                ,update_id
+	                ,TO_CHAR(input_dt,'yyyy-mm-dd HH24:MI:SS') input_dt
+	                ,TO_CHAR(time_stamp,'yyyy-mm-dd HH24:MI:SS') time_stamp
+	                ,current_yn
+			
+			from 
+					agwne.t_process 
+			
+			where 
+					 del_yn is FALSE 
+					 and neoss_no = #{process_no}) a 
+					LEFT OUTER JOIN agwne.mview_org_user emp ON a.input_id = emp.no_emp
+			 
+			ORDER BY 
+					 process_no DESC					  -->
+	 <![CDATA[
+		select row_number()over(order by process_no asc ) as rnum
+		     , a.process_no
+			 , a.neoss_no
+			 , a.status_cd
+			 , a.return_yn
+			 , a.contents
+			 , a.del_yn
+			 , a.input_id
+			 , a.update_id
+			 , TO_CHAR(a.input_dt,'yyyy-mm-dd HH24:MI:SS') input_dt
+			 , TO_CHAR(a.time_stamp,'yyyy-mm-dd HH24:MI:SS') time_stamp
+			 , a.current_yn
+			 , emp.emp_name
+			 , emp.phone_number
+			 , emp.email_address
+			 , emp.ex_agency_nm as office_nm
+			 , emp.dept_name as branch_nm
+		  from agwne.t_process a
+			   LEFT OUTER JOIN agwne.t_org_user emp ON a.input_id = emp.no_emp
+		 where a.del_yn is FALSE 
+		   and a.neoss_no = #{process_no}
+		 order by a.process_no DESC
+	]]>
+	</select>
+	<select  id="process_contents" parameterType="int" resultMap="process_contents">
+	<![CDATA[ 
+				SELECT 
+				    a.process_no process_no_01
+				    ,a.contents   contents_01
+				    ,b.process_no process_no_02
+				    ,b.contents   contents_02    
+				    ,c.process_no process_no_03
+				    ,c.contents   contents_03
+				    ,d.process_no process_no_04
+				    ,d.contents   contents_04
+				    ,e.process_no process_no_05
+				    ,e.contents   contents_05
+				    ,f.process_no process_no_06
+				    ,f.contents   contents_06
+				    ,g.process_no process_no_07
+				    ,g.contents   contents_07
+			FROM 
+					(select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = #{neoss_no} and status_cd = '01' and del_yn is false and current_yn is true and return_yn is false limit 1)) a
+					left outer join (select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = #{neoss_no} and status_cd = '02' and del_yn is false and current_yn is true and return_yn is false limit 1)) b on a.neoss_no=b.neoss_no
+					left outer join (select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = #{neoss_no} and status_cd = '03' and del_yn is false and current_yn is true and return_yn is false limit 1)) c on a.neoss_no=c.neoss_no
+					left outer join (select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = #{neoss_no} and status_cd = '04' and del_yn is false and current_yn is true and return_yn is false limit 1)) d on a.neoss_no=d.neoss_no
+					left outer join (select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = #{neoss_no} and status_cd = '05' and del_yn is false and current_yn is true and return_yn is false limit 1)) e on a.neoss_no=e.neoss_no
+					left outer join (select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = #{neoss_no} and status_cd = '06' and del_yn is false and current_yn is true and return_yn is false limit 1)) f on a.neoss_no=f.neoss_no
+					left outer join (select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = #{neoss_no} and status_cd = '07' and del_yn is false and current_yn is true and return_yn is false limit 1)) g on a.neoss_no=g.neoss_no
+	
+	
+		]]>
+		
+	</select>
+    <select  id="process_contents_01" parameterType="int" resultMap="process_contents">
+			SELECT 
+				    a.process_no process_no_01
+				    ,a.contents   contents_01
+				    ,f.process_no process_no_06
+				    ,f.contents   contents_06
+
+			FROM 
+					(select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no =#{neoss_no}  and status_cd = '01' and del_yn is false and current_yn is true)) a
+					left outer join (select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = #{neoss_no}  and status_cd = '06' and del_yn is false and current_yn is true)) f on a.neoss_no=f.neoss_no 
+	</select>
+	
+	<select id="selectMacSearching" parameterType="String" resultType="String">
+	<![CDATA[
+		SELECT SUBSTRING(a.agw_mac, 7) as agw_cd
+		  FROM agwne.t_mac a 
+		       left outer join agwne.t_olt_pots_fms_mac b on (a.agw_mac = b.mac and b.del_yn = false) 
+		 where a.del_yn = false
+		   and b.mac is null
+		   and a.agw_mac like '${agw_mac}%'
+		 order by a.agw_mac asc
+	]]>
+	</select> 
+
+	<select id="selectExMailing" parameterType="String" resultType="csmemVO">
+	<![CDATA[
+		select a.ex_mail_no as no_emp
+			 , a.ex_company_nm
+			 , a.ex_emp_nm as emp_name
+			 , a.phone_number
+			 , a.email_address
+		  from agwne.t_org_user_ex_mail a
+		       inner join agwne.t_cm_team_mapping b on (a.orgscode = b.oper_code and b.cm_code = #{orgscode})
+		 order by a.status 	
+	]]>
+	</select>
+	
+	<select id="selectCurrent" parameterType="int" resultType="psVO">
+	<![CDATA[
+		select row_number()over(order by process_no asc ) as rnum
+		     , a.process_no
+			 , a.neoss_no
+			 , a.status_cd
+			 , b.code_nm as status
+			 , a.contents
+			 , a.del_yn
+			 , a.input_id
+			 , a.update_id
+			 , TO_CHAR(a.input_dt,'yyyy-mm-dd HH24:MI:SS') input_dt
+			 , TO_CHAR(a.time_stamp,'yyyy-mm-dd HH24:MI:SS') time_stamp
+			 , a.current_yn
+			 , emp.emp_name
+			 , emp.phone_number
+			 , emp.email_address
+			 , emp.ex_agency_nm as office_nm
+			 , emp.dept_name as branch_nm
+		  from agwne.t_process a
+			   LEFT OUTER JOIN agwne.t_org_user emp ON a.input_id = emp.no_emp
+			   LEFT OUTER JOIN agwne.t_code b ON (b.code = CONCAT(a.status_cd, 't') and b.del_yn = false and b.agw_cd = '03' and b.column_nm = 'status_cd')
+		 where a.del_yn = false
+		   and a.neoss_no = #{neoss_no}
+		   and a.current_yn = true
+		 order by a.process_no ASC			
+	]]>
+	</select>
+	
+	<select id="selectEponSearching" resultType="String" parameterType="String">
+	<![CDATA[
+		select epon_mac
+		  from agwne.t_mac
+		 where del_yn = false
+		   and agw_mac = #{agw_mac}
+	]]>
+	</select>
+	
+	<select id="selectCntManagedip" resultType="int" parameterType="String">
+	<![CDATA[
+		select count(*) cnt
+		  from agwne.t_olt_pots_fms_mac
+		 where del_yn = false
+		   and managed_ip = #{managed_ip}
+	]]>
+	</select>
+	
+	<update id="updateProcess_back" parameterType="psVO">
+	<![CDATA[
+		update agwne.t_process set
+		       current_yn = false
+		     , update_id = #{update_id}
+		     , time_stamp = now()
+		 where neoss_no = #{neoss_no}
+		   and status_cd = #{status_cd}
+		   and current_yn = true
+	]]>
+	</update>
+	
+	<update id="delete_construct_mem" parameterType="int">
+	<![CDATA[
+		update agwne.t_construct_mem set
+		       del_yn = true
+		     , update_id = #{update_id}
+		     , time_stamp = now()
+		 where const_no = #{const_no}
+	]]>
+	</update>
+	
+	<update id="delete_construct" parameterType="csVO">
+	<![CDATA[
+		update agwne.t_construct set
+		       del_yn = true
+		     , update_id = #{update_id}
+		     , time_stamp = now()
+		 where const_no = #{const_no}
+	]]>
+	</update>
+	
+	<select id="selectCntMegacoip" parameterType="String" resultType="int">
+	<![CDATA[
+		select count(*) as cnt
+		  from agwne.t_olt_pots_fms_mac a
+		 where a.del_yn = false
+		   and a.megaco_ip = #{megaco_ip}	
+	]]>
+	</select>
+</mapper>

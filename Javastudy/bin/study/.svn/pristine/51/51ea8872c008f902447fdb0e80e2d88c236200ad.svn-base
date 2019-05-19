@@ -1,0 +1,350 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<%@ taglib prefix="custom" uri="/tags/custom-taglib" %> 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<script type="text/javascript" src="/resources/js/business.js"></script>
+<script type="text/javascript" src="/resources/js/jquery.fileDownload.js"></script>
+<link rel="stylesheet" href="/resources/css/business.css">
+</head>
+<body>
+<%@ include file = "/resources/inc/header_nav.jsp" %>
+<%@ include file = "/resources/inc/aside.jsp" %>
+
+<section>
+    <h1 class="req">AGW 공급요청</h1>
+
+    <div class="contents_form">
+        <!-- 타이틀, 경로 -->
+        <div class="divDocTitle">
+        	수요 공급 요청
+        	<div class="btnArea">
+		       	<button class="button" id="btn01" onclick="popLink('request?btn=01&flag=0&modFlag=0', 850, 900);">공급요청</button>
+		    </div>
+        </div>
+        <!-- 검색조건 -->
+            <div class="searchArea main">
+        <form name="searchForm" id="searchForm" method="get" action="list">
+        <input type="hidden"  name="onoffSwitch" id="onoffSwitch" value="${searchInfo.onoffSwitch }">
+        <fieldset>
+        <legend>검색폼</legend>
+        	<div class="btnArea">
+        		<a href="#" id="detailSearchView"><span class="ui-icon ui-icon-triangle-1-s"></span>상세검색</a>
+        	</div>
+        	<div class="search_box">
+        		<span class="search_span"><span class="ui-icon ui-icon-caret-1-e"></span>검색</span>
+        		<select name="searchType">
+                  	<option value="E.emp_name" ${searchInfo.searchType eq 'E.emp_name'?'selected':'' }>요청자</option>
+                  	<option value="A.section_nm" ${searchInfo.searchType eq 'A.section_nm'?'selected':'' }>구간명</option>
+                  	<option value="F.emp_name" ${searchInfo.searchType eq 'F.emp_name'?'selected':'' }>승인자</option>
+	                <option value="A.doc_no" ${searchInfo.searchType eq 'A.doc_no'?'selected':'' }>문서번호</option>
+				</select>
+				<input name="searchTxt"  id="searchTxt" type="text" class="txtarea w180" value="${searchInfo.searchTxt }" placeholder="" />
+				<input type="checkbox"  name="myOrgCheck"  id="myOrgCheck"  ${searchInfo.myOrgCheck eq 'on' ? 'checked' : '' }><label for="myOrgCheck">${sessionScope.region_name }>${sessionScope.bonbu_name }</label>
+				<input type="image" id="search_btn" name="search_btn" src="/resources/img/btn_search.gif" alt="검색">
+				<input type="image" id="search_btn" onclick="excel_down(); return false;" id="excel_btn" src="/resources/img/btn_exel.gif" alt="엑셀다운로드">
+        	</div>
+        	<c:set var="on" value="off" />
+        	<c:if test="${searchInfo.radio_date ne 'all' || searchInfo.office_0 ne null || searchInfo.buildshape_cd ne null || searchInfo.status ne null }">
+        		<c:set var="on" value="on" />
+        	</c:if>
+        	<div class="detailSearching ${on }">
+				<div class="search_box">
+					<span class="search_span"><span class="ui-icon ui-icon-caret-1-e"></span>기간</span>
+					<div class="radioset" >
+						<input type="radio" id="radio1" name="radio_date" value="all" ${searchInfo.radio_date eq 'all' || serachInfo.radio_date eq null ? 'checked' : '' }><label for="radio1">전체</label>
+						<input type="radio" id="radio2" name="radio_date" value="year" ${searchInfo.radio_date eq 'year' ? 'checked' : '' }><label for="radio2">년</label>
+						<input type="radio" id="radio3" name="radio_date" value="month" ${searchInfo.radio_date eq 'month' ? 'checked' : '' }><label for="radio3">월</label>
+						<input type="radio" id="radio4" name="radio_date" value="day" ${searchInfo.radio_date eq 'day' ? 'checked' : '' }><label for="radio4">일</label>
+					</div>
+					<div id="search_date" style="padding-left:10px; display:inline; visibility: hidden;">
+						<input type="text" style="width:80px;" readonly="readonly" class="datepicker" name="st_date" id="st_date" value="${searchInfo.st_date }" readonly="readonly"/>&nbsp;~&nbsp;
+						<input type="text" style="width:80px" readonly="readonly" class="datepicker" name="ed_date" id="ed_date" value="${searchInfo.ed_date }" readonly="readonly"/>
+					</div>
+				</div>
+				<div class="search_box" id ="office_search_box">
+	            	<span class="search_span"><span class="ui-icon ui-icon-caret-1-e"></span>조직</span>
+		            <select name="office_0"  class="select" style="width:150px;" id="office_0" onchange="office_select(this);">
+			        	<option value="">--본부--</option>     
+		            	<c:if test="${not empty OfficeList}">    
+			            	<c:forEach var="officeVO" items="${OfficeList}" varStatus="status"> 
+                    			<option value="${officeVO.orgscode}" ${officeVO.orgscode eq searchInfo.office_0? 'selected' : '' }>${officeVO.orgnameabbr }</option>
+                   			</c:forEach>
+                   		</c:if>
+		            </select>
+		            <select name="office_1" id="office_1"class="select" style="width:150px;" onchange="office_select(this);">
+		            	<option value="">--지사/센터--</option> 
+		            	<c:if test="${not empty search_office_list}">    
+			            	<c:forEach var="search_office_list" items="${search_office_list}" varStatus="status"> 
+                    		<c:if test="${not empty searchInfo.office_0 && search_office_list.porgscode eq searchInfo.office_0 && search_office_list.level == 1 }">
+                    			<option value="${search_office_list.orgscode}" ${search_office_list.orgscode eq searchInfo.office_1? 'selected' : '' }>${search_office_list.orgnameabbr }</option>
+			            	</c:if>
+                   			</c:forEach>
+                   		</c:if>
+					</select>
+					<select name="office_2" id="office_2"class="select" style="width:150px;" onchange="office_select(this);">
+						<option value="">--부서--</option>
+						<c:if test="${not empty search_office_list}">    
+							<c:forEach var="search_office_list" items="${search_office_list}" varStatus="status"> 
+								<c:if test="${not empty searchInfo.office_1 && search_office_list.porgscode eq searchInfo.office_1 && search_office_list.level == 2 }">
+									<option value="${search_office_list.orgscode}" <c:if test="${search_office_list.orgscode eq searchInfo.office_2}" >selected="selected"</c:if>>${search_office_list.orgnameabbr }</option>
+								</c:if>
+							</c:forEach>
+						</c:if>
+					</select>
+					<select name="office_3" id="office_3"class="select" style="width:150px;" onchange="office_select(this);">
+						<option value="">--팀--</option>
+						<c:if test="${not empty search_office_list}">    
+							<c:forEach var="search_office_list" items="${search_office_list}" varStatus="status"> 
+								<c:if test="${not empty searchInfo.office_2 && search_office_list.porgscode eq searchInfo.office_2 && search_office_list.level == 3 }">
+									<option value="${search_office_list.orgscode}" <c:if test="${search_office_list.orgscode eq searchInfo.office_3}" >selected="selected"</c:if>>${search_office_list.orgnameabbr }</option>
+								</c:if>
+							</c:forEach>
+						</c:if>
+					</select>
+				</div>
+				<div class="search_box" >
+					<span class="search_span"><span class="ui-icon ui-icon-caret-1-e"></span>기타</span>
+					<select name="status" class="select" style="width:130px;">
+						<option value="" >--진행상태--</option>
+						<c:if test="${not empty statusCodeList }">
+							<c:forEach items="${statusCodeList }" var="vo">
+								<c:if test="${vo.code eq '00f' || vo.code eq '01f' || vo.code eq '06f' || vo.code eq '06t' || vo.code eq '99t' }">
+								<option value="${vo.code }" ${vo.code eq searchInfo.status ? 'selected' : '' }>${vo.code_nm }</option>
+								</c:if>
+							</c:forEach>
+						</c:if>
+					</select>
+		                <select name="buildshape_cd" class="select" style="width:100px;">
+		                    <option value="">--건물형태--</option>
+		                      <c:choose> 
+			                    <c:when test="${not empty BusinessCode}"> 
+			                        <c:forEach var="CodeVO" items="${BusinessCode}" varStatus="status">  
+			                        <c:if test ="${CodeVO.code_gb eq '건물형태' }">
+			                        	<option value="${CodeVO.code }" <c:if test ="${CodeVO.code eq searchInfo.buildshape_cd }"> selected </c:if>>${CodeVO.code_nm}</option>
+			                        </c:if>
+			                        </c:forEach>
+			                        </c:when>
+			                  </c:choose>
+		                </select>
+				</div>
+			</div>
+            </fieldset>
+            </form>
+        </div>
+        <!-- LIST -->
+        <table class="listTable"  border="0" cellspacing="0" cellpadding="0">
+            <thead>
+            <tr>
+                <th width="40">번호</th>
+                <th width="110">진행상태</th>
+                <th width="60">승인자</th>
+                <th width="150">본부</th>
+                <th width="150">지사/센터</th>
+                <th width="80">건물형태</th>
+                <th>구간명</th>
+                <th width="60">세대수</th>
+                <th width="80">요청자</th>
+                <th width="80">등록일</th>
+            </tr>
+            </thead>
+            <tbody>
+	            <c:choose> 
+		            <c:when test="${not empty bs_list}">    
+			            <c:forEach var="bsVO" items="${bs_list}" varStatus="status"> 
+				            <tr  class="${bsVO.status_cd }"  data="${bsVO.neoss_no }">
+				                <td>${bsVO.rnum}</td>
+				                <td>
+				                <c:if test="${bsVO.status_cd == '99' || !bsVO.request_yn }"><span class="status${bsVO.status_cd }">${bsVO.status }</span></c:if>
+				                <c:if test="${bsVO.status_cd != '99' && bsVO.request_yn }"><span class="status07">${bsVO.status }</span></c:if>
+				                </td>
+				                <td title=${bsVO.nextConfirmOrg }>${bsVO.nextConfirmUsr }</td>
+				                <td>${bsVO.office_nm }</td>
+				                <td>${bsVO.branch_nm }</td>
+				                <td>${bsVO.buildshape_nm }</td>
+				                <td><span class="title" >${bsVO.section_nm }&nbsp;</span></td>
+				                <td>${bsVO.household_no }</td>
+				                <td title="${bsVO.ex_agency_nm }">${bsVO.emp_name }</td>
+				                <td>${bsVO.input_dt }</td>
+				            </tr>
+				            <input type="hidden" value="${bsVO.neoss_no }" id="neoss_no" name="neoss_no"/>
+	           			</c:forEach>
+	           	    </c:when>
+	           	</c:choose>
+            </tbody>
+    </table>
+        <!-- paging -->
+        <%@ include file="/resources/inc/paging.jsp" %>
+    </div>
+    <div id="dialog_delete" title="알림창">
+		<p></p>
+	</div>
+	 <div id="alert" title="경고창">
+		<p></p>
+	</div>
+</section>
+<%@ include file = "/resources/inc/footer.jsp" %>
+<script type="text/javascript">
+var office_cd = '${searchInfo.office_cd}';
+var st_date = '${searchInfo.st_date}';
+var ed_date = '${searchInfo.ed_date}';
+var param = "${searchInfo.param}";
+</script>
+<script type="text/javascript">
+//searchForm 기간부분 셋팅
+dateLoading($(':radio[name="radio_date"]:checked').val());
+//alert($(':radio[name="radio_date"]:checked').val());
+selectDate($(':radio[name="radio_date"]:checked').val());
+if('${searchInfo.st_date}'!= null || '${searchInfo.ed_date}' !=null){
+	$("#st_date").val('${searchInfo.st_date}');
+	$("#ed_date").val('${searchInfo.ed_date}');
+}
+$(".searchArea input[name='searchTxt']").attr("placeholder", $(".searchArea select[name='searchType'] option:selected").text());
+$(".searchArea select[name='searchType']").change(function(){
+	var txt = $(this).find("option:checked").text();
+	$(".searchArea input[name='searchTxt']").attr("placeholder", txt);
+});
+$("#myOrgCheck").checkboxradio();
+	function aaa(data, obj){
+		if( $(obj).attr('class') == '00'){
+			popLink('request?neoss_no='+data+'&flag=1&modFlag=0', 800, 870);
+		}else{
+			location.href="request_view?rstNo="+data;
+		}
+	}
+	
+    $("#detailSearchView").click(function(){
+    	var obj = $(".detailSearching");
+    	if (obj.css("display") == "block") {
+    		obj.hide();
+    		$(this).find("span").removeClass("ui-icon-triangle-1-n");
+    		$(this).find("span").addClass("ui-icon-triangle-1-s");
+    	} else {
+    		obj.show();
+    		$(this).find("span").removeClass("ui-icon-triangle-1-s");
+    		$(this).find("span").addClass("ui-icon-triangle-1-n");
+    	}
+    });
+	
+	function selDept(level){
+		var title;
+		switch(parseInt(level)){
+		case 0:
+			title ="본부";
+			break;
+		case 1:
+			title ="지사/센터";
+			break;
+		case 2:
+			title ="부서";
+			break;
+		case 3:
+			title ="팀";
+			break;
+		}
+		
+		return title;
+	}
+	
+	function office_select(obj){
+		
+		var level = $(obj).attr("id").split("_");
+		var orgscode = $("select[name=office_"+level[1]+"]").val();
+		//alert(orgscode)
+		if(orgscode==''){
+			$('#office_search_box select').each(function(index){
+				var i = $(this).attr("id").split("_");
+				var title ;
+				if(i[1] > level[1]){
+					title = selDept(i[1]);
+					$("select[name="+$(this).attr("name")+"] option").remove();
+					$(this).append('<option value="">--'+title+'--</option>');
+				}
+			});
+		}else{
+			level = parseInt(level[1]);
+			$.ajax({
+				url : "/business/subOfficeAjaxNew",
+				data :{
+					'orgscode' : orgscode,
+					'level'		 : level+1
+					
+				},
+				type : "POST",
+				success : function(response){
+					var idx =0;
+					$('#office_search_box select').each(function(index){
+						var i = $(this).attr("id").split("_");
+						//alert(i[1]+"=="+level);
+						
+						if(i[1] > level){
+							title = selDept(i[1]);
+							$("select[name="+$(this).attr("name")+"] option").remove();
+							$(this).append('<option value="">--'+title+'--</option>');
+						}
+					});
+					for(key in response){
+						idx= response[key].level;
+						$("#office_"+idx).append("<option value='"+response[key].orgscode+"'>"+response[key].orgnameabbr+"</option>");
+						
+						if('${searchInfo.office_cd}' != null && '${searchInfo.office_cd}' != ""){
+							if(response[key].orgscode == '${searchInfo.office_no}'){
+								$('#office_'+idx+' option:eq('+key+')').attr('selected','selected');
+							}
+						}else {
+							$('#office_'+idx+' option:eq(0)').attr('selected','selected');
+						}
+					}
+				//	$("#office_"+idx).selectmenu("refresh");
+				},
+				error: function(result){
+					alert("조회 실패");
+				}
+			});
+		}
+	}
+
+	function excel_down(){
+	      var formData = $("#searchForm").serialize().replace(/%/g, '%25'); //한번 더 인코딩
+	      $.fileDownload("/business/bs_excel_download", {
+	        	data : formData,
+	        	type: "GET",
+	        	dataType:"text",
+
+	            successCallback: function (url) {
+	            	//alert("success");
+	               // $preparingFileModal.dialog('close');
+	            },
+	            failCallback: function (responseHtml, url) {
+	            	alert("엑셀추출 실패 잠시후 다시 시도해주세요.");
+	               // $preparingFileModal.dialog('close');
+	               // $("#error-modal").dialog({ modal: true });
+	            }
+	        });
+	        // 버튼의 원래 클릭 이벤트를 중지 시키기 위해 필요합니다.
+	       return false;
+
+	        
+	}
+	
+	$(document).ready(function(){
+		
+		//처음 로딩시 월 날짜 셋팅해주기
+/* 		if($(':radio[name="radio_date"]').val()!=null || $(':radio[name="radio_date"]').val()!=''){
+			$(".datepicker").val($.datepicker.formatDate('yy-mm',new Date()));
+		} */
+		
+		
+		//지역 검색 셋팅
+		if('${searchInfo.office_cd}' != null && '${searchInfo.office_cd}' != ""){
+			office_select();
+		}
+		
+	});
+	
+</script>
+</body>
+</html>

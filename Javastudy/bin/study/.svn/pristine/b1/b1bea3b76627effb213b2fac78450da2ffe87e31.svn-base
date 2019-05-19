@@ -1,0 +1,231 @@
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file LdapAuthenticate.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.common;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import kr.co.kt.agwne.dto.UserInfoVO;
+import kr.co.kt.agwne.service.UserInfoService;
+import nets.ldap.ADUtilSSL;
+
+@Component
+public class LdapAuthenticate {
+
+	private static final Logger logger = LoggerFactory.getLogger(LdapAuthenticate.class);
+	
+	@Autowired
+    private UserInfoService userInfoService;
+	
+	@Value("#{config['ldap.connID']}")
+	private String connID;
+	
+	@Value("#{config['ldap.connPWD']}")
+	private String connPWD;
+	
+	@Value("#{config['ldap.host']}")
+	private String host;
+	
+	@Value("#{config['ldap.port']}")
+	private String port;
+	
+	@Value("#{config['ldap.baseDN']}")
+	private String baseDN;
+	
+	@Value("#{config['ldap.ssl']}")
+	private boolean ssl;
+	
+	private String loginID;
+	private String loginPWD;
+	private int error_cnt;
+
+	public String ChkLogin(String loginID, String loginPWD) {
+		String result = "00";
+		
+		this.loginID = loginID;
+		this.loginPWD = loginPWD;
+		
+		result = ChkAgwAuth(loginID, loginPWD);
+//		result = "10";
+		
+		if (result.equals("11")) {
+//			logger.info("host="+ host +";port="+ port +";baseDN="+ baseDN +";loginID="+ loginID +";loginPWD="+ loginPWD +";connID="+ connID +";connPWD="+ connPWD);
+			// ldap 로그인 인증
+			error_cnt = userInfoService.select_error_cnt(loginID);
+			// 비밀번호 5회이상 오류시
+			if (error_cnt >= 5) {
+				result = "55";
+			} else {
+				try {
+					Boolean blogin = false;
+					blogin = ADUtilSSL.auth_loginPeriod(host, port, baseDN, loginID, loginPWD, connID, connPWD, ssl);
+					if (blogin) {
+						result = "00";
+					} else {
+						result = "03";
+					}
+				} catch (Exception e) {
+//					logger.info("LdapAuthenticate Line 59 === "+ e.getMessage());
+					
+					e.printStackTrace();
+					
+					// ID 오류시
+					if (e.getMessage().indexOf("data 0001") > 0) {
+						//AGW 계정 확인
+						result = "01";
+					}
+					
+					// 서비스 계정 오류
+					else if (e.getMessage().indexOf("data 0003") > 0) {
+						result = "03";
+					}
+					
+					// 비밀번호 오류시
+					else if (e.getMessage().indexOf("data 0005") > 0) {
+						result = "05";
+					}
+					
+					// 비밀번호 만료시
+					else if (e.getMessage().indexOf("data 0004") > 0) {
+						result = "04";
+					} 
+					
+					else {
+						result = e.getMessage();
+					}
+				}
+			} // error_cnt >= 5
+//			logger.info("LdapAuthenticate Line 94 === "+ result);
+		}
+		
+		return result;
+	}
+	
+	private UserInfoVO userVO;
+	private String ChkAgwAuth(String loginID, String loginPWD) {
+		String result = "10";
+		
+		//계정 오류시 
+		UserInfoVO userInfo = new UserInfoVO();
+     	userInfo.setNo_emp(loginID);
+     	userInfo.setPasswd(loginPWD);
+     	userVO = userInfoService.login_one(userInfo);
+     	if(userVO == null) { 
+     		result = "11";
+     	}
+		return result;
+	}
+	
+	
+	public PrintWriter errorInfo(String errorCd, HttpServletResponse response) throws IOException {
+		PrintWriter writer = response.getWriter();
+		
+		switch(errorCd) {
+		case "00" 	:
+			userInfoService.updatePwdErrorCntReset(loginID);
+			break;
+		case "10"	:
+			break;
+		case "01"	:
+			writer.println("<script type='text/javascript'>");
+            writer.println("alert('로그인 정보를 확인하여 주시기 바랍니다.');");
+            writer.println("history.back();");
+            writer.println("</script>");
+            break;
+		case "03" 	:
+			writer.println("<script type='text/javascript'>");
+            writer.println("alert('로그인에 문제가 있습니다. 관리자에게 문의하여 주시기 바랍니다.');");
+            writer.println("history.back();");
+            writer.println("</script>");
+            break;
+		case "05"	:
+//			userInfoService.updatePwdErrorCnt(loginID);
+			writer.println("<script type='text/javascript'>");
+            writer.println("alert('로그인 정보를 확인하여 주시기 바랍니다.');"); //\\n비밀번호 5회 이상 오류시 로그인이 제한됩니다.("+ (error_cnt+1) +"회)');");
+            writer.println("history.back();");
+            writer.println("</script>");
+            break;
+		case "04"	:
+			writer.println("<script type='text/javascript'>");
+			writer.println("alert('비밀번호 이용이 만료되었습니다. 비밀번호 변경후에 다시 로그인 하여 주시기 바랍니다.');");
+            writer.println("var win = window.open('http://nsso.kt.com/ssokt/pwdTab.html', 'pwdChange', 'width=520px,height=590px');");
+			writer.println("win.focus();");
+            writer.println("document.location.href='/';");
+            writer.println("</script>");
+            break;
+		case "11"	:
+			writer.println("<script type='text/javascript'>");
+            writer.println("alert('로그인 정보를 확인하여 주시기 바랍니다.');");
+            writer.println("history.back();");
+            writer.println("</script>");
+			break;
+		case "55"	:
+			writer.println("<script type='text/javascript'>");
+            writer.println("alert('비밀번호 5회이상 오류시 로그인이 제한됩니다.');");
+            writer.println("history.back();");
+            writer.println("</script>");
+			break;
+		default 	:
+			writer.println("<script type='text/javascript'>");
+            writer.println("alert('"+ errorCd +"');");
+            writer.println("history.back();");
+            writer.println("</script>");
+			break;
+		}
+		
+		return writer;
+	}
+
+
+	public UserInfoVO getUserInfo() {
+		UserInfoVO userInfoVO = new UserInfoVO();
+		userInfoVO.setNo_emp(loginID);
+		userVO = userInfoService.userInfo_one(userInfoVO);
+//		if (userVO == null) {
+//			try {
+////				Map<String, Object> userMap = ADUtilSSL.query_userinfo(host, port, baseDN, loginID, connID, connPWD, false);
+////				userVO = new UserInfoVO();
+////				userVO.setUserNo("59028");
+////				userVO.setNo_emp(loginID);
+////				userVO.setUser_id(loginID);
+////				userVO.setEmp_name((String) userMap.get("userName"));
+////				userVO.setDept_name((String) userMap.get("deptName"));
+////				userVO.setBonbu_name((String) userMap.get("agencyName"));
+////				userVO.setDept_code((String) userMap.get("agencyName"));
+////				userVO.setRegion_name("");
+////				userVO.setRegion("01");
+////				userVO.setOrg("cs");
+////				userVO.setRole("02");
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+		return userVO;
+	}
+
+}

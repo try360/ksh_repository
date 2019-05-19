@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div style="width: 600px; margin:0; padding: 0; border:1px solid #333;">
+    <div style="display:block; height: 55px; padding: 10px; vertical-align: bottom; ">
+        <h3 style="float: left; vertical-align: bottom; margin: 0;">
+            <img src="http://localhost:8080/resources/img/h1_kt.png" alt="kt" />
+            <img src="http://localhost:8080/resources/img/logo_split.png" alt="AGW-Ne" />
+        </h3>
+        <h3 style="float: right; margin: 0; vertical-align: bottom; font-size:12pt; font-family:'Trebuchet MS', sans-serif; font-weight: bolder; letter-spacing: -2px; color: #666; margin-top: 30px;">수요 공급 요청</h3>
+    </div>
+
+    <div style="clear:both; background-color:#666; padding: 10px 20px; height: 17px;">
+        <span style="font-size:9pt; font-family:'Trebuchet MS', sans-serif; font-weight: bold; color: #CECECE; float: left;  ">강북네트워크운용단 > 강원유선운용센터</span>
+        <span style="font-size:9pt; font-family:'Trebuchet MS', sans-serif; font-weight: bold; color: #CECECE; float: right;">요청번호 : 2018-CN-00054</span>
+    </div>
+    <table width="0" cellspacing="0" cellpadding="0" style="margin:0; padding:0; width:100%;">
+        <tr>
+            <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">요청자</th>
+            <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC;">강원유선운용센터/박정철</td>
+            <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">요청일</th>
+            <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC;">2018/05/30</td>
+        </tr>
+        <tr>
+            <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">설치주소</th>
+            <td colspan="3" style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC;">경기도 성남시 분당구 동판교로 92 백현마을 3단지 322동 (13534)</td>
+        </tr>
+        <tr>
+            <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">건물형태</th>
+            <td colspan="3" style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC;">신축 > 아파트 > 백현마을3단지</td>
+        </tr>
+        <tr>
+            <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">공급구분</th>
+            <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC;">신설</td>
+            <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">공급사유</th>
+            <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC;">신축지역신설</td>
+        </tr>
+        <tr>
+            <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">공급회선</th>
+            <td colspan="3" style="padding:0;">
+                <table border="0" cellspacing="0" cellpadding="0" style="width:100%">
+                    <tr>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">세대수</th>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">시장점유율</th>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">공급회선</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">257</td>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">34%</td>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">364</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">공급내역</th>
+            <td colspan="3" style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC;">5ESS</td>
+        </tr>
+        <tr>
+            <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">청약전화번호</th>
+            <td colspan="3" style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC;">02-575-1234</td>
+        </tr>
+        <tr>
+            <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">공급내역</th>
+            <td colspan="3" style="padding:0;">
+                <table border="0" cellspacing="0" cellpadding="0" style="width:100%">
+                    <tr>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">장비수</th>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">선로방식</th>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">전원협정여부</th>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">InetTie 정보</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">1대</td>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">1차 RN</td>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">완료</td>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">&nbsp;</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">소요경비</th>
+            <td colspan="3" style="padding:0;">
+                <table border="0" cellspacing="0" cellpadding="0" style="width:100%">
+                    <tr>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">물자비</th>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">공사비</th>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">경비</th>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">합계</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">&#8361;&nbsp;2,570,000</td>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">&#8361;&nbsp;2,570,000</td>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">&#8361;&nbsp;2,570,000</td>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">&#8361;&nbsp;2,570,000</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4" style="padding:0;">
+                <table border="0" cellspacing="0" cellpadding="0" style="width:100%">
+                    <tr>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">투자확정</th>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">IP확정</th>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">MGID확정</th>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">COLCODE<br>확정</th>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">장비정보<br>확정</th>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">착공</th>
+                        <th style="padding: 5px 10px; background: #ECECEC; color: #666; font-weight: bold; text-align: center; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; ">준공</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">강지성<br><span style="font-size:8pt; letter-spacing: -1px;">010-1234-5678</span></td>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">강지성<br><span style="font-size:8pt; letter-spacing: -1px;">010-1234-5678</span></td>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">강지성<br><span style="font-size:8pt; letter-spacing: -1px;">010-1234-5678</span></td>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">강지성<br><span style="font-size:8pt; letter-spacing: -1px;">010-1234-5678</span></td>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">강지성<br><span style="font-size:8pt; letter-spacing: -1px;">010-1234-5678</span></td>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">강지성<br><span style="font-size:8pt; letter-spacing: -1px;">010-1234-5678</span></td>
+                        <td style="padding: 5px 10px; font-size: 9pt; font-family:'Trebuchet MS', sans-serif; border-bottom: 1px solid #CCC; text-align: center;">강지성<br><span style="font-size:8pt; letter-spacing: -1px;">010-1234-5678</span></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

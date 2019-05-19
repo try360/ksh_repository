@@ -1,0 +1,247 @@
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file NeossServiceImpl.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.service.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import kr.co.kt.agwne.dao.BusinessDAO;
+import kr.co.kt.agwne.dao.IncludeSearchDAO;
+import kr.co.kt.agwne.dao.NeossDAO;
+import kr.co.kt.agwne.dto.ConfirmUserVO;
+import kr.co.kt.agwne.dto.ModelInfoVO;
+import kr.co.kt.agwne.dto.data.NeossData;
+import kr.co.kt.agwne.service.NeossService;
+import kr.co.kt.common.Attachment;
+import kr.co.kt.common.ParamValidatChk;
+
+@Service
+public class NeossServiceImpl extends ParamValidatChk implements NeossService   {
+	private static final String table_gb = "t_neoss";
+	
+	@Autowired
+    private Attachment attachment;
+	
+	@Autowired
+	private NeossDAO dao;
+	
+	@Inject
+	private IncludeSearchDAO clDAO;
+	
+	@Autowired
+	@Qualifier("agw4pDao")
+	private BusinessDAO businessDAO;
+
+	@Transactional
+	@Override
+	public int t_bs_modify(@Valid NeossData neossVO, ModelInfoVO infoVO, ConfirmUserVO cfVO, MultipartHttpServletRequest mhsq) throws Exception {
+		int cnt = 0;
+		String id=neossVO.getInput_id();
+		int neoss_no = neossVO.getNeoss_no();
+		dao.t_bs_modify(neossVO);
+		infoVO.setNeoss_no(neoss_no);
+		infoVO.setGubun("03");
+		dao.update_inettie(infoVO);
+		
+		//파일업로드
+		attachment.Attachment(mhsq, neossVO.getNeoss_no(), id, table_gb);
+		
+		//승인자 정보 입력
+//		String[] user_no_arry = cfVO.getUserNo().split(",");
+//		for (int i = 0; i < user_no_arry.length; i++) {
+//			ConfirmUserVO cfVO2 = new ConfirmUserVO();
+//			cfVO2.setUser_no(toInteger(user_no_arry[i]));
+//			cfVO2.setNeoss_no(neoss_no);
+//			cfVO2.setAgw_cd(cfVO.getAgw_cd()); // 01:agw 02:reform 03:4p
+//			cfVO2.setInput_id(id);
+//			cfVO2.setUpdate_id(id);
+//			cfVO2.setStatus_cd("0"+String.valueOf(i+1));
+//			
+//			cfvoList.add(cfVO2);
+//			System.out.println(cfvoList.toString());
+//		}
+
+		List<ConfirmUserVO> cfvoList = new ArrayList<ConfirmUserVO>();
+		String[] user_no_01_array = cfVO.getUser_no_01().split(",");
+		String[] user_no_02_array = cfVO.getUser_no_02().split(",");
+		String[] user_no_03_array = cfVO.getUser_no_03().split(",");
+		String[] user_no_04_array = cfVO.getUser_no_04().split(",");
+		String[] user_no_05_array = cfVO.getUser_no_05().split(",");
+			
+		for (String user_no : user_no_01_array) {
+			ConfirmUserVO cfVO2 = new ConfirmUserVO();
+			cfVO2.setNeoss_no(neoss_no);
+			cfVO2.setAgw_cd(cfVO.getAgw_cd()); // 01:agw 02:reform 03:4p
+			cfVO2.setInput_id(id);
+			cfVO2.setUpdate_id(id);
+			cfVO2.setUser_no(toInteger(user_no));
+			cfVO2.setStatus_cd("01");
+			cfvoList.add(cfVO2);
+		}
+		for (String user_no : user_no_02_array) {
+			ConfirmUserVO cfVO2 = new ConfirmUserVO();
+			cfVO2.setNeoss_no(neoss_no);
+			cfVO2.setAgw_cd(cfVO.getAgw_cd()); // 01:agw 02:reform 03:4p
+			cfVO2.setInput_id(id);
+			cfVO2.setUpdate_id(id);
+			cfVO2.setUser_no(toInteger(user_no));
+			cfVO2.setStatus_cd("02");
+			cfvoList.add(cfVO2);
+		}
+		for (String user_no : user_no_03_array) {
+			ConfirmUserVO cfVO2 = new ConfirmUserVO();
+			cfVO2.setNeoss_no(neoss_no);
+			cfVO2.setAgw_cd(cfVO.getAgw_cd()); // 01:agw 02:reform 03:4p
+			cfVO2.setInput_id(id);
+			cfVO2.setUpdate_id(id);
+			cfVO2.setUser_no(toInteger(user_no));
+			cfVO2.setStatus_cd("03");
+			cfvoList.add(cfVO2);
+		}
+		for (String user_no : user_no_04_array) {
+			ConfirmUserVO cfVO2 = new ConfirmUserVO();
+			cfVO2.setNeoss_no(neoss_no);
+			cfVO2.setAgw_cd(cfVO.getAgw_cd()); // 01:agw 02:reform 03:4p
+			cfVO2.setInput_id(id);
+			cfVO2.setUpdate_id(id);
+			cfVO2.setUser_no(toInteger(user_no));
+			cfVO2.setStatus_cd("04");
+			cfvoList.add(cfVO2);
+		}
+		for (String user_no : user_no_05_array) {
+			ConfirmUserVO cfVO2 = new ConfirmUserVO();
+			cfVO2.setNeoss_no(neoss_no);
+			cfVO2.setAgw_cd(cfVO.getAgw_cd()); // 01:agw 02:reform 03:4p
+			cfVO2.setInput_id(id);
+			cfVO2.setUpdate_id(id);
+			cfVO2.setUser_no(toInteger(user_no));
+			cfVO2.setStatus_cd("05");
+			cfvoList.add(cfVO2);
+		}
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("neoss_no", neossVO.getNeoss_no());
+		map.put("update_id", id);
+		map.put("list", cfvoList);
+		dao.insert_confirm_temp(map);
+		businessDAO.t_bs_modi_confirm(map);
+		
+		return cnt;
+	}
+
+	@Override
+	public int t_bs_reg(@Valid NeossData neossVO, ModelInfoVO infoVO, ConfirmUserVO cfVO, MultipartHttpServletRequest mhsq) throws Exception {
+		String id = neossVO.getInput_id();
+		//정보등록
+		int neoss_no = dao.t_bs_reg(neossVO);
+		infoVO.setNeoss_no(neoss_no);
+		infoVO.setGubun("03");
+		infoVO.setManaged_ip("");
+		infoVO.setOlt_user_id(neossVO.getInput_id());
+		dao.insert_inettie(infoVO);
+		
+		//파일업로드
+		attachment.Attachment(mhsq, neossVO.getNeoss_no(), id, table_gb);
+		
+		//승인자 정보 입력
+		List<ConfirmUserVO> cfvoList = new ArrayList<ConfirmUserVO>();
+		System.out.println(cfVO.toString());
+		String[] user_no_01_array = cfVO.getUser_no_01().split(",");
+		String[] user_no_02_array = cfVO.getUser_no_02().split(",");
+		String[] user_no_03_array = cfVO.getUser_no_03().split(",");
+		String[] user_no_04_array = cfVO.getUser_no_04().split(",");
+		String[] user_no_05_array = cfVO.getUser_no_05().split(",");
+			
+		for (String user_no : user_no_01_array) {
+			ConfirmUserVO cfVO2 = new ConfirmUserVO();
+			cfVO2.setNeoss_no(neoss_no);
+			cfVO2.setAgw_cd(cfVO.getAgw_cd()); // 01:agw 02:reform 03:4p
+			cfVO2.setInput_id(id);
+			cfVO2.setUpdate_id(id);
+			cfVO2.setUser_no(toInteger(user_no));
+			cfVO2.setStatus_cd("01");
+			cfvoList.add(cfVO2);
+		}
+		for (String user_no : user_no_02_array) {
+			ConfirmUserVO cfVO2 = new ConfirmUserVO();
+			cfVO2.setNeoss_no(neoss_no);
+			cfVO2.setAgw_cd(cfVO.getAgw_cd()); // 01:agw 02:reform 03:4p
+			cfVO2.setInput_id(id);
+			cfVO2.setUpdate_id(id);
+			cfVO2.setUser_no(toInteger(user_no));
+			cfVO2.setStatus_cd("02");
+			cfvoList.add(cfVO2);
+		}
+		for (String user_no : user_no_03_array) {
+			ConfirmUserVO cfVO2 = new ConfirmUserVO();
+			cfVO2.setNeoss_no(neoss_no);
+			cfVO2.setAgw_cd(cfVO.getAgw_cd()); // 01:agw 02:reform 03:4p
+			cfVO2.setInput_id(id);
+			cfVO2.setUpdate_id(id);
+			cfVO2.setUser_no(toInteger(user_no));
+			cfVO2.setStatus_cd("03");
+			cfvoList.add(cfVO2);
+		}
+		for (String user_no : user_no_04_array) {
+			ConfirmUserVO cfVO2 = new ConfirmUserVO();
+			cfVO2.setNeoss_no(neoss_no);
+			cfVO2.setAgw_cd(cfVO.getAgw_cd()); // 01:agw 02:reform 03:4p
+			cfVO2.setInput_id(id);
+			cfVO2.setUpdate_id(id);
+			cfVO2.setUser_no(toInteger(user_no));
+			cfVO2.setStatus_cd("04");
+			cfvoList.add(cfVO2);
+		}
+		for (String user_no : user_no_05_array) {
+			ConfirmUserVO cfVO2 = new ConfirmUserVO();
+			cfVO2.setNeoss_no(neoss_no);
+			cfVO2.setAgw_cd(cfVO.getAgw_cd()); // 01:agw 02:reform 03:4p
+			cfVO2.setInput_id(id);
+			cfVO2.setUpdate_id(id);
+			cfVO2.setUser_no(toInteger(user_no));
+			cfVO2.setStatus_cd("05");
+			cfvoList.add(cfVO2);
+		}
+		
+//		System.out.println(cfvoList.toString());
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("neoss_no", neossVO.getNeoss_no());
+		map.put("list", cfvoList);
+		
+		businessDAO.t_bs_reg_confirm(map);
+		
+		return neoss_no;
+	}
+
+	@Override
+	public Object select_inettie(int neoss_no) {
+		return dao.select_inettie(neoss_no);
+	}
+
+}

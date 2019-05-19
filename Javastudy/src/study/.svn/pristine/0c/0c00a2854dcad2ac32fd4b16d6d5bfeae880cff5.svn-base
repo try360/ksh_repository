@@ -1,0 +1,60 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file ApprovalInfoVO.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.dto;
+
+import kr.co.kt.common.PagingInfo;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@EqualsAndHashCode(callSuper=false)
+@SuppressWarnings("serial")
+@Data
+@Getter @Setter @ToString
+public class ApprovalInfoVO extends PagingInfo{
+	int user_no;
+	String user_id;
+	String erp_job;
+	String step = "01";
+	String region;
+	String req_bonbu;
+	String req_name;
+	String appr_bonbu;
+	String appr_name;
+	String org_code;
+	String org_name;
+	String dept_code;
+	String dept_name;
+	String no_emp;
+	String emp_name;
+	String dft = "0";
+	String org;
+	String use_yn;
+	String approval_no;
+	String reg_id;
+	String reg_date;
+	String upt_id;
+	String upt_date;
+	
+	String SearchType;
+	String searchTxt;
+}

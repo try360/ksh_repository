@@ -1,0 +1,158 @@
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+html, body {
+    display: table;
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+    overflow: hidden;
+}
+
+div {
+    display: block;
+}
+
+#wrap {
+    min-width: 960px;
+    width: 100%;
+    height: 700px;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+
+#l_title {
+    width: 700px;
+    height: 65px;
+    vertical-align: middle;
+    margin: 0 auto;
+}
+
+#l_title div {
+    display: inline;
+    width: 700px;
+}
+
+#l_title span {
+    display: inline;
+    margin: 24px 90px 24px 250px;
+}
+
+#l_container {
+    width: 100%;
+    height: 420px;
+    background-image: url(../img/login_bg.jpg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #e9e9e9;
+}
+
+.l_center {
+    display: inline-block;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.login_box {
+    text-align: center;
+}
+
+.login_box_sub {
+    margin-left: -320px;
+    margin-right: auto;
+    display: inline-block;
+}
+
+#login_box_img {
+    height: 45px;
+    vertical-align: bottom;
+    font-size: 17pt;
+    text-align: right;
+    letter-spacing: -2px;
+    font-family: Tahoma;
+    width: 100%;
+    margin-top: 30px;
+    color: #666666;
+}
+#login_box_img strong {
+    font-size: 20pt;
+    color: #000000;
+    letter-spacing: -3px;
+    font-weight: bold;
+}
+
+#l_form {
+    background: #663366;
+    table-layout: fixed;
+    display: block;
+    width: 370px;
+    font-size: 0;
+    margin-left: -110px;
+}
+
+#l_form td, th {
+    display: table-cell;
+    vertical-align: inherit;
+}
+.l_text {
+    width: 230px;
+    height: 30px;
+    padding: 0 10px;
+    border: 1px solid #cb14c9;
+    color: #919191;
+    font-size: 10pt;
+}
+
+#l_form label {
+    color: #FFFFFF;
+    margin: 0; padding: 0;
+    font-size: 10px;
+    vertical-align: top;
+}
+
+#l_form span {
+    font-size: 11px;
+    color: #999999;
+    vertical-align: bottom;
+}
+#l_form span b {
+    vertical-align: bottom;
+    color: #ffffff;
+}
+
+.info {
+    width: 796px;
+    margin: 0 auto;
+    text-align: left;
+    padding-top: 10px;
+    font: 10pt 'malgunGothic';
+    color: #666666;
+}
+
+.oldSite {
+    width: 800px;
+    margin: 0 auto;
+    clear: both;
+    display: block;
+    text-align: right;
+    padding-top: 10px;
+}
+
+.oldSite a {
+    float: right;
+    font-size: 12pt;
+    letter-spacing: -1px;
+    font-weight:bold;
+    color: #ff0000;
+}
+.oldSite p {
+    float: right;
+    padding-right: 5px;
+    font: 10pt 'malgunGothic';
+    color: #666666;
+    padding-top: 2px;
+}

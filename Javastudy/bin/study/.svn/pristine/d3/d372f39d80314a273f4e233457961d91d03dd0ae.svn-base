@@ -1,0 +1,62 @@
+$(function(){
+	$("#user_id").focus();
+	if(message != ""){
+		alert(message);
+	}
+	
+	
+//	$('.loginIcon').click(function(){
+//		if($('#user_id').val() == ""){
+//			$('#user_id').focus();
+//			//alert($('#user_id').attr('placeholder'));
+//		}
+//		else if($('#password').val() == ""){
+//			$('#password').focus();
+//			alert($('#password').attr('placeholder'));
+//		}
+//		else{
+//			$("form[name='loginForm']").submit();
+//		}
+//		
+//	});
+	
+//	var user_id = $.cookie("user_id");
+//	
+//	if(user_id != null){
+//		$('#user_id').val(user_id);
+//		$('#check_save_id').attr('checked', 'checked');
+//	}
+//	
+//	$('#check_save_id').on('click', function(){
+//		if($('#check_save_id').is(':checked')){
+//			if($('#user_id').val() == ""){
+//			//	alert($('#user_id').attr('placeholder'));
+//				$(this).attr('checked', false);
+//			}
+//			else{
+//				$.cookie('user_id', $('#user_id').val(), {expires:365, path:'/'}); 
+//			}			
+//		}
+//		else{
+//			$.removeCookie('user_id', {path: '/'});
+//		}
+//	});
+	
+//	$('input').keydown(function(e){
+//		if(e.keyCode == 13){
+//			$("form[name='loginForm']").submit();	
+//		}
+//	});
+	if (!getCookie("ie_notice")){
+		var newWin1 = window.open("/include/ieNotice", "ie_notice", "scrollbars=yes, width="+ 460 +", height="+ 490+",left=0 ,top=0, resizable=yes");
+		newWin1.focus();
+	}
+	if (!getCookie("ie_notice2")){
+		var newWin2 = window.open("/include/ieNotice2", "ie_notice2", "scrollbars=yes, width="+ 460 +", height="+ 490+",left=460 ,top=0, resizable=yes");
+		newWin2.focus();
+	}
+});
+
+function closeWinAt00(winName, expiredays) {
+	setCookieAt00(winName, "done", expoiredays);
+}

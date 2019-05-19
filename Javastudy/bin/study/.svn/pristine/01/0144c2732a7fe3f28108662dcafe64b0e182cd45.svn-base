@@ -1,0 +1,59 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file BoardDAO.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.dao;
+
+import java.util.HashMap;
+import java.util.List;
+import kr.co.kt.agwne.dto.BbsVO;
+
+
+public interface BoardDAO {  
+
+    public Object board_reg(BbsVO bbsVO) throws Exception;
+
+    public List<BbsVO> board_list(HashMap<String, Object> listInfo)  throws Exception;
+
+    public Object board_get(BbsVO bbsVO)  throws Exception;
+    
+    public Object board_del(BbsVO bbsVO)  throws Exception;
+
+    public Object board_visit(int bbs_no)  throws Exception;
+
+    public Object board_update(BbsVO bbsVO) throws Exception;
+
+    public int board_totalCnt(HashMap<String, Object> listInfo) throws Exception;
+
+    /*public Object board_prev_no(HashMap<String, Object> listInfo) throws Exception;
+
+    public Object board_next_no(HashMap<String, Object> listInfo) throws Exception;*/
+    
+    public Object board_prev_no(BbsVO bbsVO) throws Exception;
+
+    public Object board_next_no(BbsVO bbsVO) throws Exception;
+    
+    public String board_prev_title(HashMap<String, Object> listInfo) throws Exception;
+
+    public String board_next_title(HashMap<String, Object> listInfo) throws Exception;
+
+    public Object reply_list(int bbs_no) throws Exception;
+    
+    public Object noticeList(String bbs_gb);
+
+} 

@@ -1,0 +1,151 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="custom" uri="/tags/custom-taglib" %> 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<link type="text/css" rel="stylesheet" href="/resources/css/board.css" />
+<script type="text/javascript" src="/resources/js/board.js" charset="utf-8"></script>
+<script type="text/javascript">
+var bbs_gb = "${pageInfo.bbs_gb}";
+</script>
+</head>
+<body>
+<%@ include file = "/resources/inc/header_nav.jsp" %>
+<%@ include file = "/resources/inc/aside.jsp" %>
+<section>
+	<h1 class="list">${sub_title }</h1>
+
+    <div class="contents_form">
+        <!-- 타이틀, 경로 -->
+        <!-- 검색조건 -->
+        <div class="searchArea">
+        	<form id="recordForm" name="recordForm" method="post" action="setrecord" style="display:inline-block">
+        	<input type="hidden" name="bbs_gb" value="${pageInfo.bbs_gb }" />
+        	<input type="hidden" name="searchType" value="${pageInfo.searchType }" />
+        	<input type="hidden" name="searchTxt" value="${pageInfo.searchTxt }" />
+                <select name="recordsPerPage">
+                	<c:if test="${pageInfo.bbs_gb eq 'N' }">
+                    <option value="10" ${cookie.bbsNrecord.value eq '10'?'selected':'' }>10개씩 보기</option>
+                    <option value="30" ${cookie.bbsNrecord.value eq '30'?'selected':'' }>30개씩 보기</option>
+                    <option value="50" ${cookie.bbsNrecord.value eq '50'?'selected':'' }>50개씩 보기</option>
+                    </c:if>
+                    <c:if test="${pageInfo.bbs_gb eq 'D' }">
+                    <option value="10" ${cookie.bbsDrecord.value eq '10'?'selected':'' }>10개씩 보기</option>
+                    <option value="30" ${cookie.bbsDrecord.value eq '30'?'selected':'' }>30개씩 보기</option>
+                    <option value="50" ${cookie.bbsDrecord.value eq '50'?'selected':'' }>50개씩 보기</option>
+                    </c:if>
+                    <c:if test="${pageInfo.bbs_gb eq 'Q' }">
+                    <option value="10" ${cookie.bbsQrecord.value eq '10'?'selected':'' }>10개씩 보기</option>
+                    <option value="30" ${cookie.bbsQrecord.value eq '30'?'selected':'' }>30개씩 보기</option>
+                    <option value="50" ${cookie.bbsQrecord.value eq '50'?'selected':'' }>50개씩 보기</option>
+                    </c:if>
+                </select>
+        	</form>
+                
+            <form name="searchForm" method="get" action="list" style="display:inline-block">
+            <input type="hidden" name="bbs_gb" value="${pageInfo.bbs_gb }" />
+            <fieldset>
+                <legend>검색폼</legend>
+                <select name="searchType">
+	                <option value="A.title" ${pageInfo.searchType eq 'A.title'?'selected':'' }>제목</option>
+	                <option value="A.contents" ${pageInfo.searchType eq 'A.contents'?'selected':'' }>내용</option>
+	                <option value="D.emp_name" ${pageInfo.searchType eq 'D.emp_name'?'selected':'' }>작성자</option>
+                </select>
+                <input type="text" name="searchTxt" class="txtarea w180" value="${pageInfo.searchTxt}" placeholder="검색어" />
+                <input type="image" src="/resources/img/btn_search.gif" alt="검색">
+            </fieldset>
+            </form>
+        </div>
+        <!-- LIST -->
+        <div class="btnArea">
+        	<c:if test="${ pageInfo.bbs_gb ne 'N' || (pageInfo.bbs_gb eq 'N' && sessionScope.role eq '02') }">
+            <a href="write?${parameters}"><img class="srchIcon" src="/resources/img/btn_regist.gif" alt="등록" /></a>
+            </c:if>
+        </div>
+        <table class="listTable" id="listTable1" border="0" cellspacing="0" cellpadding="0">
+            <thead>
+	            <tr>
+	                <th width="60">번호</th>
+	                <th>제목</th>
+	                <th width="100">작성자</th>
+	                <th width="100">날짜</th>
+	                <th width="80">조회수</th>
+	            </tr>
+            </thead>
+            <tbody>
+            <c:if test="${not empty noticeList}">    
+            <c:forEach var="vo" items="${noticeList}" varStatus="status">
+            <fmt:formatDate value="${vo.input_dt }" pattern="yyyy/MM/dd" var="input_dt" />
+                 <tr class="notice">
+                     <td><span class="ui-icon ui-icon-info"></span></td>
+                     <td class="left">
+                     	<span class="title">
+                     		<c:if test="${vo.email_yn }">
+                     		<span class="ui-icon ui-icon-mail-closed"></span>
+                     		</c:if>
+                     		<a href="content?bbs_no=${vo.bbs_no}&${parameters}">${vo.title}</a></span>
+                     	<c:if test="${vo.reply_count > 0 }">
+                     	<em>(${vo.reply_count })</em>
+                     	</c:if>
+                     	<c:if test="${vo.attach_count > 0 }"> 
+                     	<img src="/resources/img/ico_file.png" alt="File" />
+                     	</c:if>
+                     	<c:if test="${vo.new_date eq 'y' }">
+                     	<img src="/resources/img/ico_new.png" alt="New" />
+                     	</c:if>
+                     </td>
+                     <td>${vo.input_name}</td>  
+                     <td>${input_dt}</td>
+                     <td>${vo.visit_no}</td>
+                 </tr>
+             </c:forEach>
+             </c:if>
+            <c:if test="${not empty bbsList}">    
+            <c:forEach var="vo" items="${bbsList}" varStatus="status">
+            <fmt:formatDate value="${vo.input_dt }" pattern="yyyy/MM/dd" var="input_dt" />
+                 <tr>
+                     <td>${vo.rnum }</td>
+                     <td class="left">
+                     	<span class="title">
+                     		<c:if test="${vo.email_yn }">
+                     		<span class="ui-icon ui-icon-mail-closed"></span>
+                     		</c:if>
+                     		<a href="content?bbs_no=${vo.bbs_no}&${parameters}">${vo.title}</a></span>
+                     	<c:if test="${vo.reply_count > 0 }">
+                     	<em>(${vo.reply_count })</em>
+                     	</c:if>
+                     	<c:if test="${vo.attach_count > 0 }"> 
+                     	<img src="/resources/img/ico_file.png" alt="File" />
+                     	</c:if>
+                     	<c:if test="${vo.new_date eq 'y' }">
+                     	<img src="/resources/img/ico_new.png" alt="New" />
+                     	</c:if>
+                     </td>
+                     <td>${vo.input_name}</td>  
+                     <td>${input_dt}</td>
+                     <td>${vo.visit_no}</td>
+                 </tr>
+             </c:forEach>
+             </c:if>
+	        <c:if test="${empty noticeList && empty bbsList}"> 
+	        <tr>
+	            <td class="h100" colspan="5">"검색된 결과가 없습니다"</td>
+	        </tr>
+	        </c:if>
+            </tbody>
+        </table>
+        <div class="btnArea">
+        	<c:if test="${ pageInfo.bbs_gb ne 'N' || (pageInfo.bbs_gb eq 'N' && sessionScope.role eq '02') }">
+            <a href="write?${parameters}"><img class="srchIcon" src="/resources/img/btn_regist.gif" alt="등록" /></a>
+            </c:if>
+        </div>
+        <%@ include file="/resources/inc/paging.jsp" %>
+    </div>
+</section>
+<%@ include file = "/resources/inc/footer.jsp" %>
+</body>
+</html>

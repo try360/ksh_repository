@@ -1,0 +1,68 @@
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file OfficeService.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.service;
+
+import java.util.HashMap;
+import java.util.List;
+
+import kr.co.kt.agwne.dto.OfficeVO;
+
+public interface OfficeService {
+	//지사 불러오기  배수산
+	public Object t_office_list() throws Exception;    
+	
+	public OfficeVO t_my_office(String dept_code) throws Exception;    
+	public Object t_office_list_top() throws Exception;    
+	public int t_office_doc_reg(List<OfficeVO> voList) throws Exception;
+	public int t_office_list2(int office_no) throws Exception; 
+	//하위지사 배수산
+	public List<OfficeVO> t_office_sub_list(HashMap<String, Object> listInfo) throws Exception;
+	//오피스 등록 이상준
+ 	public Object office_reg(OfficeVO officeVO) throws Exception;       
+	// 오피스리스트 가져오기 이상준
+	public Object office_list(HashMap<String, Object> listInfo) throws Exception;
+	// 오피스 이름 리스트( 검색, 등록에 사용될 셀렉트박스 리스트) 이상준
+	public Object office_nm_list(HashMap<String, Object> listInfo) throws Exception;
+	// 오피스 삭제 이상준
+    public Object office_del(int office_no) throws Exception;
+ // 게시물 총 갯수 가져오기 이상준
+    public int office_totalCnt(HashMap<String, Object> listInfo) throws Exception;
+    // 기존에 존재하는 오피스명과 브런치명인지 확인 이상준
+    public boolean office_check(OfficeVO officeVO) throws Exception;
+    // 오피스 업데이트 이상준
+    public Object office_update(OfficeVO officeVO) throws Exception;         
+    
+    public int office_cd_get(OfficeVO officeVO) throws Exception;         
+    
+    public Object selectBonbu(String region);
+    public Object selectCenter(String bonbu);
+    public Object selectBranch(String center);
+    public Object selectTeam(String branch);
+
+	public Object select_cmBonbuAll();
+
+	public Object select_cmBranchAll(String orgscode);
+
+	public Object select_cmOfficeAll(String orgscode);
+
+	public Object select_mycmOffice(String dept_code);
+
+}
+   

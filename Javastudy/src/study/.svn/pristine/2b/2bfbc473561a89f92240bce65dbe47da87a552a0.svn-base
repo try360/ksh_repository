@@ -1,0 +1,40 @@
+package kr.co.kt.agwne.validate;
+
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
+
+import kr.co.kt.agwne.dto.MacVO;
+import kr.co.kt.common.ParamValidatChk;
+
+public class MacValidation extends ParamValidatChk implements Validator {
+
+	@Override
+	public boolean supports(Class<?> arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void validate(Object obj, Errors err) {
+		MacVO inVO = (MacVO) obj;
+		MacVO outVO = new MacVO();
+		
+		if (isNull(inVO)) {
+			err.rejectValue("macVO", "경로가 잘 못 되었습니다");
+		}
+		String serial_num = inVO.getSerial_num();
+		if (isEmpty(serial_num)) {
+			err.rejectValue("serial_num", "macVO.serial_num.required");
+		} else {
+			if (serial_num.length() != 14) {
+				err.rejectValue("serial_num", "macVO.serial_num");
+			} else {
+				if(serial_num.startsWith("HY4P")) {
+					err.rejectValue("serial_num", "macVO.serial_num");
+				} else {
+					//outVO.
+				}
+			}
+		}
+	}
+}

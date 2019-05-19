@@ -1,0 +1,309 @@
+/**
+ * facility/js
+ * @author ysy
+ * @date 2018-08-13
+ * 
+ */
+
+$(function(){
+	$(".searchArea input[name='companyCode']").val(searchTypeChange($(".searchArea select[name='searchType']").val()));
+	$(".searchArea select[name='searchType']").change(function(){
+		var val = $(this).val();
+		$(".searchArea input[name='companyCode']").val(searchTypeChange(val));
+	});
+
+	$("#controlgroup").controlgroup();
+
+	$("#reform-section .searchArea input[name='serchBtn']").click(function(){
+
+            $("form[name='searchForm']").submit();
+
+    });
+	
+	//reform-agw 옵션검색 후 탭선택 유지
+	var tabs = $("#tabs").tabs();
+	//console.log(sh_data);
+	if(sh_data=="tabs1"){
+		tabs.tabs({active:0});
+	}else if(sh_data=="tabs2"){
+		tabs.tabs({active:1});
+	}
+	
+	//옵션검색 : 체크길이 확인 전체 선택 체크 여부
+	if($("input[name='tdx_type']:checked").length==4){$("#tdx_type_all").prop("checked",true);}
+	if($("input[name='device_gb']:checked").length==4){$("#device_gb_all").prop("checked",true);}
+	if($("input[name='vendor_nm']:checked").length==4){$("#vendor_nm_all").prop("checked",true);}
+
+	//reform-agw 옵션검색 체크박스 전체선택
+	$("#tdx_type_all").click(function(){ $(".chk_tdx").prop("checked",this.checked); });
+	$(".chk_tdx").click(function(){
+		if($("input[name='tdx_type']:checked").length==4){
+			$("#tdx_type_all").prop("checked",true);
+		}else{
+			$("#tdx_type_all").prop("checked",false);
+		}
+	});
+	$("#device_gb_all").click(function(){ $(".chk_device").prop("checked",this.checked); });
+	$(".chk_device").click(function(){
+		if($("input[name='device_gb']:checked").length==4){
+			$("#device_gb_all").prop("checked",true);
+		}else{
+			$("#device_gb_all").prop("checked",false);
+		}
+	});
+	$("#vendor_nm_all").click(function(){ $(".chk_vendor").prop("checked",this.checked); });
+	$(".chk_vendor").click(function(){
+		if($("input[name='vendor_nm']:checked").length==4){
+			$("#vendor_nm_all").prop("checked",true);
+		}else{
+			$("#vendor_nm_all").prop("checked",false);
+		}
+	});
+
+	$("#deviceCdAutoComplete").autocomplete({
+		  minLength: 5
+		, source: function(request, response) {
+			//console.log(request.term.trim().toUpperCase());
+			$.ajax({
+				url : "/facility/reform/deviceSearching",
+				dataType: "json",
+				data :{
+					'deviceCd' : request.term.trim().toUpperCase()
+				},
+				type : "post",
+				success : function(data){
+					console.log(data);
+					response(data);
+				}
+				, error: function(data){
+					alert("조회 실패");
+				}
+			});
+		}
+	});
+	
+	$(".arcodion tr.detail").hide();
+	$(".arcodion tr.list").css("cursor", "pointer");
+	$(".arcodion tr.list").click(function(){
+		$(this).next(".detail").slideToggle("fast");
+		$(".arcodion tr.detail").hide();
+		$(".arcodion tr.list").removeClass("active");
+		$(this).next().show();
+		$(this).addClass("active");
+		
+		var barcode;
+		$(this).find("td").each(function(i, item){
+			if(i==1){
+				barcode = $(item).text().trim();
+			}
+		});
+				
+		$.ajax({
+			type : "POST",
+			url : "reform_detail",
+			data :{
+				'barcode' : barcode
+			},
+			success : function(result){
+				$(".detail td").remove();
+								
+				var html;
+				html = "<td colspan=\"10\">"+ 
+					"<table style=\"width: 100%;\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">"+
+                   	"<tr>"+
+                   	"<th style=\"width: 8%;\">소속조직</th>"+
+                   	"<td colspan=\"5\" style=\"width: 25%;\">"+result.office_nm+"</td>"+
+                   	"</tr>"+
+                   	"<tr>"+
+                   	"<th style=\"width: 8%;\">설비바코드</th>"+
+                   	"<td style=\"width: 25%;\">"+result.barcode+"</td>"+
+                   	"<th style=\"width: 8%;\">자재코드</th>"+
+                   	"<td style=\"width: 25%;\">"+result.device_cd+"</td>"+
+                   	"<th style=\"width: 8%;\">자재명</th>"+
+                   	"<td style=\"width: 25%;\">"+result.device_nm+"</td>"+
+                   	"</tr>"+
+                   	"<tr>"+
+                   	"<th style=\"width: 8%;\">파트구분</th>"+
+                   	"<td style=\"width: 25%;\">"+result.part+"["+result.part_gb+"]"+"</td>"+
+                   	"<th style=\"width: 8%;\">자재정보</th>"+
+                   	"<td style=\"width: 25%;\">"+result.device_info+"</td>"+
+                   	"<th style=\"width: 8%;\">자재구분</th>"+
+                   	"<td style=\"width: 25%;\">"+result.tdx_type+"형</td>"+
+                   	"</tr>"+
+                   	"<tr>"+
+                   	"<th style=\"width: 8%;\">제조사</th>"+
+                   	"<td style=\"width: 25%;\">"+result.vendor_nm+"</td>"+
+                	"<th style=\"width: 8%;\">위치코드</th>"+
+                   	"<td style=\"width: 25%;\">"+result.addr_cd+"</td>"+
+                   	"<th style=\"width: 8%;\">위치</th>"+
+                   	"<td style=\"width: 25%;\">"+result.addr_nm+"</td>"+
+                   	"</tr>"+
+                    "</table>"+
+                    "</td>"+
+                    "<br/>";
+
+				$(".detail").append(html);
+			}
+		});
+
+	});
+
+	$(".checkboxset").controlgroup();
+	$(".checkboxset .ui-icon-check").css("background-position", "-64px -144px");
+	$("#searchBtn button").button();
+	if (sh_data != "") {
+		$(".listTable .sort").click(function(){
+			var order = $(this).attr("data");
+			var by = "asc";
+			var form;
+			if (sh_data == "tabs1") {
+				form = $("form[name='searchForm_text']");
+			} else {
+				form = $("form[name='searchForm_option']");
+			}
+			form.find("input[name='order']").val(order);
+			form.find("input[name='by']").val(by);
+			form.submit();
+		});
+	}
+
+
+});
+
+function searchTypeChange(data) {
+	var result = "";
+	if (data == "a.agw_mac") {
+		result = "1853E0";
+	} else if (data == "a.epon_mac") {
+		result = "0025A6";
+	} else if (data == "a.serial_num") {
+		result = "HY4P"
+	}	else {
+		result = "";
+	}
+	return result;
+}
+
+function checkFileType(filePath) {
+	var filePathArr = filePath.split(".");
+	var ext = filePathArr[filePathArr.length-1].toLowerCase();
+
+	return ext;	
+}
+
+function FormChkModule(f) {
+	if (f.excelFile.value == "") {
+		alert("첨부파일을 선택해 주세요");
+		f.excelFile.focus();
+		return false;
+	} else {
+		var ext = checkFileType(f.excelFile.value);
+		if (ext != "xls" && ext != "xlsx") {
+			alert("엑셀 파일만 업로드 가능합니다.");
+			f.excelFile.select();
+			f.excelFile.focus();
+			return false;
+		}
+	}
+	$.blockUI();
+	var options = {
+		success : function(data) {
+			$.unblockUI();
+			console.log(data);
+			alert(data);
+			f.reset();
+		},
+		type : "POST",
+		dataType : "text"
+	};
+	$("#excelUploadForm").ajaxSubmit(options);
+	return false;
+} 
+
+function FormChk(f,chk) {	
+	var sn = $("input[name=serial_num]").val();
+	var agwMac = $("input[name=agw_mac]").val();
+	var eponMac = $("input[name=epon_mac]").val();
+	
+	if (sn == "") {
+		alert("S/N을(를) 입력하세요.");
+		$("input[name=serial_num]").focus();
+		return false;
+	}else if(agwMac == ""){
+		alert("AGW-MAC을(를) 입력하세요");
+		$("input[name=agw_mac]").focus();
+		return false;
+	}else if(eponMac == ""){
+		alert("EPON-MAC을(를) 입력하세요.");
+		$("input[name=epon_mac]").focus();
+		return false;
+	}
+	
+	$.ajax({
+		type : 'POST',
+		url : 'mac_chk',
+		data :{
+			'agw_mac' : agwMac,
+			'agwCompanyCode' : $("input[name=agwCompanyCode]").val(),
+			'mac_no' : $("input[name=macNo]").val(),
+			'upChk' : chk
+		},
+		success : function(data){
+			if(chk=="reg"){
+				if($.trim(data) == "regist"){
+					f.action="mac_regist";
+					f.submit();
+				}else if($.trim(data) == "excel"){
+					alert("이미 등록된 자산입니다.");
+
+				}else if($.trim(data) == "yes"){
+					alert("이미 등록된 자산입니다.");
+
+				}	
+			}else if(chk=="up"){
+				if($.trim(data) == "no"){
+					alert("등록되지 않은 자산입니다.");
+
+				}else if($.trim(data) == "excel"){
+					alert("이미 등록된 자산입니다.");
+
+				}else if($.trim(data) == "yes"){
+					alert("이미 등록된 자산입니다.");
+
+				}else if($.trim(data) == "updateOK"){
+					f.action="mac_update?macNo="+$("input[name=macNo]").val();
+					f.submit();
+				}
+			}
+		}
+	});
+}
+
+function macUpdate(f,macNo,str){
+	if(str != "delete"){
+		var href = "mac_write?macNo="+macNo;
+		return popLink(href,450,220);
+	}else{
+		var delete_yn = confirm("삭제 하시겠습니까?");
+		if(delete_yn==true){
+			$.ajax({
+				type : 'POST',
+				url : 'mac_delete',
+				data : {
+					'macNo' : macNo
+				},
+				success : function(data){
+					if($.trim(data) == "OK"){
+						alert('삭제되었습니다.');
+						location.href="/facility/4p/mac";
+					}else{
+						alert('등록한 사용자와 관리자만 삭제가 가능합니다.');
+
+					}
+				}
+			});
+		}else{
+
+		}
+	}
+}

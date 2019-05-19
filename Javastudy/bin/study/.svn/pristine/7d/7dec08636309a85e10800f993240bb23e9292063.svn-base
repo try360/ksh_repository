@@ -1,0 +1,66 @@
+package kr.co.kt.agwne.service.impl;
+
+import java.util.HashMap;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.co.kt.agwne.dao.AesDAO;
+import kr.co.kt.agwne.dao.CostDAO;
+import kr.co.kt.agwne.dao.FacilityDAO;
+import kr.co.kt.agwne.dto.CostVO;
+import kr.co.kt.agwne.dto.EmsVO;
+import kr.co.kt.agwne.dto.ModelInfoVO;
+import kr.co.kt.agwne.service.AesService;
+import kr.co.kt.agwne.service.CostService;
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2010-11-22
+ * @ file UserApprValidation.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+@Service
+public class AesServiceImpl implements AesService {
+
+  
+	@Inject
+	private AesDAO dao;
+
+	@Override
+	public EmsVO req_aes_insert(EmsVO vo) throws Exception {
+		return  dao.req_aes_insert(vo);
+	}
+
+	@Override
+	public EmsVO res_aes_select(EmsVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		return dao.res_aes_select(vo);
+	}
+
+	@Override
+	public int res_aes_update(int aes_no) throws Exception {
+		// TODO Auto-generated method stub
+		return dao.res_aes_update(aes_no);
+	}
+
+	@Override
+	public int ems_send_before_update(ModelInfoVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		return dao.ems_send_before_update(vo);
+	}
+    
+}

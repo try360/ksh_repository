@@ -1,0 +1,47 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file SecurityUtil.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.common;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class SecurityUtil {
+	public String encryptSHA256(String str) {
+		String sha="" ;
+		try {
+			MessageDigest sh = MessageDigest.getInstance("SHA-256");
+			sh.update(str.getBytes());
+			byte byteData[] = sh.digest();
+			StringBuffer sb = new StringBuffer();
+			for (int i = 0; i < byteData.length; i++) {
+				sb.append(Integer.toString((byteData[i]&0xff) + 0x100, 16).substring(1));
+			}
+			sha = sb.toString();
+			
+		}catch (NoSuchAlgorithmException e) {
+			// TODO: handle exception
+			System.out.println("Encrypt Error - NoSuchAlgorithmException");
+			sha = null;
+		}
+		
+		return sha;
+		
+	}
+}

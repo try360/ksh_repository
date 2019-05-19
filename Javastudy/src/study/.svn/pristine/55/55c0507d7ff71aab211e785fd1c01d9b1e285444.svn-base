@@ -1,0 +1,39 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file NeossService.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.service;
+
+import javax.validation.Valid;
+
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import kr.co.kt.agwne.dto.ConfirmUserVO;
+import kr.co.kt.agwne.dto.ModelInfoVO;
+import kr.co.kt.agwne.dto.data.NeossData;
+
+
+public interface NeossService {
+
+	public int t_bs_modify(@Valid NeossData neossVO, ModelInfoVO infoVO, ConfirmUserVO cfVO, MultipartHttpServletRequest mhsq) throws Exception;
+
+	public int t_bs_reg(@Valid NeossData neossVO, ModelInfoVO infoVO, ConfirmUserVO cfVO, MultipartHttpServletRequest mhsq) throws Exception;
+
+	public Object select_inettie(int neoss_no);
+
+}

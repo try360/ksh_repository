@@ -1,0 +1,63 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file ExcelCellRef.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.common.excel;
+
+import org.apache.poi.hssf.util.CellReference;
+import org.apache.poi.ss.usermodel.Cell;
+
+public class ExcelCellRef {
+
+	public static String getName(Cell cell, int cellIndex) {
+		int cellNum = 0;
+		if (cell != null) {
+			cellNum = cell.getColumnIndex();
+		} else {
+			cellNum = cellIndex;
+		}
+		
+		return CellReference.convertNumToColString(cellNum);
+	}
+	
+	public static String getValue(Cell cell) {
+		String value = "";
+		
+		if (cell == null) {
+			value = "";
+		} else {
+			if (cell.getCellType() == cell.CELL_TYPE_FORMULA) {
+				value = cell.getCellFormula();
+			} else if (cell.getCellType() == cell.CELL_TYPE_NUMERIC) {
+				value = cell.getNumericCellValue() + "";
+			} else if (cell.getCellType() == cell.CELL_TYPE_STRING) {
+				value = cell.getStringCellValue();
+			} else if (cell.getCellType() == cell.CELL_TYPE_BOOLEAN) {
+				value = cell.getBooleanCellValue() + "";
+			} else if (cell.getCellType() == cell.CELL_TYPE_ERROR) {
+				value = cell.getErrorCellValue() + "";
+			} else if (cell.getCellType() == cell.CELL_TYPE_BLANK) {
+				value = "";
+			} else {
+				value = cell.getStringCellValue();
+			}
+		}
+		
+		return value;
+	}
+}

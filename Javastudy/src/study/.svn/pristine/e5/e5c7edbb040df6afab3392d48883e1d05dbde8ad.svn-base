@@ -1,0 +1,354 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"  %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %> 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<script type="text/javascript" src="/resources/js/userRole.js" charset="UTF-8"></script>
+</head>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	if("${message}" != ""){
+		alert("${message}");
+	}
+});
+</script>
+
+<body>
+<%@ include file = "/resources/inc/header_nav.jsp" %>
+<%@ include file = "/resources/inc/aside.jsp" %>
+<section id="userRole_write">
+    <h1 class="list">승인자 정보</h1>
+    <div class="contents_form">
+        <!-- 타이틀, 경로 -->
+        <div class="divDocTitle">승인자 </div>
+           <form id="userRoleWriteForm" name="userRoleWriteForm" method="post" action="userRole_write.do">      
+           <input type="hidden" id="erp_job" name="erp_job" value="03"/>
+           <input type="hidden" id="region" name="region" value="${bonbuVO.s_region}"/>
+           <input type="hidden" id="orgscode1" name="orgscode1" value="${bonbuVO.s_orgscode1}"/>
+           <input type="hidden" id="orgscode2" name="orgscode2" value="${bonbuVO.s_orgscode2}"/>
+           <input type="hidden" id="orgscode3" name="orgscode3" value="${bonbuVO.s_orgscode3}"/>
+           <input type="hidden" id="orgscode" name="orgscode" value="${bonbuVO.s_orgscode}"/>    
+        <!-- WRITE -->
+        <table class="writeTable" border="0" cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr>
+              <th>본부</th>
+              <td colspan="3">
+                  <input id="orgscode1" name="orgscode1" type="hidden" value="${bonbuVO.orgscode1}"/>
+                  <input id="orgname1" name="orgname1" type="text" class="txtarea" style="width:130px" value="${bonbuVO.orgname1}" disabled >
+              </td>
+              <th>센터</th>
+              <td colspan="3">
+                  <input id="orgscode2" name="orgscode2" type="hidden" value="${bonbuVO.orgscode2}"/>
+                  <input id="orgname2" name="orgname2" type="text" class="txtarea" style="width:130px" value="${bonbuVO.orgname2}" disabled >
+              </td>  
+              <th>지점</th>
+              <td colspan="3">
+                  <input id="orgscode3" name="orgscode3" type="hidden" value="${bonbuVO.orgscode3}"/>
+                  <input id="orgname3" name="orgname3" type="text" class="txtarea" style="width:130px" value="${bonbuVO.orgname3}" disabled >
+              </td> 
+              <th>팀</th>
+              <td colspan="3">
+                  <input id="orgscode" name="orgscode" type="hidden" value="${bonbuVO.orgscode}"/>
+                  <input id="orgname" name="orgname" type="text" class="txtarea" style="width:130px" value="${bonbuVO.orgname}" disabled >
+              </td>                                                                     
+           <tr>  
+         </tbody>
+        </table>
+             <table class="userRoleTable" border="0" cellspacing="0" cellpadding="0">
+             <!-- 투자확정area -->
+             <tr>
+	             <th rowspan="${idx_01 }">매핑정보</th>
+	             <td rowspan="${idx_01 }" style="width:200PX;">
+	               <c:choose>
+	             <c:when test="${not empty apprVO_01 }">
+	              <c:set var="flag_01" value="false" />
+	             <c:forEach var="vo" items="${apprVO_01 }" varStatus="status">
+	             <c:if test ="${not flag_01}">
+					<input id="req_bonbu_01" name="req_bonbu" type="hidden" value="${vo.req_bonbu }"/>
+                    <input id="req_name_01" name="req_name" type="text" class="txtarea" style="width:120px" value="${vo.req_name }" disabled/>
+                   <!--  <img id="p_modIcon_011" class="modIcon" src="/resources/img/btn_modify.gif" style="cursor:pointer" alt="수정" />  -->  
+                    <c:if test="${not empty vo.req_bonbu}">
+                    <c:set var="flag_01" value="true" />  
+                    </c:if>
+                  </c:if>      
+                  </c:forEach>   
+	             </c:when>
+	             <c:otherwise>
+					<input id="req_bonbu_01" name="req_bonbu" type="hidden" value="${vo.req_bonbu }"/>
+                    <input id="req_name_01" name="req_name" type="text" class="txtarea" style="width:120px" value="${vo.req_name }" disabled/>
+                   <!--  <img id="p_modIcon_011" class="modIcon" src="/resources/img/btn_modify.gif" style="cursor:pointer" alt="수정" />	 -->             
+	             </c:otherwise>
+	             </c:choose>
+				</td>
+	             <th rowspan="${idx_01 }">투자확정</th>
+	             <c:forEach var="vo" items="${apprVO_01 }" varStatus="status">
+		             <c:choose>
+		             	<c:when test="${vo.dft eq '1' }">
+			             	<td>
+			             	  <input type="radio" checked="checked" name="check_01" value="${vo.approval_no }" id="check_01_${status.index }">
+			             	  <input id="approval_no_01_${status.index }" name="approval_no" type="hidden" class="txtarea" style="width:40px" value="${vo.approval_no}" disabled/>	
+			                  <input id="appr_name_01_${status.index }" name="appr_name" type="text" class="txtarea" style="width:140px" value="${vo.appr_name}" disabled/>
+			                  <input id="dept_name_01_${status.index }" name="dept_name" type="text" class="txtarea" style="width:120px"  value="${vo.dept_name}" disabled/>
+			                  <input id="emp_name_01_${status.index }" name="emp_name" type="text" class="txtarea" style="width:50px" value="${vo.emp_name}" disabled/>
+			               	  <img id="p_regIcon_01_${status.index }" class="regIcon" src="/resources/img/btn_regist.gif" style="cursor:pointer" alt="등록" />     	
+			             	</td>
+		             	</c:when>
+		             	<c:otherwise>
+			             	<tr>
+				             	<td>
+				              <input type="radio" value="${vo.approval_no }" name="check_01" value="${vo.approval_no }" id="check_01_${status.index }"/>
+				              <input id="approval_no_01_${status.index }" name="approval_no" type="hidden" class="txtarea" style="width:40px" value="${vo.approval_no}" disabled/>	
+			                  <input id="appr_name_01_${status.index }" name="appr_name" type="text" class="txtarea" style="width:140px" value="${vo.appr_name}" disabled/>
+			                  <input id="dept_name_01_${status.index }" name="dept_name" type="text" class="txtarea" style="width:120px"  value="${vo.dept_name}" disabled/>
+			                  <input id="emp_name_01_${status.index }" name="emp_name" type="text" class="txtarea" style="width:50px" value="${vo.emp_name}" disabled/>
+			                   <img id="delIconbtn_01_${status.index }" class="delIconbtn" name="delIconBtn" src="/resources/img/btn_delete.gif" style="cursor:pointer" alt="삭제" />
+				             	</td>
+				             </tr>
+		             	</c:otherwise>
+		             </c:choose>
+	             </c:forEach>
+             </tr>
+	       <!-- IP/MAC확정area -->     
+	        <tr>
+	             <th rowspan="${idx_02 }">매핑정보</th>
+	             <td rowspan="${idx_02 }">
+	               <c:choose>
+	             <c:when test="${not empty apprVO_02 }">
+	             <c:set var="flag_02" value="false" />
+	             <c:forEach var="vo" items="${apprVO_02 }" varStatus="status">
+	             	<c:if test ="${not flag_02}">
+					<input id="req_bonbu_02" name="req_bonbu" type="hidden" value="${vo.req_bonbu }"/>
+                    <input id="req_name_02" name="req_name" type="text" class="txtarea" style="width:120px" value="${vo.req_name }" disabled/>
+                   <!--  <img id="p_modIcon_022" class="modIcon" src="/resources/img/btn_modify.gif" style="cursor:pointer" alt="수정" />  -->  
+                    <c:if test="${not empty vo.req_bonbu }">
+                    <c:set var="flag_02" value="true" />  
+                    </c:if>
+                  </c:if>   	             
+                  </c:forEach>
+	             </c:when>
+	             <c:otherwise>
+					<input id="req_bonbu_02" name="req_bonbu" type="hidden" value="${vo.req_bonbu }"/>
+                    <input id="req_name_02" name="req_name" type="text" class="txtarea" style="width:120px" value="${vo.req_name }" disabled/>
+                   <!--  <img id="p_modIcon_022" class="modIcon" src="/resources/img/btn_modify.gif" style="cursor:pointer" alt="수정" /> 	     -->         
+	             </c:otherwise>
+	             </c:choose>
+  
+	             </td>
+	             <th rowspan="${idx_02 }">IP/MAC확정</th>
+             	 <c:forEach var="vo" items="${apprVO_02 }" varStatus="status">
+		             <c:choose>
+		             	<c:when test="${vo.dft eq '1' }">
+			             	<td>
+			             	  <input type="radio" checked="checked" name="check_02" value="${vo.approval_no }" id="check_02_${status.index }">
+			             	  <input id="approval_no_02_${status.index }" name="approval_no" type="hidden" class="txtarea" style="width:40px" value="${vo.approval_no}" disabled/>	
+			                  <input id="appr_name_02_${status.index }" name="appr_name" type="text" class="txtarea" style="width:140px" value="${vo.appr_name}" disabled/>
+			                  <input id="dept_name_02_${status.index }" name="dept_name" type="text" class="txtarea" style="width:120px"  value="${vo.dept_name}" disabled/>
+			                  <input id="emp_name_02_${status.index }" name="emp_name" type="text" class="txtarea" style="width:50px" value="${vo.emp_name}" disabled/>
+			                  <img id="p_regIcon_02_${status.index }" class="regIcon" src="/resources/img/btn_regist.gif" style="cursor:pointer" alt="등록" />            	
+			             	</td>
+		             	</c:when>
+		             	<c:otherwise>
+			             	<tr>
+				             	<td>
+				             	<input type="radio" value="${vo.approval_no }" name="check_02" id="check_02_${status.index }"/>
+				              <input id="approval_no_02_${status.index }" name="approval_no" type="hidden" class="txtarea" style="width:40px" value="${vo.approval_no}" disabled/>	
+			                  <input id="appr_name_02_${status.index }" name="appr_name" type="text" class="txtarea" style="width:140px" value="${vo.appr_name}" disabled/>
+			                  <input id="dept_name_02_${status.index }" name="dept_name" type="text" class="txtarea" style="width:120px"  value="${vo.dept_name}" disabled/>
+			                  <input id="emp_name_02_${status.index }" name="emp_name" type="text" class="txtarea" style="width:50px" value="${vo.emp_name}" disabled/>
+			                   <img id="delIconbtn_02_${status.index }" class="delIconbtn" name="delIconBtn" src="/resources/img/btn_delete.gif" style="cursor:pointer" alt="삭제" />
+				             	</td>
+				             </tr>
+		             	</c:otherwise>
+		             </c:choose>
+	             </c:forEach>
+             </tr>
+	           
+	      <!-- MGID area -->     
+	        <tr>
+	             <th rowspan="${idx_03 }">매핑정보</th>
+	             <td rowspan="${idx_03 }">
+	               <c:choose>
+	             <c:when test="${not empty apprVO_03 }">
+ 				<c:set var="flag_03" value="false" />
+	             <c:forEach var="vo" items="${apprVO_03 }" varStatus="status">
+ 				<c:if test ="${not flag_03}">
+					<input id="req_bonbu_03" name="req_bonbu" type="hidden" value="${vo.req_bonbu }"/>
+                    <input id="req_name_03" name="req_name" type="text" class="txtarea" style="width:120px" value="${vo.req_name }" disabled/>
+                    <!-- <img id="p_modIcon_033" class="modIcon" src="/resources/img/btn_modify.gif" style="cursor:pointer" alt="수정" />  -->  
+                    <c:if test="${not empty vo.req_bonbu }">
+                    <c:set var="flag_03" value="true" />  
+                    </c:if>
+                  </c:if>	             
+                  </c:forEach> 	             
+	             </c:when>
+	             <c:otherwise>
+					<input id="req_bonbu_03" name="req_bonbu" type="hidden" value="${vo.req_bonbu }"/>
+                    <input id="req_name_03" name="req_name" type="text" class="txtarea" style="width:120px" value="${vo.req_name }" disabled/>
+                    <!-- <img id="p_modIcon_033" class="modIcon" src="/resources/img/btn_modify.gif" style="cursor:pointer" alt="수정" />   -->	             
+	             </c:otherwise>
+	             </c:choose>
+	             </td>
+	             <th rowspan="${idx_03 }">MGID확정</th>
+             	<c:forEach var="vo" items="${apprVO_03 }" varStatus="status">
+		             <c:choose>
+		             	<c:when test="${vo.dft eq '1' }">
+			             	<td>
+			             	  <input type="radio" checked="checked" name="check_03" value="${vo.approval_no }" id="check_03_${status.index }">
+			             	  <input id="approval_no_03_${status.index }" name="approval_no" type="hidden" class="txtarea" style="width:40px" value="${vo.approval_no}" disabled/>	
+			                  <input id="appr_name_03_${status.index }" name="appr_name" type="text" class="txtarea" style="width:140px" value="${vo.appr_name}" disabled/>
+			                  <input id="dept_name_03_${status.index }" name="dept_name" type="text" class="txtarea" style="width:120px"  value="${vo.dept_name}" disabled/>
+			                  <input id="emp_name_03_${status.index }" name="emp_name" type="text" class="txtarea" style="width:50px" value="${vo.emp_name}" disabled/>
+			                  <img id="p_regIcon_03_${status.index }" class="regIcon" src="/resources/img/btn_regist.gif" style="cursor:pointer" alt="등록" />    	
+			             	</td>
+		             	</c:when>
+		             	<c:otherwise>
+			             	<tr>
+				             	<td>
+				             	<input type="radio" value="${vo.approval_no }" name="check_03"  id="check_03_${status.index }"/>
+				              <input id="approval_no_03_${status.index }" name="approval_no" type="hidden" class="txtarea" style="width:40px" value="${vo.approval_no}" disabled/>	
+			                  <input id="appr_name_03_${status.index }" name="appr_name" type="text" class="txtarea" style="width:140px" value="${vo.appr_name}" disabled/>
+			                  <input id="dept_name_03_${status.index }" name="dept_name" type="text" class="txtarea" style="width:120px"  value="${vo.dept_name}" disabled/>
+			                  <input id="emp_name_03_${status.index }" name="emp_name" type="text" class="txtarea" style="width:50px" value="${vo.emp_name}" disabled/>
+			                   <img id="delIconbtn_03_${status.index }" class="delIconbtn" name="delIconBtn" src="/resources/img/btn_delete.gif" style="cursor:pointer" alt="삭제" />
+				             	</td>
+				             </tr>
+		             	</c:otherwise>
+		             </c:choose>
+	             </c:forEach>
+             </tr>
+	             
+	       <!-- 착공(공사요청)area -->        	                
+	        <tr>
+	             <th rowspan="${idx_04 }">매핑정보</th>
+	             <td rowspan="${idx_04 }">
+	             <c:choose>
+	             <c:when test="${not empty apprVO_04 }">
+					<c:set var="flag_04" value="false" />
+	             <c:forEach var="vo" items="${apprVO_04 }" varStatus="status">
+				<c:if test ="${not flag_04}">	
+					<input id="req_bonbu_04" name="req_bonbu" type="hidden" value="${vo.req_bonbu }"/>
+                    <input id="req_name_04" name="req_name" type="text" class="txtarea" style="width:120px" value="${vo.req_name }" disabled/>
+                    <!-- <img id="p_modIcon_044" class="modIcon" src="/resources/img/btn_modify.gif" style="cursor:pointer" alt="수정" />    -->
+                    <c:if test="${not empty vo.req_bonbu }">
+                    <c:set var="flag_04" value="true" />  
+                    </c:if>
+                 </c:if>      	             
+                  </c:forEach>	             
+	             </c:when>
+	             <c:otherwise>
+					<input id="req_bonbu_04" name="req_bonbu" type="hidden" value="${vo.req_bonbu }"/>
+                    <input id="req_name_04" name="req_name" type="text" class="txtarea" style="width:120px" value="${vo.req_name }" disabled/>
+                 <!--    <img id="p_modIcon_044" class="modIcon" src="/resources/img/btn_modify.gif" style="cursor:pointer" alt="수정" />  -->
+	             </c:otherwise>
+	             </c:choose>
+ 
+	             </td>
+	             <th rowspan="${idx_04 }">착공<br>(공사요청)</th>
+             	<c:forEach var="vo" items="${apprVO_04 }" varStatus="status">
+		             <c:choose>
+		             	<c:when test="${vo.dft eq '1' }">
+			             	<td>
+			             	  <input type="radio" checked="checked" name="check_04"  value="${vo.approval_no }" id="check_04_${status.index }">
+			             	  <input id="approval_no_04_${status.index }" name="approval_no" type="hidden" class="txtarea" style="width:40px" value="${vo.approval_no}" disabled/>	
+			                  <input id="appr_name_04_${status.index }" name="appr_name" type="text" class="txtarea" style="width:140px" value="${vo.appr_name}" disabled/>
+			                  <input id="dept_name_04_${status.index }" name="dept_name" type="text" class="txtarea" style="width:120px"  value="${vo.dept_name}" disabled/>
+			                  <input id="emp_name_04_${status.index }" name="emp_name" type="text" class="txtarea" style="width:50px" value="${vo.emp_name}" disabled/>
+			                  <img id="p_regIcon_04_${status.index }" class="regIcon" src="/resources/img/btn_regist.gif" style="cursor:pointer" alt="등록" />         	
+			             	</td>
+		             	</c:when>
+		             	<c:otherwise>
+			             	<tr>
+				             	<td>
+				             	<input type="radio" value="${vo.approval_no }" name="check_04"  id="check_04_${status.index }"/>
+				              <input id="approval_no_04_${status.index }" name="approval_no" type="hidden" class="txtarea" style="width:40px" value="${vo.approval_no}" disabled/>	
+			                  <input id="appr_name_04_${status.index }" name="appr_name" type="text" class="txtarea" style="width:140px" value="${vo.appr_name}" disabled/>
+			                  <input id="dept_name_04_${status.index }" name="dept_name" type="text" class="txtarea" style="width:120px"  value="${vo.dept_name}" disabled/>
+			                  <input id="emp_name_04_${status.index }" name="emp_name" type="text" class="txtarea" style="width:50px" value="${vo.emp_name}" disabled/>
+			                   <img id="delIconbtn_04_${status.index }" class="delIconbtn" name="delIconBtn" src="/resources/img/btn_delete.gif" style="cursor:pointer" alt="삭제" />
+				             	</td>
+				             </tr>
+		             	</c:otherwise>
+		             </c:choose>
+	             </c:forEach>
+             </tr>
+	             
+	    	<!-- COLCODE area -->           
+	        <tr>
+	             <th rowspan="${idx_05 }">매핑정보</th>
+	             <td rowspan="${idx_05 }">
+	             <c:choose>
+		             <c:when test="${not empty apprVO_05 }">
+			            <c:set var="flag_05" value="false" />
+		             	<c:forEach var="vo" items="${apprVO_05 }" varStatus="status">
+		             	<c:if test ="${not flag_05}">
+						<input id="req_bonbu_05" name="req_bonbu" type="hidden" value="${vo.req_bonbu }"/>
+	                    <input id="req_name_05" name="req_name" type="text" class="txtarea" style="width:120px" value="${vo.req_name }" disabled/>
+	                   <!--  <img id="p_modIcon_055" class="modIcon" src="/resources/img/btn_modify.gif" style="cursor:pointer" alt="수정" />    -->
+	                    <c:if test="${not empty vo.req_bonbu }">
+	                    <c:set var="flag_05" value="true" />  
+	                    </c:if>
+	                  	</c:if>  
+                  </c:forEach> 
+		             </c:when>
+		             <c:otherwise>
+		             	<input id="req_bonbu_05" name="req_bonbu" type="hidden" value=""/>
+	                    <input id="req_name_05" name="req_name" type="text" class="txtarea" style="width:120px" value="" disabled/>
+	                   <!--  <img id="p_modIcon_055" class="modIcon" src="/resources/img/btn_modify.gif" style="cursor:pointer" alt="수정" />   --> 
+		             </c:otherwise>
+	             </c:choose>
+	             	
+	             </td>
+	             <th rowspan="${idx_05 }">COLCODE</th>
+             	 <c:forEach var="vo" items="${apprVO_05 }" varStatus="status">
+		             <c:choose>
+		             	<c:when test="${vo.dft eq '1' }">
+			             	<td>
+			             	  <input type="radio" checked="checked" name="check_05" value="${vo.approval_no }" id="check_05_${status.index }">
+			             	  <input id="approval_no_05_${status.index }" name="approval_no" type="hidden" class="txtarea" style="width:40px" value="${vo.approval_no}" disabled/>	
+			                  <input id="appr_name_05_${status.index }" name="appr_name" type="text" class="txtarea" style="width:140px" value="${vo.appr_name}" disabled/>
+			                  <input id="dept_name_05_${status.index }" name="dept_name" type="text" class="txtarea" style="width:120px"  value="${vo.dept_name}" disabled/>
+			                  <input id="emp_name_05_${status.index }" name="emp_name" type="text" class="txtarea" style="width:50px" value="${vo.emp_name}" disabled/>
+			                  <img id="p_regIcon_05_${status.index }" class="regIcon" src="/resources/img/btn_regist.gif" style="cursor:pointer" alt="등록" /> 	
+			             	</td>
+		             	</c:when>
+		             	<c:otherwise>
+			             	<tr>
+				             	<td>
+				             	<input type="radio" value="${vo.approval_no }" name="check_05" id="check_05_${status.index }"/>
+				              <input id="approval_no_05_${status.index }" name="approval_no" type="hidden" class="txtarea" style="width:40px" value="${vo.approval_no}" disabled/>	
+			                  <input id="appr_name_05_${status.index }" name="appr_name" type="text" class="txtarea" style="width:140px" value="${vo.appr_name}" disabled/>
+			                  <input id="dept_name_05_${status.index }" name="dept_name" type="text" class="txtarea" style="width:120px"  value="${vo.dept_name}" disabled/>
+			                  <input id="emp_name_05_${status.index }" name="emp_name" type="text" class="txtarea" style="width:50px" value="${vo.emp_name}" disabled/>
+			                    <img id="delIconbtn_05_${status.index }" class="delIconbtn" name="delIconBtn" src="/resources/img/btn_delete.gif" style="cursor:pointer" alt="삭제" />
+				             	</td>
+				             </tr>
+		             	</c:otherwise>
+		             </c:choose>
+	             </c:forEach>
+             </tr>
+	         	             	             
+             </table>
+            <div class="btnArea">
+                <%-- <c:if test="${bonbuVO.crud eq 'n'}"><img class="regIcon" src="/resources/img/btn_regist.gif" style="cursor:pointer" alt="등록" /></c:if> --%>
+                <img class="modIcon" src="/resources/img/b_save.gif" style="cursor:pointer" alt="수정" />
+                <img class="srchIcon" src="/resources/img/btn_list.gif" style="cursor:pointer" alt="목록" />
+            </div>
+        </form>
+        <form id="backToList" name="backToList" method="post" action="role_4p">
+        	<input type="hidden" id="crud" name="crud" value="${bonbuVO.crud}"/>
+           	<input type="hidden" id="region" name="region" value="${bonbuVO.s_region}"/>
+           	<input type="hidden" id="orgscode1" name="orgscode1" value="${bonbuVO.s_orgscode1}"/>
+           	<input type="hidden" id="orgscode2" name="orgscode2" value="${bonbuVO.s_orgscode2}"/>
+           	<input type="hidden" id="orgscode3" name="orgscode3" value="${bonbuVO.s_orgscode3}"/>
+           	<input type="hidden" id="orgscode" name="orgscode" value="${bonbuVO.s_orgscode}"/>     
+        </form>
+    </div>
+</section>
+<%@ include file = "/resources/inc/footer.jsp" %>
+</body>
+</html>

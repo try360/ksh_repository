@@ -1,0 +1,654 @@
+$(function(){
+    $(".radioset").buttonset();
+
+    if (pageGb == "code"){
+    	// 검색용
+    	$(".radioGroup input[value='"+ agw_cd +"']").attr("checked", "checked");
+    	$("select[name='column_nm'] option[value='"+ column_nm +"']").attr("selected", "selected");
+
+    	$("input[name='agw_cd']").click(function(){
+    		$(this).closest("form").submit();
+    	});
+    	$("#column_nm").change(function(){
+    		$(this).closest("form").submit();
+    	});
+    	$("#code").focus();
+    	$("#code").select();	
+    	
+    	// 수정 버튼
+    	$(".modi").css("cursor", "pointer");
+    	$(".modi").click(function(){
+    		var tr = $(this).parents("tr");
+    		var td = tr.children();
+    		
+    		$("#codeNo").text($(this).attr("data"));
+    		$("#code_no").val($(this).attr("data"));
+    		$("#code_nm").val(td.eq(3).text());
+    		$("#code").val(td.eq(2).text());
+    	});
+    	
+    	// 취소 버튼
+    	$("#btnClear").css({
+    		cursor:"pointer",
+    		display:"hidden"
+    	});
+    	$("#btnClear").click(function(){
+    		if (confirm("등록을 취소 하시겠습니까?")){
+    			$("#codeNo").text("0");
+    			$("#code_no").val("0");
+    			$("#code").val("");
+    			$("#code_nm").val("");
+    			$("#code").focus();
+    		} else {
+    			return false;
+    		}
+    	});
+    	
+    	$("button.del").click(function(){
+    		if (confirm("해당 데이터를 삭제 하시겠습니까?")) {
+    			var data = $(this).attr("data");
+    			var url = "code_del?code_no="+ data +"&agw_cd="+ agw_cd +"&column_nm="+ column_nm;
+    			
+    			location.href = url;
+    		}
+    	});
+    	
+    	// 순서 바꾸기
+        $("#t_code").tableDnD({
+            dragHandle: ".dragHandle",
+            onDrop: function(table, row) {
+            	var rows = table.tBodies[0].rows;
+                console.log($.tableDnD.serialize());
+            	$.post("code_array", $.tableDnD.serialize(), function(data) {
+            		console.log(data);
+            		if (data == "OK") {
+            			for (var i=0; i<rows.length; i++) {
+            				$("#"+ rows[i].id).find("span.seq").text(i+1);
+            				$("#"+ rows[i].id).find("span.seq").css({
+            					"color":"black",
+            					"font-weight":"normal"});
+            			}
+            			$("#"+ row.id).find("span.seq").css({
+            				"color": "red",
+            				"font-weight": "bold" });
+            		} else {
+            			alert("새로고침(F5) 이후에 다시 시도하여 주시기 바랍니다.");
+            			return;
+            		}
+            	});
+            }
+        });
+    } else if (pageGb == "period") {
+		$("select[name=agw_cd]").change(function(){
+			document.searchForm.action="period";
+			$(this).closest("form").submit();
+		});
+		    
+		$("select[name=business_cd]").change(function(){
+			document.searchForm.action="period";
+			$(this).closest("form").submit();
+		});
+      
+		$("#agw_cd option[value='"+ agw_cd +"']").attr("selected", "selected");
+		$("#business_cd option[value='"+ business_cd +"']").attr("selected", "selected"); 
+
+    	$("[id$='from']").datepicker({
+    		disabled : true,
+            onSelect : function(dateText, obj){
+                var id = $(this).attr("id");
+                var quarter = id.substr(0, 1);
+                $("#"+ quarter +"to").datepicker("option", {
+                    minDate : dateText,
+                    disabled : false
+                });
+            }
+        });
+    	$("[id$='from']:eq(0)").datepicker("option", {
+    		disabled : false
+    	});
+        $("[id$='to']").datepicker({
+            disabled : true,
+            onSelect : function(dateText, obj){
+                var id = $(this).attr("id");
+                var quarter = parseInt(id.substr(0, 1)) + 1;
+                if (quarter < 5) {
+                    var result = new Date(dateText);
+                    result.setDate(result.getDate() + 1);
+                    $("#" + quarter + "from").datepicker("option", {
+                        minDate: result,
+                        disabled: false
+                    });
+                }
+            }
+        });
+        $(".datepicker").each(function(){
+        	if ($(this).val() != "") {
+        		$(this).datepicker("option", {
+        			disabled: false
+        		});
+        	}
+        });
+        if($(".datepicker:eq(0)").val() != ""){
+			$("#btnRegistPeriod").hide();
+	        $("#btnUpdatePeriod").show();
+		}
+        
+        $(".ui-datepicker-trigger").css("cursor", "pointer");
+    } else if (pageGb == "model") {
+    	$(".radioGroup input[value='"+ agw_cd +"']").attr("checked", "checked");
+    	
+    	$("#model_cd").focus();
+    	$("#model_cd").select();	
+
+    	$("input[name='agw_cd']").click(function(){
+    		$(this).closest("form").submit();
+    	});
+    	
+    	// 수정 버튼
+    	$(".modi").css("cursor", "pointer");
+    	$(".modi").click(function(){
+    		var tr = $(this).parents("tr");
+    		var td = tr.children();
+    		
+    		$("#modelNo").text($(this).attr("data"));
+    		$("#model_no").val($(this).attr("data"));
+    		$("#model_cd").val(td.eq(2).text());
+    		$("#model_nm").val(td.eq(3).text());
+    		$("#shelf_num").val(td.eq(4).text());
+    		$("#port_num").val(td.eq(5).text());
+    	});
+    	
+    	// 취소 버튼
+    	$("#btnClear").css({
+    		cursor:"pointer",
+    		display:"hidden"
+    	});
+    	$("#btnClear").click(function(){
+    		if (confirm("등록을 취소 하시겠습니까?")){
+    			$("#modelNo").text("0");
+    			$("#model_no").val("0");
+    			$("#model_cd").val("");
+    			$("#model_nm").val("");
+    			$("#shelf_num").val("");
+    			$("#port_num").val("");
+    			$("#model_cd").focus();
+    		} else {
+    			return false;
+    		}
+    	});
+    	
+    	$("button.del").click(function(){
+    		if (confirm("해당 데이터를 삭제 하시겠습니까?")) {
+    			var data = $(this).attr("data");
+    			var url = "model_del?model_no="+ data +"&agw_cd="+ agw_cd +"&searchTxt="+ searchTxt;
+    			
+    			location.href = url;
+    		}
+    	});
+
+    	// 순서 바꾸기
+        $("#t_model").tableDnD({
+            dragHandle: ".dragHandle",
+            onDrop: function(table, row) {
+            	var rows = table.tBodies[0].rows;
+                console.log($.tableDnD.serialize());
+            	$.post("model_array", $.tableDnD.serialize(), function(data) {
+            		console.log(data);
+            		if (data == "OK") {
+            			for (var i=0; i<rows.length; i++) {
+            				$("#"+ rows[i].id).find("span.seq").text(i+1);
+            				$("#"+ rows[i].id).find("span.seq").css({
+            					"color":"black",
+            					"font-weight":"normal"});
+            			}
+            			$("#"+ row.id).find("span.seq").css({
+            				"color": "red",
+            				"font-weight": "bold" });
+            		} else {
+            			alert("새로고침(F5) 이후에 다시 시도하여 주시기 바랍니다.");
+            			return;
+            		}
+            	});
+            }
+        });
+    } else if (pageGb == "cost") {
+    	$(".radioGroup input[value='"+ agw_cd +"']").attr("checked", "checked");
+    	$("select[name='searchModel'] option[value='"+ searchModel +"']").attr("selected", "selected");
+    	
+    	$(".searchArea input[name='agw_cd']").click(function(){
+    		$("select[name='model_cd'] option").removeAttr("selected");
+    		$(this).closest("form").submit();
+    	});
+    	
+    	$(".searchArea select[name='searchModel']").change(function(){
+    		$(this).closest("form").submit();
+    	});
+    	$("input[type='number']").keyup(function(e){
+    		removeChar(e);
+    	});
+   	
+    	$("input[type='number']").keydown(function(e){
+    		onlyNum(e);
+    	});
+    	
+    	$("#btnClear").css("cursor", "pointer");
+    	$("#btnClear").click(function(){
+    		if (confirm("취소 하시겠습니까?")){
+//    			console.log($("select[name='model_cd'] option:selected").text());
+    			$("#costForm #model_cd option:selected").removeAttr("selected");
+    			$("#costForm #model_cd option[value='@']").remove();
+    			$("#costForm #model_cd").removeAttr("disabled");
+    			$(".listTable tr").css("background-color", "Transparent");
+    			$(this).closest("form").reset();
+    			$(this).closest("form #model_cd").focus();
+    		}
+    	});
+    	
+    	$("button.del").click(function(){
+    		if (confirm("해당 데이터를 삭제 하시겠습니까?")) {
+    			var data = $(this).attr("data");
+    			var url = "cost_del?cost_no="+ data +"&agw_cd="+ agw_cd +"&model_cd="+ searchModel;
+    			
+    			window.location.href = url;
+    		}
+    	});
+    	
+    	$("button.modi").click(function(){
+    		var tr = $(this).parents("tr");
+    		var td = tr.children();
+    		
+    		$(".listTable tr").css("background-color", "Transparent");
+    		tr.css("background-color", "#ECECEC");
+    		
+//    		console.log(td.eq(4).text().replace("₩ ", "").replace(/,/gi, ""));
+    		$("#costForm #model_cd option:selected").removeAttr("selected");
+    		$("#costForm #model_cd").append("<option value='@' selected='selected'>"+ td.eq(1).text() +"</option>");
+    		$("#costForm #model_cd").attr("disabled", "disabled");
+    		$("#line_num").val(td.eq(2).text());
+    		var cost_supply = parseInt(td.eq(3).text().replace(/,/gi, ""));
+    		var cost_construct = parseInt(td.eq(4).text().replace(/,/gi, ""));
+    		var cost_etc = parseInt(td.eq(5).text().replace(/,/gi, ""));
+    		var cost_total = parseInt(td.eq(6).text().replace(/,/gi, ""));
+    		$("#cost_supply").val(cost_supply);
+    		$("#cost_construct").val(cost_construct);
+    		$("#cost_etc").val(cost_etc);
+    		$("#cost_total").val(cost_total);
+    		$("#type").val(td.eq(7).text());
+    		$("#supply_nm").val(td.eq(8).text());
+    		$("#cost_no").val($(this).attr("data"));
+    		
+//    		console.log(tr.html());
+    	});
+    } 
+    else if (pageGb == 'email') {
+    	$(".datepicker").datepicker();
+    	$("#controlgroup").controlgroup();
+    	$("#controlgroup input[type='text]").attr("placeholder", $("#controlgroup input[type='text']:checked").attr("placeholder"));
+    	if ($("#controlgroup input[type='radio']:checked").val() == 'a.date') {$(".search_box").show();}//날짜 검색 후 검색 내용 유지
+    	$("#controlgroup input[type='radio']").click(function(){
+    		$("#controlgroup input[type='text']").attr("placeholder", $(this).attr("placeholder"));
+    		//검색 조건이 날짜일때 날짜 입력 옵션 보이기
+    		if($("#controlgroup input[name='searchType']:checked").val()=='a.date'){
+    			$(".search_box").show();
+    		}else{
+    			$(".search_box").hide();
+    		}
+    	});
+    	
+    	$("input[name=radio_date]").click(function(){
+    	   	var data = $(':radio[name="radio_date"]:checked').val();
+    	   	
+    	   	dateLoading(data);
+    	   	selectDate(data);
+    	    	
+    	});
+    	
+    	var datepicker_year = {
+    			dateFormat: "yy",
+    		    closeText : "선택",
+    		    stepMonths: 12,
+    		    showButtonPanel:true	,
+    		    onClose : function(dateText, obj){
+    		        var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+    		
+    		        $(this).datepicker("option", "defaultDate", new Date(year, 0, 1));
+    		        $(this).datepicker("setDate", new Date(year, 0, 1));
+    		    }
+    	}
+
+    	var datepicker_month={
+    		  	dateFormat : "yy-mm",
+    		    closeText : "선택",
+    		    stepMonths: 1,
+    		    showButtonPanel:true,	
+    		    onClose: function(dateText, obj){
+    		        var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+    		        var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+    		
+    		        $(this).datepicker("option", "defaultDate", new Date(year, month, 1));
+    		        $(this).datepicker("setDate", new Date(year, month, 1));
+    		    }
+    	} 
+
+    	var datepicker_day={
+    			dateFormat : "yy-mm-dd",
+    			stepMonths: 1,
+    		    showButtonPanel:false	,
+    		    onClose: function(dateText, obj){
+    		        //alert($(this).attr('id'));
+    		    }
+    	}
+    	
+    	function dateLoading(data){
+    		//var data = $(obj).val(); 
+    		if(data=='all'){
+    			$("#search_date").hide(); 	    		
+    		}else{
+    			$("#search_date").show();
+    		}
+    	}
+    	
+    	function selectDate(data){
+    		$(".ui-datepicker-trigger").remove();
+    		$(".datepicker").removeClass('hasDatepicker').datepicker();
+    		$('.datepicker').val("");
+    		if(data == 'year' ){
+    			
+    			$.datepicker.setDefaults(datepicker_year);
+    			
+    			$(".datepicker").focus(function(){
+    				$(".ui-datepicker-year").show();
+    			    $(".ui-datepicker-calendar").hide();
+    			    $(".ui-datepicker-month").hide()});
+    			
+    		}else if(data=='month'){
+    			$.datepicker.setDefaults(datepicker_month);
+    			
+    			$(".datepicker").focus(function(){
+    				$(".ui-datepicker-year").show();
+    				$(".ui-datepicker-month").show();
+    			    $(".ui-datepicker-calendar").hide();
+    			  });
+    			
+    		}else if(data=='day'){
+    			$.datepicker.setDefaults(datepicker_day);
+    			$(".datepicker").focus(function(){
+    				$(".ui-datepicker-year").show();
+    			    $(".ui-datepicker-calendar").show();
+    			    $(".ui-datepicker-month").show();
+    			  });
+    		}
+    	}
+
+    }
+    else {
+    	
+    }
+    
+  //--------------------------관리자 메일 발송-----------------------
+    $('#sendBtn').click(function(){
+    	var form = document.managerEmailSend;
+    	$('#content').val($('#textArea').html());
+    	if(pageGb == 'managerEmail'){
+    		if($('#rTO').val()==""){
+    			alert("[직원검색]버튼을 눌러 수신자를 등록하세요.");
+    			$('#rTO').focus();
+    			return;
+    		}else if($('#subject').val()==""){
+    			alert("제목을 입력하세요.");
+    			$('#subject').focus();
+    			return;
+    		}else if($('#content').val()==""){
+    			alert("내용을 입력하세요.");
+    			$('#content').focus();
+    			return;
+    		}
+
+    		//email 유효성검사
+    		var emailChk = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]+/;
+    		var emailChk2 = /[가-힣a-zA-Z][<][0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]+[>]/;
+    		var ary = new Array();
+    		
+    		//수신자 유효성검사    		
+    		ary = $('#rTO').val().split(";");
+    		for(var i=0; i<ary.length; i++){
+    			if(emailChk.test(ary[i])==false
+    					&& emailChk2.test(ary[i])==false){
+    				alert("이메일 형식이 맞지 않습니다.[수신자]");
+        			$('#rTO').focus();
+        			return;
+    			}
+    		}
+    		
+    		//참조 유효성검사
+    		if($('#rCC').val()!=""){
+    			ary = $('#rCC').val().split(";");
+        		for(var i=0; i<ary.length; i++){
+        			if(emailChk.test(ary[i])==false
+        					&& emailChk2.test(ary[i])==false){
+        				alert("이메일 형식이 맞지 않습니다.[참조]");
+            			$('#rCC').focus();
+            			return;
+        			}
+        		}
+    		}
+    		
+    		//숨은참조 유효성검사
+    		if($('#rBCC').val()!=""){
+    			ary = $('#rBCC').val().split(";");
+        		for(var i=0; i<ary.length; i++){
+        			if(emailChk.test(ary[i])==false
+        					&& emailChk2.test(ary[i])==false){
+        				alert("이메일 형식이 맞지 않습니다.[숨은참조]");
+            			$('#rBCC').focus();
+            			return;
+        			}
+        		}
+    		}    		
+    	   		
+    		form.action="/email/managerEmail_v";
+    	   	form.submit();
+    	}
+    });
+});
+
+
+/*==
+/*=============================================================================================*/
+/*공통  */ 
+/*=============================================================================================*/
+// 체크 박스 전체 선택시 전체 선택
+ 
+function checkAll(){
+    if( $("#th_checkAll").is(':checked')){      
+          $("input[name=checkRow]").prop("checked",true);
+    }else{  
+          $("input[name=checkRow]").prop("checked",false);
+    }
+}
+
+/*=============================================================================================*/
+/*=============================================================================================*/
+
+
+
+/*codeList.jsp */ 
+/*=============================================================================================*/
+
+
+
+/**
+ *  codeList.jsp
+ * 	코드 업데이트 취소 ( 시장점유율 사업코드 disabled해제, 사업코드 코드 설명 clear, 업데이트 취소 버튼 가리기 . 등록버튼 보이기)
+ */
+	function codeCancel(){
+		document.getElementById('code_nm').value="";
+		document.getElementById('code').value="";
+		$('#code_gb').removeAttr('disabled');
+	    $('#code').removeAttr('disabled');
+	    document.getElementById("btnRegist").style.visibility = "visible"; 
+        document.getElementById("btnUpdate").style.visibility = "hidden"; 
+        document.getElementById("btnClear").style.visibility = "hidden"; 
+}; 
+/*=============================================================================================*/
+/*=============================================================================================*/
+
+/*=============================================================================================*/
+/*model.jsp */ 
+/*=============================================================================================*/
+
+//모델명 클릭시 하단에 수정 구역에 매핑
+function getModelNm(model_no){
+    var model_no = model_no
+    $("#listTable tr").click(function(){
+        
+        var str =""
+        var tdArr = new Array();
+        
+        var tr = $(this);
+        var td = tr.children();
+
+        var model_cd      = td.eq(2).text(); 
+        var model_nm      = td.eq(3).text();
+        var shelf_num     = td.eq(4).text();
+        var port_num      = td.eq(5).text();
+        
+        $('#model_no').val(model_no);
+        $('#model_nm').val(model_nm);
+        $('#model_cd').val(model_cd);
+        $('#shelf_num').val(shelf_num);
+        $('#port_num').val(port_num);
+        
+
+        document.getElementById("model_cd").disabled  = true; 
+        document.getElementById("btnRegist").style.visibility = "hidden"; 
+        document.getElementById("btnUpdate").style.visibility = "visible"; 
+        document.getElementById("btnClear").style.visibility = "visible"; 
+    });
+} 
+
+//수정취소시 클리어
+function modelCancel(){
+	document.getElementById('model_no').value="";
+	document.getElementById('model_nm').value="";
+	document.getElementById('model_cd').value="";
+	document.getElementById('shelf_num').value="";
+	document.getElementById('port_num').value="";
+    $('#model_cd').removeAttr('disabled');
+    document.getElementById("btnRegist").style.visibility = "visible"; 
+    document.getElementById("btnUpdate").style.visibility = "hidden"; 
+    document.getElementById("btnClear").style.visibility = "hidden"; 
+}; 
+/*=============================================================================================*/
+/*=============================================================================================*/
+
+
+
+
+/*=============================================================================================*/
+/*office.jsp */ 
+/*=============================================================================================*/
+
+/*업데이트 버튼 클릭시*/
+function getOfficeNm(office_no){
+    var office_no = office_no
+    $("#listTable tr").click(function(){
+        
+        var str =""
+        var tdArr = new Array();
+        
+        var tr = $(this);
+        var td = tr.children();
+
+        var office_cd     = td.eq(1).text(); 
+        var office_nm     = td.eq(2).text();
+        var branch_nm     = td.eq(3).text();
+        
+        $('#office_no').val(office_no);
+        $('#office_nm').val(office_nm.trim());
+        $('#branch_nm').val(branch_nm);
+
+
+        document.getElementById("office_nm").disabled = true;
+        document.getElementById("office_nm_new").style.visibility = "hidden"; 
+        document.getElementById("btnRegist").style.visibility = "hidden"; 
+        document.getElementById("btnUpdate").style.visibility = "visible"; 
+        document.getElementById("btnClear").style.visibility = "visible"; 
+    });
+} 
+
+/*업데이트취소 버튼 클릭시*/
+function officeCancel(){
+	document.getElementById('office_no').value="";
+	document.getElementById('office_nm').value="";
+	document.getElementById('branch_nm').value="";
+	
+	
+    $('#office_nm').removeAttr('disabled');
+    document.getElementById("btnRegist").style.visibility = "visible"; 
+    document.getElementById("btnUpdate").style.visibility = "hidden"; 
+    document.getElementById("btnClear").style.visibility = "hidden"; 
+}; 
+
+/*샐렉트박스 새로운 항목 추가 입력 선택시*/
+function officeNmNew() {
+	  var selectNm = document.getElementById("office_nm");
+	  var officeNm = selectNm.options[selectNm.selectedIndex].value;
+	
+	  if(officeNm != null ||  officeNm !=""){
+	         document.getElementById("office_nm_new").style.visibility = "hidden";      
+	     }
+	 if(officeNm == null ||  officeNm ==""){
+		 document.getElementById("office_nm_new").style.visibility = "visible"; 	 
+	 }
+} 
+
+
+
+/*=============================================================================================*/
+/*cost.jsp */ 
+/*=============================================================================================*/
+
+//cost 화면 클리어
+function costCancel(){
+	document.getElementById('agw_cd').value="B";
+	document.getElementById('model_cd').value="";
+	document.getElementById('line_num').value="";
+	document.getElementById('type').value="";
+	document.getElementById('supply_nm').value="";
+	document.getElementById('cost_construct').value="";
+	document.getElementById('cost_supply').value="";
+	document.getElementById('cost_etc').value="";
+	document.getElementById('cost_total').value="";
+}
+
+
+
+//한글 사용불가, 경비 계산
+ function removeChar(event){
+	event = event || window.event;
+	    var keyID = (event.which) ? event.which : event.keyCode;
+	    var cost_construct= parseInt($('#cost_construct').val(),10);
+	    var cost_supply=parseInt($('#cost_supply').val(),10);
+	    var cost_etc=parseInt($('#cost_etc').val(),10);
+	     //입력 값이 없을떄 0으로 세팅
+	    if(isNaN(cost_construct)){
+	         cost_construct = 0;
+	     }
+	      if(isNaN(cost_supply)){
+	        cost_supply = 0;
+	    }
+	     if(isNaN(cost_etc)){
+	        cost_etc = 0;
+	    }  
+	    var result = cost_construct + cost_supply + cost_etc;
+        $('#cost_total').val(result);
+	    if( keyID == 8 || keyID == 46 || keyID == 37 || keyID == 39 )
+	    	{
+	    	   return;
+	    	}
+	    else
+	    	{
+	    	   event.target.value = event.target.value.replace(/[^0-9]/g,"");
+	    	}
+}

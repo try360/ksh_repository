@@ -1,0 +1,74 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file ExcelReadOption.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.common.excel;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ExcelReadOption {
+	
+	private String filePath;
+	private List<String> outputColumns;
+	private int startRow;
+	
+	public ExcelReadOption() {
+		super();
+	}
+
+	public String getFilePath() {
+		return filePath;
+	}
+	
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+	
+	public List<String> getOutputColumns() {
+		List<String> temp = new ArrayList<String>();
+		temp.addAll(outputColumns);
+		
+		return temp;
+	}
+	
+	public void setOutputColumns(List<String> outputColumns) {
+		List<String> temp = new ArrayList<String>();
+		temp.addAll(outputColumns);
+		
+		this.outputColumns = temp;
+	}
+	
+	public void setOutputColumns(String ... outputColumns) {
+		if (this.outputColumns == null) {
+			this.outputColumns = new ArrayList<String>();
+		}
+		
+		for (String outputColumn : outputColumns) {
+			this.outputColumns.add(outputColumn);
+		}
+	}
+	
+	public int getStartRow() {
+		return startRow;
+	}
+	
+	public void setStartRow(int startRow) {
+		this.startRow = startRow;
+	}
+}

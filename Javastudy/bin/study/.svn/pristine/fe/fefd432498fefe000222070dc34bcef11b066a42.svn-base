@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kt.agwne.includeSearchMapper">
+<resultMap id="confirmUser" type="HashMap">
+	<result javaType = "int" column="user_no" property="user_no"/>
+	<result javaType = "String" column="no_emp" property="no_emp"/>
+	<result javaType = "String" column="emp_name" property="emp_name"/>
+	<result javaType = "String" column="phone_number" property="phone_number"/>
+	<result javaType = "String" column="dept_code" property="dept_code"/>
+	<result javaType = "String" column="dept_1_nm" property="dept_1_nm"/>
+	<result javaType = "String" column="dept_2_nm" property="dept_2_nm"/>
+	<result javaType = "String" column="dept_3_nm" property="dept_3_nm"/>
+	<result javaType = "String" column="dept_4_nm" property="dept_4_nm"/>
+	<result javaType = "String" column="ex_biz_company_nm" property="ex_biz_company_nm"/>
+</resultMap>
+	<select  id="confirmUserSelect" parameterType="map" resultMap="confirmUser">
+	 <![CDATA[ 
+		select  user_no, no_emp, emp_name, status, phone_number, email_address, dept_code, dept_1_nm, dept_2_nm,dept_3_nm,
+		         (CASE WHEN dept_4_nm IS NULL then dept_3_nm ELSE dept_4_nm END ) dept_4_nm
+		         ,  ex_biz_company_nm
+		from(
+		SELECT user_no, no_emp, emp_name, status, phone_number, email_address, dept_code, dept_1_nm, dept_2_nm,
+		                (CASE WHEN dept_3_nm IS NULL then dept_2_nm ELSE dept_3_nm END ) dept_3_nm, dept_4_nm
+		                , ex_biz_company_nm
+				       
+				FROM(
+					  SELECT user_no, no_emp, emp_name, status, phone_number, email_address, dept_code ,   ex_biz_company_nm,
+				                 (select orgname from agwne.t_bonbu_level where orgscode = cast(x.hierarchy[1] as varchar)) dept_1_nm,
+		                         (select orgname from agwne.t_bonbu_level where orgscode = cast(x.hierarchy[2] as varchar)) dept_2_nm,
+				                 (select orgname from agwne.t_bonbu_level where orgscode = cast(x.hierarchy[3] as varchar)) dept_3_nm,
+				                 (select orgname from agwne.t_bonbu_level where orgscode = cast(x.hierarchy[4] as varchar)) dept_4_nm
+		
+				FROM   agwne.t_org_user x 
+		        where x.emp_name like '%${emp_name}%') a
+		        ) total
+		
+		        ORDER BY ex_biz_company_nm desc, dept_1_nm, dept_4_nm, emp_name
+
+
+	]]>	
+			
+	</select>
+	
+	<select id="selectExMailingSearching" parameterType="hashmap" resultType="oueVO">
+	<![CDATA[
+		select a.ex_mail_no
+		     , a.orgscode
+			 , a.porgscode
+			 , a.ex_company_nm
+			 , a.ex_emp_nm
+			 , a.phone_number
+			 , a.email_address
+			 , b1.office_nm
+		  from (select max(ex_mail_no) as ex_mail_no
+					 , max(orgscode) as orgscode
+					 , max(porgscode) as porgscode
+					 , max(ex_company_nm) as ex_company_nm
+					 , ex_emp_nm
+					 , phone_number
+					 , max(email_address) as email_address
+				  from agwne.t_org_user_ex_mail
+				 group by ex_emp_nm, phone_number
+		       ) a
+			   LEFT OUTER JOIN agwne.t_bonbu_level b ON (a.porgscode = b.orgscode)
+			   LEFT OUTER JOIN agwne.t_bonbu_level b1 ON (b.bonbu = b1.orgscode)
+		 where 1=1
+		   and a.ex_emp_nm like '%${emp_name}%'
+		 order by ex_emp_nm	
+	]]>
+	</select>
+	
+	<select id="confrimUsrList_agw" parameterType="cfVO" resultType="cfVO">
+	<![CDATA[
+		select A.confirm_no
+		     , A.neoss_no
+			 , A.status_cd
+			 , C.code_nm as status
+			 , A.user_no
+			 , B.emp_name
+			 , B.phone_number
+			 , B.dept_code
+			 , B.porgscode
+			 , B.bonbu
+			 , B.dept_name as org_name
+			 , B.bonbu_name
+			 , CASE WHEN D.region IS NULL THEN '00' ELSE  D.region END region
+		  from agwne.t_confirm A
+		       INNER JOIN agwne.t_org_user B ON (B.user_no = A.user_no)
+			   LEFT OUTER JOIN agwne.t_code C ON(C.code = CONCAT(A.status_cd, 't') AND C.del_yn = false AND C.agw_cd = #{agw_cd} AND C.column_nm = 'status_cd')
+			   LEFT OUTER JOIN agwne.t_org_mapping D ON (B.bonbu = D.bonbu)
+		 where A.del_yn = false
+		   and A.agw_cd = #{agw_cd}
+		   and A.neoss_no = #{neoss_no}
+		 order by A.status_cd, confirm_no asc
+
+	]]>
+	</select>
+	
+	<insert id="insertLog" parameterType="logVO">
+	<![CDATA[
+		insert into agwne.t_log (
+			   method
+			 , querystring
+			 , sessionid
+			 , requesturi
+			 , servletpath
+			 , ip
+			 , useragent
+			 , referer
+			 , input_id
+		) values (
+			   #{method}
+			 , #{querystring}
+			 , #{sessionid}
+			 , #{requesturi}
+			 , #{servletpath}
+			 , #{ip}
+			 , #{useragent}
+			 , #{referer}
+			 , #{input_id}
+		)
+	]]>
+	</insert>
+</mapper>

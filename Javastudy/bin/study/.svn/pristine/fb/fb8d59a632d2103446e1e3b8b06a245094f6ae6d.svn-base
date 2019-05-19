@@ -1,0 +1,209 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<%@ taglib prefix="custom" uri="/tags/custom-taglib" %> 
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<link rel="stylesheet" href="/resources/css/business.css">
+<link rel="stylesheet" href="/resources/js/jquery-ui-1.12.1.custom/jquery-ui.css">
+<script src="/resources/js/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
+<script src="/resources/js/business.js" charset="euc-kr"></script>
+</head>
+<body >
+<div id="popWrapConstruct">
+          <form method="post" name="writeForm" id="writeForm" action="construct_write">
+    		<input type="hidden" name="neoss_no" value="${neoss_no}"/>   
+            <input type="hidden" name="constNo" value="${csVO.const_no}"/>
+            <input type="hidden" name="gubun" id="gubun" value="01"/>
+            <input type="hidden" name="cnstType" id="cnstType" value="${cnstType }"/>  
+    <div class="contents_form" id="cnstStDiv">
+        <!-- 타이틀, 경로 -->
+        <div class="divDocTitle">착공현황</div>
+            <fieldset>
+                <legend>WriteForm</legend>
+                <table class="writeTable" width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tbody>
+                    <tr>
+                        <th>설계자</th>
+                        <td>
+	                        <input type="text" style="width:130px;" name="mem_01_depart" value="${csVO.mem_01_depart }" />
+	                        <input type="text" style="width:80px;" name="mem_01_name" value="${csVO.mem_01_name }"/> <button>검색</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>책임 감리자</th>
+                        <td>
+	                        <input type="text" style="width:130px;" name="mem_02_depart" value="${csVO.mem_02_depart }"/>
+	                        <input type="text" style="width:80px;" name="mem_02_name" value="${csVO.mem_02_name }"/> <button>검색</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>인수 시험자</th>
+                         <td>
+		                        <input type="text" style="width:130px;" name="mem_03_depart" value="${csVO.mem_03_depart }"/>
+		                        <input type="text" style="width:80px;" name="mem_03_name" value="${csVO.mem_03_name }"/> <button>검색</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>착공일</th>
+                        <td>
+	                        <fmt:parseDate var="parsedDate" value="${csVO.st_dt}" pattern="yyyy-MM-dd"/>
+						 	<fmt:formatDate var="newFormattedDateString" value="${parsedDate}" pattern="yyyy-MM-dd"/> 
+	                       	<input type="text" class="datepicker" name="st_dt" id="st_dt" readonly="readonly" value="${newFormattedDateString }" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>공사업체</th>
+                        <td><input type="text" name="const_partner" value="${csVO.const_partner }"/></td>
+                    </tr>
+                    <tr>
+                        <th>공사개요</th>
+                        <td><textarea style="height:80px;" name="const_st_desc">${csVO.const_st_desc}</textarea></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="btnArea">
+                    <a href="javascript:void(0);" onclick="submit();"><input type="image" class="srchIcon" src="/resources/img/btn_regist.gif" alt="등록" /></a>
+                  	<img class="srchIcon" src="/resources/img/btn_cancel.gif" id="self_cancle" alt="취소" />
+                </div>
+            </fieldset>
+    </div>
+    <div class="contents_form" id="cnstEdDiv" style="display:none;" >
+        <!-- 타이틀, 경로 -->
+        <div class="divDocTitle">준공현황</div>
+            <fieldset>
+                <legend>WriteForm</legend>
+                <table class="writeTable" width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tbody>
+                      <tr>
+                        <th colspan="2">Neoss<br>시설정보 매핑</th>
+                        <td>
+	                       	<input type="text" name="" id=""   value="" style="width:150px;"/>
+	                       	<button id="button" onclick="" >검색<span class="ui-icon ui-icon-search"></span></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="w30" rowspan="4">소<br>요<br>경<br>비</th>
+                        <th>물자비</th>
+                        <td><b>&#8361;</b>&nbsp;<input type="text" name="expense1" id="expense1" value="<fmt:formatNumber value="${csVO.expense1}" pattern="#,###"/>" style="width:150px;"/></td>
+                    </tr>
+                    <tr>
+                        <th>공사비</th>
+                        <td><b>&#8361;</b>&nbsp;<input type="text" name="expense2" id="expense2" value="<fmt:formatNumber value="${csVO.expense2}" pattern="#,###"/>" style="width:150px;"/></td>
+                    </tr>
+                    <tr>
+                        <th>경비</th>
+                        <td><b>&#8361;</b>&nbsp;<input type="text" name="expense3" id="expense3" value="<fmt:formatNumber value="${csVO.expense3}" pattern="#,###"/>" style="width:150px;"/></td>
+                    </tr>
+                    <tr>
+                        <th>계</th>
+                        <td><b>&#8361;</b>&nbsp;<input type="text" name="tot_expense" id="tot_expense" value="<fmt:formatNumber value="${csVO.tot_expense}" pattern="#,###"/>" style="width:150px;"/></td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">준공일</th>
+                        <td>
+	                        <fmt:parseDate var="parsedDate" value="${csVO.ed_dt}" pattern="yyyy-MM-dd"/>
+						 	<fmt:formatDate var="newFormattedDateString" value="${parsedDate}" pattern="yyyy-MM-dd"/> 
+	                       	<input type="text" class="datepicker" name="ed_dt" id="ed_dt"   value="${newFormattedDateString }" readonly="readonly"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">준공보고</th>
+                        <td><textarea style="height:80px;" name="const_ed_desc" id="const_ed_desc">${csVO.const_ed_desc}</textarea></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="btnArea">
+                    <a href="javascript:void(0);" onclick="submit();"><input type="image" class="srchIcon" src="/resources/img/btn_regist.gif"  alt="등록" /></a>
+                    <a href="javascript:void(0);" onclick="javascript:window.close();"><img class="srchIcon" src="/resources/img/btn_cancel.gif" alt="취소" /></a>
+                </div>
+            </fieldset>
+    	</div>
+     <!-- ui-dialog창 오픈 -->
+	<div id="dialog_construct" >
+	<!-- <p>1차 검토요청을 하시겠습니까?</p> -->
+	</div>
+	          </form>
+</div>
+</body>
+<script type="text/javascript">
+
+if('${msg}' == "OK"){
+	//alert('${msg}');
+	opener.parent.location.reload();
+	window.close();
+} 
+function submit(){
+	var title = "착공현황";
+	if('${cnstType}'=="02"){
+		title = "준공현황";
+	}		
+
+	$("#dialog_construct").find('p').remove();
+	$("#dialog_construct").append('<p>등록하시겠습니까?</p>');
+	$("#dialog_construct").dialog("option","title",title); //타이틀창 제목 옵션주는 법
+	
+	$( "#dialog_construct" ).dialog( "open" );
+	event.preventDefault();
+}
+$(document).ready(function(){
+	if('${cnstType}'=="02"){
+		$("#cnstEdDiv").css('display','block');
+		$("#cnstStDiv").css('display','none');
+		
+	}else{
+		$("#cnstEdDiv").css('display','none');
+		$("#cnstStDiv").css('display','block');
+	}
+	
+    $( "#dialog_construct" ).dialog({
+    	autoOpen: false,
+    	width: 400,
+    	buttons: [
+    		{
+    			text: "YES",
+    			click: function() {
+    				if('${cnstType}'=="02"){
+    					if($("#ed_dt").val() == null || $("#ed_dt").val() == ''){
+        			    	alert("준공일은 반드시 입력해야 합니다.");
+        			    	return;
+        			    }
+    					
+    	    			$("#gubun").val("02");
+    					$("#writeForm").submit();
+    					
+    				}else{
+    					if($("#st_dt").val() == null || $("#st_dt").val() == ''){
+        			    	alert("착공일은 반드시 입력해야 합니다.");
+        			    	return;
+        			    }
+    					
+    					$("#expense1").remove();
+    					$("#expense2").remove();
+    					$("#expense3").remove();
+    					$("#tot_expense").remove();
+    					$("#ed_dt").remove();
+    					$("#const_ed_desc").remove();
+    					  if('${csVO.const_no}' != ''){
+    	    			    	$("#gubun").val("02");
+    	    			    }
+    					$("#writeForm").submit();
+    				}
+    			    
+    			}
+    		},
+    		{
+    			text: "Cancle",
+    			click: function() {
+    				$( this ).dialog( "close" );
+    				
+    			}
+    		}
+    	]
+    });
+});
+</script>
+</html>
