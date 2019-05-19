@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.project.myapp.mapper.ReplyMapper">
+
+	<insert id="insertReply" parameterType="ReplyVO">
+		INSERT INTO reply
+		VALUES
+		(seq_reply.NEXTVAL, #{writing_no}, #{reply_id},
+		#{reply_comment},#{design_score},#{prr_score},#{durablity_score},sysdate)
+	</insert>
+
+	<select id="countReply" parameterType="int" resultType="int">
+		SELECT
+		COUNT(*)
+		FROM Reply where writing_no=#{writing_no}
+	</select>
+
+	<!-- 댓글 목록 -->
+	<select id="listReply" parameterType="int" resultType="ReplyVO">
+		SELECT *
+		FROM reply
+		WHERE writing_no=#{writing_no}
+		ORDER BY reply_no
+	</select>
+
+	<update id="updateReply" parameterType="ReplyVO">
+		UPDATE reply
+		SET
+		reply_comment
+		= #{reply_comment}
+		WHERE reply_no = #{reply_no}
+	</update>
+
+	<!-- 댓글 지우기 -->
+	<delete id="deleteReply" parameterType="int">
+		DELETE FROM reply WHERE
+		reply_no = #{reply_no}
+	</delete>
+
+</mapper>
+	
+	
+
+
+

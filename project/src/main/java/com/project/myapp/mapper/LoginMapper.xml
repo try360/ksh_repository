@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+	"-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.myapp.mapper.LoginMapper">
+<!-- 위에 namespace는 같은 이름으로 구현한 interface랑 경로 이름이 같아야 함  -->
+
+<!-- resuultMap은 DB에 있는 값을 가져와서 property에 맵핑하는 과정입니다. -->
+
+	<resultMap type="com.project.myapp.VO.LoginVO"
+		id="LoginMapper">
+		<result column="id" property="id" />
+		<result column="password" property="password" /> <!--  property : VO멤버 필드명과 일치 -->
+	</resultMap>
+
+<!-- 로그인 체크 처리 -->
+	<select id="login" parameterType="LoginVO" resultType="MemberVO">
+		select * from pmember <where> id=#{id} and password=#{password} </where>
+	</select>
+
+<!-- select -->
+<select id="totalAccount" resultType="integer">
+        SELECT COUNT(*) FROM pmember
+    </select>
+    
+    
+</mapper>

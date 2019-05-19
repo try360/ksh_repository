@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+	"-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.myapp.mapper.WritingMapper">
+
+	<insert id="insertWriting" parameterType="WritingVO">
+		insert into pwriting
+		values
+		(seq_board.currval,#{id},#{title},#{model_name},#{image_name},#{thumbnail_name},
+		#{content},0,0,sysdate,sysdate)
+	</insert>
+
+	<update id="updateWriting" parameterType="WritingVO">
+		update pwriting set
+		title=#{title},
+		model_name=#{model_name},image_name=#{image_name},thumbnail_name=#{thumbnail_name},
+		content=#{content}
+		where w_no=#{w_no}
+	</update>
+
+	<delete id="deleteWriting" parameterType="int">
+		delete pwriting where
+		w_no=#{w_no}
+	</delete>
+
+	<select id="getWriting" parameterType="int" resultType="WritingVO">
+		select *
+		from pwriting where w_no=#{w_no}
+	</select>
+
+	<select id="getAllWriting" resultType="WritingVO">
+		select * from pwriting
+	</select>
+
+	<!-- 페이징 및 전체 레코드 갯수 조회 쿼리 -->
+	<select id="countAllWriting" resultType="int"> <!-- 만약 parameter가 두개가 넘어 온다먄 -->
+		select count(*) from pwriting;
+	</select>
+
+	<!-- 페이징 게시글 목록을 조회하기 위한 쿼리(일반, 공지사항) -->
+	<!-- offset위치부터 noOfRecords 수 만큼 select 하라! -->
+	<select id="searchWritingList" resultType="WritingVO"
+		parameterType="PageParamsVO">
+		SELECT * FROM (
+		SELECT
+		m.*,
+		FLOOR((ROWNUM - 1)/#{limit} +1) page
+		FROM (
+		SELECT * FROM pwriting
+		where 1=1
+		<if test="searchOption == 'id'">
+			and id = #{id}
+		</if>
+		<if test="searchOption == 'title'">
+			and title like '%'||#{title}||'%'
+		</if>
+		<if test="searchOption == 'content'">
+			and content like '%'||#{content}||'%'
+		</if>
+		ORDER BY w_no desc, w_date desc
+		) m
+		)
+		WHERE page =#{page}
+	</select>
+	<!-- and id like '%'||#{id}||'%' -->
+	<!-- 검색된 게시글 목록 수를 가져오기 -->
+	<select id="searchCountWritingList" resultType="int"
+		parameterType="PageParamsVO">
+		SELECT count(*) FROM pwriting where 1=1
+		<if test="searchOption == 'id'">
+			and id like '%'||#{id}||'%'
+		</if>
+		<if test="searchOption == 'title'">
+			and title like '%'||#{title}||'%'
+		</if>
+		<if test="searchOption == 'content'">
+			and content like '%'||#{content}||'%'
+		</if>
+		ORDER BY w_no desc, w_date desc
+	</select>
+	<!-- <if test="searchOption == all"> and id like '%'||#{id}||'%' or title 
+		like '%'||#{title}||'%' or content like '%'||#{content}||'%' </if> -->
+
+	<!-- 페이징 게시글 목록을 조회하기 위한 쿼리(일반, 공지사항) -->
+	<!-- offset위치부터 noOfRecords 수 만큼 select 하라! -->
+	<select id="pagedWritingList" resultType="WritingVO"
+		parameterType="PageParamsVO">
+		SELECT * FROM (
+		SELECT
+		m.*,
+		FLOOR((ROWNUM - 1)/#{limit} +1)
+		page
+		FROM (
+		SELECT * FROM pwriting
+		ORDER BY w_no DESC
+		) m
+		)
+		WHERE page
+		=#{page}
+	</select>
+
+	<select id="writeInfoList" resultType="int">
+		select * from tb_write
+		where info = 1 ORDER BY idx DESC
+	</select>
+
+	<!--글 상세조회할 때 DB글번호로 찾음 -->
+	<select id="referWriting" parameterType="int" resultType="WritingVO">
+		Select
+		* from pwriting where w_no=#{w_no}
+	</select>
+
+	<!-- 게시글 테이블 truncate -->
+	<update id="truncateAll">
+		truncate table pwriting CASCADE
+	</update>
+
+	<!-- 게시글 조회수 증가시키기 -->
+	<update id="viewCount" parameterType="int">
+		UPDATE pwriting
+		SET viewcnt
+		= viewcnt + 1
+		WHERE w_no=#{w_no}
+	</update>
+
+	<!-- 평가 점수 평균내서 select하기 , 결과가 소수로 나타나기 때문에 반환형을 int로 하면 안맞음 -->
+	<select id="getDesign_score" parameterType="int" resultType="String">
+		select round(avg(design_score),2) from reply where writing_no=#{w_no}
+	</select>
+
+	<!-- 가성비 평가 점수 평균 내기 ,결과가 소수로 나타나기 때문에 반환형을 int로 하면 안맞음 -->
+	<select id="getPrr_score" parameterType="int" resultType="String">
+		select
+		round(avg(prr_score),2) from reply where writing_no=#{w_no}
+	</select>
+
+	<!-- 내구성 평가 점수 평균 내기 ,결과가 소수로 나타나기 때문에 반환형을 int로 하면 안맞음 -->
+	<select id="getDurablity_score" parameterType="int" resultType="String">
+		select round(avg(durablity_score),2) from reply where
+		writing_no=#{w_no}
+	</select>
+</mapper>
