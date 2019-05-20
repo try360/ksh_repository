@@ -11,7 +11,7 @@ public class Reference_Test {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		ABC abc = new ABC();
-		int var;
+		int var; 
 
 		System.out.println(abc.toString());
 		System.out.println(abc.hashCode());
