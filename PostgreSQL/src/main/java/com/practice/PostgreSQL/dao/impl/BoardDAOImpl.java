@@ -14,7 +14,7 @@ import com.practice.PostgreSQL.dao.BoardDAO;
 @Repository
 public class BoardDAOImpl implements BoardDAO {
 
-	// @Autowired
+	@Autowired
 	SqlSession sqlSession;
 
 	//@Autowired 대신에 스프링 4.3에서는 이게 가능하다
@@ -40,7 +40,7 @@ public class BoardDAOImpl implements BoardDAO {
 	@Override
 	public int truncate_board_list() throws Exception {
 		// TODO Auto-generated method stub
-		return sqlSession.update(MapperName + ".reg_board");
+		return sqlSession.update(MapperName + ".truncate_board_list");
 	}
 
 }

@@ -3,7 +3,7 @@
 
 <configuration>
     <typeAliases> 
-   <typeAlias alias="BoardVO" type="com.practice.PostgreSQL.VO.BoardVO"></typeAlias>
+     <typeAlias alias="BoardVO" type="com.practice.PostgreSQL.VO.BoardVO"></typeAlias>
     </typeAliases>
     
     <!-- <plugins>
