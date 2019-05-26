@@ -15,7 +15,7 @@ public class FileTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
 }
@@ -23,7 +23,7 @@ public class FileTest {
 class BufferdOutputStreamEx1 {
 
 	public BufferdOutputStreamEx1() throws FileNotFoundException {
-		
+
 		FileOutputStream fos = new FileOutputStream("123.txt");
 		BufferedOutputStream bos = new BufferedOutputStream(fos, 5);
 

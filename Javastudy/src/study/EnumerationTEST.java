@@ -19,7 +19,7 @@ public class EnumerationTEST {
 		for (Week type : Week.values()) {
 			System.out.println(type);
 		}
-
+ㅏ,k,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,k,k,,,,,,,,,,,,,,
 	}
 
 }
