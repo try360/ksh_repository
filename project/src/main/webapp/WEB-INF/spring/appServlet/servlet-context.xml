@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans:beans xmlns="http://www.springframework.org/schema/mvc"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+<beans:beans
+	xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -49,21 +51,36 @@
 
 	<!-- 부트 스트랩 경로 -->
 	<resources mapping="/resources/**" location="/resources/" />
-	
+
 	<resources mapping="/css/**" location="/css/" />
 	<resources mapping="/js/**" location="/js/" />
 
- <!-- 이미지 경로 매핑  -->
- 	<resources mapping="/images/**" location="/images/" />
- 
+	<!-- 이미지 경로 매핑 -->
+	<resources mapping="/images/**" location="/images/" />
+
 
 	<!-- <context:component-scan base-package="com.project.myapp" /> 아래보다 상위경로 
 		스캔 -->
-	<context:component-scan base-package="com.project.myapp.controller" />
-	<context:component-scan base-package="com.project.myapp.DAO" />
-	<context:component-scan base-package="com.project.myapp.VO" />
-	<context:component-scan base-package="com.project.myapp.service" />
-	<context:component-scan base-package="com.project.myapp.mapper" />
-	<context:component-scan base-package="com.project.myapp.image" />
+	<context:component-scan
+		base-package="com.project.myapp.controller" />
+	<context:component-scan
+		base-package="com.project.myapp.DAO" />
+	<context:component-scan
+		base-package="com.project.myapp.VO" />
+	<context:component-scan
+		base-package="com.project.myapp.service" />
+	<context:component-scan
+		base-package="com.project.myapp.mapper" />
+	<context:component-scan
+		base-package="com.project.myapp.swagger" />
+
+
+	<default-servlet-handler />
+	<resources location="classpath:/META-INF/resources/"
+		mapping="swagger-ui.html"></resources>
+	<resources location="classpath:/META-INF/resources/webjars/"
+		mapping="/webjars/**"></resources>
+
+
 
 </beans:beans>

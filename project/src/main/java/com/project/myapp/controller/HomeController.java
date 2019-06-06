@@ -1,41 +1,29 @@
 package com.project.myapp.controller;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
-import com.project.myapp.VO.MemberVO;
 import com.project.myapp.VO.PageInfoVO;
 import com.project.myapp.VO.PageParamsVO;
 import com.project.myapp.VO.WritingVO;
-import com.project.myapp.service.ImageService;
-import com.project.myapp.service.LoginService;
-import com.project.myapp.service.MemberDAOService;
 import com.project.myapp.service.ReplyService;
 import com.project.myapp.service.WritingDAOService;
 
-import net.coobird.thumbnailator.Thumbnails;
+import io.swagger.annotations.Api;
 
 /**
  * Handles requests for the application home page.
  */
+
+@Api(value = "HomeController", description = "HomeController 역할", basePath = "/")
 @Controller
 public class HomeController {
 
