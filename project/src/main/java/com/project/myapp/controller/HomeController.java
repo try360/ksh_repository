@@ -18,6 +18,7 @@ import com.project.myapp.service.ReplyService;
 import com.project.myapp.service.WritingDAOService;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * Handles requests for the application home page.
@@ -49,7 +50,7 @@ public class HomeController {
 	 * "main"; }
 	 */
 
-	
+	@ApiOperation(value = "메인 페이지")
 	@RequestMapping("/")
 	public String main(Model model, HttpServletRequest req) {
 		System.out.println("     HomeController       main()    ");
