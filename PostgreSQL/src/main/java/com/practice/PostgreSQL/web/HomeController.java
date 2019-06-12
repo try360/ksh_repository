@@ -20,9 +20,9 @@ import com.practice.PostgreSQL.service.BoardService;
  */
 @Controller
 @RequestMapping("/")
-public class MainController {
+public class HomeController {
 	
-	private static final Logger logger = LoggerFactory.getLogger(MainController.class);
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 	
 	@Autowired
 	BoardService boardService;
@@ -51,7 +51,7 @@ public class MainController {
 		
 		boardService.truncate_board_list();
 		
-		return "redirect:/list_board";
+		return "home";
 	}
 	
 	
