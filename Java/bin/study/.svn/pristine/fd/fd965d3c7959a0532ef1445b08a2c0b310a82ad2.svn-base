@@ -1,0 +1,350 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<%@ taglib prefix="custom" uri="/tags/custom-taglib" %> 
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<link rel="stylesheet" href="/resources/css/reform_agw.css">
+<script src="/resources/js/reform_agw.js" charset="euc-kr"></script>
+<link rel="stylesheet" type="text/css" href="/resources/css/include.css">
+</head>
+<body >
+<div id="popWrap">
+    <div class="contents_form">
+        <!-- 타이틀, 경로 -->
+        <div class="divDocTitle">[Reform-AGW]수요 공급 요청 &nbsp;
+        </div>
+        <!-- WRITE -->
+        <form method="post" enctype="multipart/form-data" id="requestForm" name="requestForm" action="write" >
+         <fieldset>
+                <legend>WriteForm</legend>
+        <table class="writeTable" border="0" cellspacing="0" cellpadding="0">
+        <caption style="text-align:left;"><b>· 정보입력</b></caption>
+        <tbody>
+          <c:if test ="${ not empty bsVO.doc_no}">
+        	<tr>
+        		<th>요청번호</th>
+        		<td><b>${bsVO.doc_no}</b></td>
+        	</tr>
+        </c:if>	
+            <tr>
+                <th>조직</th>
+                <td>
+					<c:out value="${OfficeList.office_nm}"/>
+					<input type="hidden" id="office_no" name="office_no" value="${OfficeList.office_cd }">
+                </td>
+            </tr>
+        </tbody>
+        </table>
+        <table class="writeTable" border="0" cellspacing="0" cellpadding="0" id="modelTable" style="table-layout: auto;">
+            <tbody>
+            <tr>
+                <th>공급구분(*)</th>
+                <td  colspan="4">
+                 <select class="selectmenu autoScroll" id="supply_cd" name="supply_cd" required >
+                    <c:choose> 
+                   <c:when test="${not empty BusinessCode}"> 
+                       <c:forEach var="CodeVO" items="${BusinessCode}" varStatus="status">  
+                       <c:if test ="${CodeVO.column_nm eq 'supply_cd' }">
+                       	<option value="${CodeVO.code }" <c:if test ="${CodeVO.code_nm eq bsVO.supply_cd }"> selected </c:if>>${CodeVO.code_nm}</option>
+                       </c:if>
+                       </c:forEach>
+                       </c:when>
+                       </c:choose>      
+                       </select>          
+                </td>
+               </tr>
+
+            <tr class="item1">
+                <th>공급내역</th>
+                <td colspan="2" id="model_td">
+                     <select class="selectmenu" name="model_no" id="model_no" required >
+                    <c:choose> 
+	                    <c:when test="${not empty BusinessModel}"> 
+	                    		<option value="">기종선택</option>
+	                        <c:forEach var="modelVO" items="${BusinessModel}" varStatus="status"> 
+	                        	<option value="${modelVO.cost_no }" 
+	                        	<c:if test ="${modelVO.cost_no eq bsVO.model_no}"> selected </c:if>  >${modelVO.model_nick}</option>
+                       	</c:forEach>
+                       	</c:when>
+                       	</c:choose>
+                    </select>
+                </td>
+                <th>공급회선</th>
+                <td colspan="1" id="line_td">
+                	<input type="number" placeholder="공급회선" name="model_num" id="model_num" value="${bsVO.model_num }" maxlength="4" required style="width:100px; margin-right:10px; display: inline-block;"/>
+               <c:if test="${empty bsVO.neoss_no}">
+                <span class="ui-icon ui-icon-plusthick" style="cursor:pointer;" onclick="cntControl(this);" id="modelCnt" style="display:inline-block;" ></span>
+                </c:if>
+                </td>
+            </tr> 
+
+        </tbody>
+        </table>
+        <table class="writeTable" border="0" cellspacing="0" cellpadding="0">
+        <tbody>
+            <tr>
+                 <th>공급시기(*)</th>
+                <td colspan="3">
+                	<fmt:parseDate var="parsedDate" value="${bsVO.supply_dt}" pattern="yyyy-MM-dd"/>
+					 <fmt:formatDate var="newFormattedDateString" value="${parsedDate}" pattern="yyyy-MM-dd"/> 
+                    <input type="text" class="datepicker" name="supply_dt"  id="supply_dt" value="${newFormattedDateString }"  readonly="readonly" required placeholder="공급시기"/> <!-- (2018년1분기) -->
+                </td>
+               </tr>
+            <c:if test="${not empty attachList}">
+            <tr>
+            	<th  >파일리스트</th>
+            	<td colspan="3">
+            		<ul id="attachList" >
+            			<c:forEach var="vo" items="${attachList }">
+							<c:set var="filesize" value="${vo.filesize }" />
+							<c:set var="KBfilesize" value="${filesize/1024 }" />
+							<c:set var="MBfilesize" value="${KBfilesize/1024 }" />
+							<fmt:formatNumber var="KBfilesize" value="${KBfilesize }" pattern="#.#" />
+							<fmt:formatNumber var="MBfilesize" value="${MBfilesize }" pattern="#.#" />
+							<c:set var="format" value="${fn:substring(vo.filename_n, fn:indexOf(vo.filename_n,'.')+1, fn:length(vo.filename_n)) }"/> <!-- 확장자 구분하기 -->
+							<c:choose>
+								<c:when test="${format eq 'jpg' || format eq 'png' || foramt eq 'gif' || format eq 'bmp' || format eq 'JPG' || format eq 'PNG' || foramt eq 'GIF' || format eq 'BMP'}">
+								</c:when>
+								<c:otherwise>
+								<li id="li${vo.attach_no }" ><a href="/fileDownload?no=${vo.attach_no }">${vo.filename }</a> <em>(${(filesize<1048576)? KBfilesize : MBfilesize }${(filesize<1048576)? 'K' : 'M' }B)</em>&nbsp;<a href="javascript:void(0);" onclick="delAttach(this);" id="${vo.attach_no }"><img src="/resources/img/ico_delete.gif" alt="delete"/></a></li>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+					</ul>
+						<c:forEach var="vo" items="${attachList }">
+						<c:set var="filesize" value="${vo.filesize }" />
+						<c:set var="KBfilesize" value="${filesize/1024 }" />
+						<c:set var="MBfilesize" value="${KBfilesize/1024 }" />
+						<fmt:formatNumber var="KBfilesize" value="${KBfilesize }" pattern="#.#" />
+						<fmt:formatNumber var="MBfilesize" value="${MBfilesize }" pattern="#.#" />
+						<c:set var="format" value="${fn:substring(vo.filename_n, fn:indexOf(vo.filename_n,'.')+1, fn:length(vo.filename_n)) }"/> <!-- 확장자 구분하기 -->
+						<c:if test="${format eq 'jpg' || format eq 'png' || foramt eq 'gif' || format eq 'bmp' || format eq 'JPG' || format eq 'PNG' || foramt eq 'GIF' || format eq 'BMP'}">
+						<span class="imgList" id="li${vo.attach_no }" ><a href="/fileDownload?no=${vo.attach_no }">${vo.filename }</a> <em>(${(filesize<1048576)? KBfilesize : MBfilesize }${(filesize<1048576)? 'K' : 'M' }B)</em>&nbsp;<a href="javascript:void(0);" onclick="delAttach(this);" id="${vo.attach_no }"><img src="/resources/img/ico_delete.gif" alt="delete"/></a>
+						<img id="img${vo.attach_no }" src="/resources/upload/${vo.filename_n}" style="width:40%; height:40%"/></span>
+						</c:if>
+						</c:forEach>
+            	</td>
+
+            </tr>
+            </c:if>
+            <tr>
+                <th>첨부파일</th>
+                <td colspan="3">
+                    <input name="filenames" type="file" multiple="multiple" class="multi-pt" data-maxsize="5120" />
+                    <div id="multi-pt-list"></div>
+                </td>
+            </tr>
+        </tbody>
+        </table>
+        
+	 <table class="writeTable" border="0" cellspacing="0" cellpadding="0" id="confirmArea">
+	          <caption style="text-align:left; padding-bottom:3px;"><b>· 승인 담당자</b>&nbsp; *승인 담당자는 변경이 가능합니다.</caption>
+	          <tbody>
+	          <c:if test="${not empty confirmUsrList }">
+	          	<c:forEach items="${confirmUsrList }" var="vo" varStatus="status">
+	          		<c:set var="seq" value="${status.index + 1 }" />
+	          		<tr>
+		            	<th>${vo.status }</th>
+		            	<td ><span id="span_0${seq}">${vo.bonbu_name } ${not empty vo.org_name ? '>': ''} ${vo.org_name }</span></td>
+		            	<td><span style="padding-left:50px;">이름:<input type="text" style="width:80px" name="emp_name" id="t_0${seq }" placeholder="${vo.status }" value="${vo.emp_name }" readonly="reaonly" required/></span>
+		            	<input type="hidden" name="userNo" id="user_no_0${seq }" value="${vo.user_no }"/>
+		            	<button type="button" id="b_0${seq }" name="usrSearchBtn"><span class="ui-icon ui-icon-search"></span></button>
+		            	</td>							
+					</tr>
+	          	</c:forEach>
+	          </c:if>
+	     </table>
+        
+	        <div class="btnArea">
+	        	 <c:if test="${empty bsVO.neoss_no }">
+	        	<c:if test="${empty bsVO || sessionScope.user_id eq bsVO.input_id ||  sessionScope.role eq '02'}"> 
+	        	 <input type="image" class="srchIcon" id="save" name ="rstBtn02" src="/resources/img/b_save_bs.gif" alt="임시저장" />
+	        	 <input type="image" name="rstBtn02"  class="srchIcon" id="request" src="/resources/img/btn_rst.gif" alt="확정 요청" />
+				</c:if>
+	        	</c:if> 
+	        	 <c:if test="${bsVO.neoss_no>0 && bsVO.status_cd ne '00'}">
+	           	 <input type="image" class="srchIcon" id="save" name ="rstBtn02" src="/resources/img/b_save.gif" alt="저장" />
+	        	 </c:if>
+	            <c:if test="${bsVO.neoss_no>0 && bsVO.status_cd eq '00'}">
+	            	<!-- <img class="srchIcon" src="/resources/img/btn_print.gif" id="printBtn" style="cursor:pointer" alt="인쇄" /> -->
+	            	<c:if test="${sessionScope.user_id eq bsVO.input_id ||  sessionScope.role eq '02'}"> 
+	            	<input type="image" class="srchIcon" id="save" name ="rstBtn02" src="/resources/img/b_save_bs.gif" alt="임시저장" />
+	            	<input type="image" name="rstBtn02"  class="srchIcon" id="request" src="/resources/img/btn_rst.gif" alt="확정 요청" />
+	            	<img class="delIcon" src="/resources/img/btn_delete.gif" id="deleteBtn" style="cursor:pointer" alt="삭제" />
+	            	</c:if>
+	            </c:if>
+	             <a href="#"><img class="srchIcon" id="self_cancle" src="/resources/img/btn_cancel.gif" alt="취소" /></a>
+	        </div>
+            </fieldset>
+            	<c:if test = "${ not empty bsVO}" > 
+            	    -<input type="hidden" value="${bsVO.status_cd}" name="status_cd" id="status_cd"/>
+              		<input type="hidden" value="${bsVO.neoss_no}" name="neoss_no" id="neoss_no"/>
+               		<input type="hidden" value="${bsVO.input_dt}" name="input_dt" id="input_dt"/>
+            	</c:if>
+            	<c:if test = "${ empty bsVO}" > 
+            		<input type="hidden" name="status_cd" id="status_cd"/>
+            	</c:if>
+             		<input type="hidden" value="${bsVO.request_yn}" name="request_yn" id="request_yn"/>
+       
+        </form>
+        
+        <!-- ui-dialog창 오픈 -->
+		<div id="dialog_request"   title="수요공급요청" >
+		</div>
+		<div id="dialog_del"   title="삭제" >
+		</div>
+    </div>
+    	<!-- 직원검색 -->
+	    <div id="mask"></div>
+	    <div class="window">
+	    	<jsp:include page="../include/pop_usrSearch.jsp" flush="false"></jsp:include>
+	    </div>
+	    <!-- 승인요청처리프로그레스창 -->
+		<div id="submit_mask"></div>
+</div>
+
+</body>
+
+<script>
+		if('${msg}' == "OK"){
+			//alert('${msg}');
+			window.close();
+			opener.parent.location.reload();
+		}
+		$('input[type="text"]').keydown(function(){
+			if(event.keyCode === 13){
+				event.preventDefault();
+			}
+		});
+		$('input[type="number"]').keydown(function(){
+			if(event.keyCode === 13){
+				event.preventDefault();
+			}
+		});
+
+		$("#supply_dt").datepicker({
+			onSelect : function(dateText, obj){
+				$("#move_dt").datepicker("option", {
+					minDate : dateText
+				});
+			}
+		});
+		$('#deleteBtn').click(function(){
+			$("#dialog_del").find('p').remove();
+			$("#dialog_del").append('<p>삭제 하시겠습니까?</p>');
+			$("#dialog_del").dialog("option","title","수요공급요청"); //타이틀창 제목 옵션주는 법
+			
+			$( "#dialog_del" ).dialog( "open" );
+			event.preventDefault();
+		});
+		$( "#dialog_del" ).dialog({
+	    	autoOpen: false,
+	    	width: 400,
+	    	buttons: [
+	    		{
+	    			text: "YES",
+	    			click: function() {
+	    				$( this ).dialog( "close" );
+						location.href="del_request?neoss_no="+$('#neoss_no').val()+"&page=business/request";
+	    			    
+	    			}
+	    		},
+	    		{
+	    			text: "Cancle",
+	    			click: function() {
+	    				$( this ).dialog( "close" );
+	    				
+	    			}
+	    		}
+	    	]
+	    });
+		
+
+	
+		function delAttach(obj){
+			var msg = confirm("파일을 삭제하시겠습니까?");
+			if(msg){
+	    		var ref_no = $(obj).attr('id');
+	    		$.ajax({
+	    			url : "/business/attachDelAjax",
+	    			data :{
+	    				'ref_no' : ref_no
+	    			},
+	    			type : "POST",
+	    			success : function(response){
+						$("#li"+ref_no).remove();	
+						$("#img"+ref_no).remove();	
+							
+	    			},
+	    			error: function(result){
+	    				alert("조회 실패");
+	    			}
+	    		});
+			}
+		}
+		
+	  //<![CDATA[
+	    function wrapWindowByMask(){
+	 
+	        //화면의 높이와 너비를 구한다.
+	        var maskHeight = $(document).height();  
+	        var maskWidth = $(document).width();  
+	        //마스크의 높이와 너비를 화면 것으로 만들어 전체 화면을 채운다.
+	        $("#mask").css({"width":maskWidth,"height":maskHeight});  
+	        $(".window").css({"top": (($(window).height()-$(".window").outerHeight())/2+$(window).scrollTop())+"px","left": (($(window).width()-$(".window").outerWidth())/2+$(window).scrollLeft())+"px",
+	        	"display":"inline-block","vertical-align":"middle"});  
+	        $("body").css("overflow","hidden");//body 스크롤바 없애기
+	 
+	       // $("#mask").fadeIn(0);      
+	        $("#mask").fadeTo("fast",0.6);    
+	 
+	        $(".window").show();
+	        $(".window #emp_name").focus();
+	 
+	    }
+	 
+	    $(document).ready(function(){
+	        //검은 막 띄우기
+	        $("button[name=usrSearchBtn]").click(function(e){
+	        	
+	        	var btn_idx=$(this).attr('id').split('_');
+	        	$(".window #confirm_no").val(btn_idx[1]);
+	        	$(".window #w_gubun").val("request");
+	        	//alert(btn_idx[1]);
+	        	
+	            e.preventDefault();
+	            wrapWindowByMask();
+	        });
+	 
+	        //닫기 버튼을 눌렀을 때
+	        $(".window .close").click(function (e) {  
+	            //링크 기본동작은 작동하지 않도록 한다.
+	            e.preventDefault();  
+	            $("#mask, .window").hide();  
+	        });       
+	 
+	        //검은 막을 눌렀을 때
+	        $("#mask").click(function () {  
+	            closeSearchPop();
+	 
+	        });   
+	        
+	        closeSearchPop = function(){
+	        	$("body").css("overflow","auto");//body 스크롤바 생성
+	        	 $("#mask").hide();
+	        	 $(".window input").val(''); 
+	             $(".window #bodyResult tr").remove(); 
+	             $(".window #notice span").remove();
+	             $(".window").hide(); 
+	        }
+	 
+	    });
+	 
+	//]]>
+</script>
+</html>

@@ -1,0 +1,142 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file BoardDAOImpl.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.dao.impl;
+
+import java.util.HashMap;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.stereotype.Repository;
+
+import kr.co.kt.agwne.dao.BoardDAO;
+import kr.co.kt.agwne.dto.BbsVO;
+ 
+
+@Repository
+public class BoardDAOImpl implements BoardDAO {
+
+    @Inject
+    private SqlSession sqlSession;
+
+    private static final String Namespace = "kr.co.kt.agwne.boardMapper";
+
+    @Override
+    public Object board_reg(BbsVO bbsVO) throws Exception{
+        return sqlSession.insert(Namespace + ".board_reg", bbsVO);  
+    }
+    
+    @Override
+    public List<BbsVO> board_list(HashMap<String, Object> listInfo) throws Exception{
+        return sqlSession.selectList(Namespace + ".board_list",listInfo);    
+    }
+    
+    @Override
+    public Object board_get(BbsVO bbsVO) throws Exception{
+        return sqlSession.selectOne(Namespace + ".board_get", bbsVO);  
+    }
+    
+    @Override
+    public Object board_del(BbsVO bbsVO) throws Exception{
+        return sqlSession.update(Namespace + ".board_del", bbsVO);  
+    }
+    
+    @Override
+    public Object board_visit(int bbs_no) throws Exception {
+        return sqlSession.update(Namespace + ".board_visit", bbs_no);  
+    }
+    
+    @Override
+    public Object board_update(BbsVO bbsVO) throws Exception {
+        return sqlSession.insert(Namespace + ".board_update", bbsVO);  
+    }
+    
+    @Override
+    public int board_totalCnt(HashMap<String, Object> listInfo)  throws Exception{
+        return sqlSession.selectOne(Namespace + ".board_totalCnt", listInfo);
+    }
+    
+   /* @Override
+    public Object board_prev_no(HashMap<String, Object> listInfo) {
+        BbsVO bbsVO = null;
+        try {
+            bbsVO = sqlSession.selectOne(Namespace + ".board_prev_no", listInfo);
+        } catch (Exception e) {
+            bbsVO.setPrev_no(0);
+            
+        }
+        return bbsVO; 
+    }
+    
+    @Override
+    public Object board_next_no(HashMap<String, Object> listInfo) {
+        BbsVO bbsVO = null;
+        try {
+            bbsVO = sqlSession.selectOne(Namespace + ".board_next_no", listInfo);
+        } catch (Exception e) {
+            bbsVO.setNext_no(0);
+            
+        }
+        return bbsVO; 
+    }*/
+    
+    @Override
+    public Object board_prev_no(BbsVO bbsVO) {
+        return sqlSession.selectOne(Namespace + ".board_prev_no", bbsVO); 
+    }
+    
+    @Override
+    public Object board_next_no(BbsVO bbsVO) {
+        return sqlSession.selectOne(Namespace + ".board_next_no", bbsVO); 
+    }
+    
+    @Override
+    public String board_prev_title(HashMap<String, Object> listInfo) {
+        String prev_title = null;
+        try {
+            prev_title = sqlSession.selectOne(Namespace + ".board_prev_title", listInfo);
+        } catch (Exception e) {
+            prev_title =  null;
+        }
+        return prev_title; 
+    }
+    
+    @Override
+    public String board_next_title(HashMap<String, Object> listInfo) {
+        String prev_title = null;
+        try {
+            prev_title = sqlSession.selectOne(Namespace + ".board_next_title", listInfo);
+        } catch (Exception e) {
+            prev_title =  null;
+        }
+        return prev_title; 
+    }
+    @Override
+    public Object reply_list(int bbs_no) throws Exception {
+        return sqlSession.selectList(Namespace + ".reply_list",bbs_no);    
+    }
+
+	@Override
+	public Object noticeList(String bbs_gb) {
+		return sqlSession.selectList(Namespace +".noticeList", bbs_gb);
+	}
+    
+}

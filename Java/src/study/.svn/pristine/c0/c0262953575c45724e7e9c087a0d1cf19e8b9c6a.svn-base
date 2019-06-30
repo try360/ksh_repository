@@ -1,0 +1,44 @@
+package kr.co.kt.agwne.dto;
+
+import java.util.Date;
+
+import lombok.Data;
+
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2010-11-22
+ * @ file UserApprValidation.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+@Data
+public class CodeVO{
+
+    private int code_no;                     //게시물 고유번호
+    private int seq;                         //게시물 순서
+    private String code;                     //코드
+    private String code_gb;                  //코드 구분
+    private String code_nm;                  //코드 이름
+    private String del_yn;                   //삭제 여부 false true(삭제)
+    private String input_id;                 //최초 등록 아이디
+    private String update_id;                //업데이트 아이디
+    private Date input_dt;                 //최초 등록 일자
+    private String searchTxt;                //게시물 조회 문구
+    private String del_no;                   //게시물 조회 문구
+    private String column_nm; 				 //컬럼이름
+    private String agw_cd;
+    private Date time_stamp;
+    private String emp_name;
+    
+}

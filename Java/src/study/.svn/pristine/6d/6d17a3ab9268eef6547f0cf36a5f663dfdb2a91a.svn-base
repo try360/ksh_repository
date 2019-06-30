@@ -1,0 +1,950 @@
+package kr.co.kt.agwne.web;
+
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import kr.co.kt.agwne.dto.ApprovalInfoList;
+import kr.co.kt.agwne.dto.ApprovalInfoVO;
+import kr.co.kt.agwne.dto.BonbuList;
+import kr.co.kt.agwne.dto.BonbuVO;
+import kr.co.kt.agwne.dto.OfficeVO;
+import kr.co.kt.agwne.dto.OrgList;
+import kr.co.kt.agwne.dto.OrgVO;
+import kr.co.kt.agwne.dto.UserInfoList;
+import kr.co.kt.agwne.dto.UserInfoVO;
+import kr.co.kt.agwne.dto.UserRoleAgwVO;
+import kr.co.kt.agwne.dto.UserRoleList;
+import kr.co.kt.agwne.dto.UserRoleVO;
+import kr.co.kt.agwne.service.OfficeService;
+import kr.co.kt.agwne.service.UserRoleService;
+import kr.co.kt.agwne.validate.UserRoleValidation;
+import kr.co.kt.common.ParamValidatChk;
+
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2010-11-22
+ * @ file UserRoleController.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+@Controller
+@RequestMapping("/manage")
+public class UserRoleController extends ParamValidatChk {
+	private static final Logger logger = LoggerFactory.getLogger(UserRoleController.class);
+	
+	  //@Autowired
+	  //private UserRoleAgwService userRoleAgwService;
+	    
+    @Autowired
+    private UserRoleService userRoleService;
+    
+    @Inject
+    private OfficeService officeService;
+    
+    @Autowired
+    private UserRoleValidation userRoleValidation;
+    
+    private static final String pageGb = "userRole";
+    
+    @InitBinder
+    protected void initBinder(WebDataBinder binder) {
+    	binder.addValidators(userRoleValidation);
+    }
+    
+    @RequestMapping("/userRole_write.do")
+    public String userRole_write(Model model, RedirectAttributes attributes, 
+    		@Validated @ModelAttribute BonbuVO bonbuVO, BindingResult bindingResult) throws Exception {
+    	String pageSubGb = "4p";
+    
+    	model.addAttribute("pageSubGb", pageSubGb);
+    	model.addAttribute("pageGb", pageGb);
+    			
+    	logger.info("userRole_write[ApprovalInfoVO("+bonbuVO.getCrud().toUpperCase()+"):"+bonbuVO.toString()+"]");
+    	String s_region = bonbuVO.getS_region();
+    	String s_orgscode1 = bonbuVO.getS_orgscode1();
+    	String s_orgscode2 = bonbuVO.getS_orgscode2();
+    	String s_orgscode3 = bonbuVO.getS_orgscode3();
+    	String s_orgscode = bonbuVO.getS_orgscode();  
+    	
+    	//등록
+    	if("c".equals(bonbuVO.getCrud())) {
+    		/*if(bindingResult.hasErrors()) {
+    			List<ObjectError> list = bindingResult.getAllErrors();
+    			for(ObjectError err : list) {
+    				logger.info("col:"+err.getCode()+", message:"+err.getDefaultMessage());
+    			}
+    			model.addAttribute("message", "필수 항목을 입력하세요.");
+    			approvalInfoVO.setCrud("n");
+    		}
+    		else {
+    			UserRoleVO vo = userRoleService.userRole_one_chk(approvalInfoVO);
+		    	if(vo == null) {
+		    		cnt = userRoleService.userRole_reg(approvalInfoVO);
+		    		logger.info("insert count: "+cnt);
+		    		if(cnt > 0) {
+		    			approvalInfoVO.setCrud("r");
+		    			//userRoleVO.setAppr_role_old(userRoleVO.getAppr_role());
+		    	    	model.addAttribute("message", "성공");
+		    		}
+		    	}
+		    	else {
+		    		model.addAttribute("message", "이미 등록된 계정 입니다.");
+		    		approvalInfoVO.setCrud("n");
+		    	}
+    		}*/
+    	}
+    	//상세 화면
+    	else if("r".equals(bonbuVO.getCrud())) {
+    		bonbuVO.setCrud("r");
+    		//logger.info(bonbuVO.toString());
+    		//bonbuVO = userRoleService.approvalInfo_one(bonbuVO);
+    		List<ApprovalInfoVO> apprVO = userRoleService.approvalInfo_list_one(bonbuVO);
+    		List<ApprovalInfoVO> apprVO_01 = new ArrayList<ApprovalInfoVO>();
+    		List<ApprovalInfoVO> apprVO_02 = new ArrayList<ApprovalInfoVO>();
+    		List<ApprovalInfoVO> apprVO_03 = new ArrayList<ApprovalInfoVO>();
+    		List<ApprovalInfoVO> apprVO_04 = new ArrayList<ApprovalInfoVO>();
+    		List<ApprovalInfoVO> apprVO_05 = new ArrayList<ApprovalInfoVO>();
+    		for(ApprovalInfoVO list: apprVO) {
+    			if("01".equals(list.getStep())) {
+    				apprVO_01.add(list);
+    			}else if("02".equals(list.getStep())) {
+    				apprVO_02.add(list);
+    			}else if("03".equals(list.getStep())) {
+    				apprVO_03.add(list);
+    			}else if("04".equals(list.getStep())) {
+    				apprVO_04.add(list);
+    			}else if("05".equals(list.getStep())) {
+    				apprVO_05.add(list);
+    			}
+    		}
+    		/*logger.info(apprVO_01.toString());
+    		logger.info(apprVO_02.toString());
+    		logger.info(apprVO_03.toString());
+    		logger.info(apprVO_04.toString());
+    		logger.info(apprVO_05.toString());*/
+    		
+    		model.addAttribute("apprVO_01", apprVO_01);
+    		model.addAttribute("idx_01", apprVO_01.size());
+    		model.addAttribute("apprVO_02", apprVO_02);
+    		model.addAttribute("idx_02", apprVO_02.size());
+    		model.addAttribute("apprVO_03", apprVO_03);
+    		model.addAttribute("idx_03", apprVO_03.size());
+    		model.addAttribute("apprVO_04", apprVO_04);
+    		model.addAttribute("idx_04", apprVO_04.size());
+    		model.addAttribute("apprVO_05", apprVO_05);
+    		model.addAttribute("idx_05", apprVO_05.size());
+    	}    	
+    	//수정
+    	else if("u".equals(bonbuVO.getCrud())) {
+    		userRoleService.approval_req_update(bonbuVO);
+    		/*approvalInfoVO.setUser_id(approvalInfoVO.getNo_emp());
+    		cnt = userRoleService.userRole_update(approvalInfoVO);
+    		logger.info("update count: "+cnt);
+    		if(cnt > 0) {
+    			approvalInfoVO.setCrud("r");
+    	    	model.addAttribute("message", "성공");
+    		}*/
+    		model.addAttribute("currentPage", "1");
+            model.addAttribute("totalRecordCount", "1");
+            model.addAttribute("recordsPerPage", "10");
+    		model.addAttribute("message", "close");
+    		return "/userRole/popup_role";
+    		//return "redirect:/manage/userRole_list.do?searchType="+searchType+"&searchTxt="+searchTxt;
+     	}
+    	//삭제
+    	else if("d".equals(bonbuVO.getCrud())) {
+    		/*approvalInfoVO.setUser_id(approvalInfoVO.getNo_emp());
+    		logger.info("delete params:User_id"+ approvalInfoVO.getUser_id()+", Erp_job:"+approvalInfoVO.getErp_job());
+	    	cnt = userRoleService.userRole_deleteOne(approvalInfoVO);
+	    	logger.info("delete count:"+ cnt);
+	    	if(cnt > 0) {
+	    		attributes.addFlashAttribute(approvalInfoVO);
+	    		return "redirect:/manage/userRole_list.do";
+	    	}*/
+    	}
+    	bonbuVO = userRoleService.reqInfoOne(bonbuVO);
+    	bonbuVO.setS_region(s_region);
+    	bonbuVO.setS_orgscode1(s_orgscode1);
+    	bonbuVO.setS_orgscode2(s_orgscode2);
+    	bonbuVO.setS_orgscode3(s_orgscode3);
+    	bonbuVO.setS_orgscode(s_orgscode);
+    	model.addAttribute("bonbuVO", bonbuVO);
+    	return "/userRole/write";
+    }
+    
+    @RequestMapping("/userRole_write.bak")
+    public String userRole_write_bak(Model model, RedirectAttributes attributes, 
+    		@Validated @ModelAttribute ApprovalInfoVO approvalInfoVO, BindingResult bindingResult) throws Exception {
+//    	logger.info("userRole_write[ApprovalInfoVO("+approvalInfoVO.getCrud().toUpperCase()+"):"+approvalInfoVO.toString()+"]");
+    	int cnt = 0;
+    	String searchType = approvalInfoVO.getSearchType();
+    	String searchTxt = approvalInfoVO.getSearchTxt();
+    	
+    	//등록
+    	if("c".equals(approvalInfoVO.getCrud())) {
+    		/*if(bindingResult.hasErrors()) {
+    			List<ObjectError> list = bindingResult.getAllErrors();
+    			for(ObjectError err : list) {
+    				logger.info("col:"+err.getCode()+", message:"+err.getDefaultMessage());
+    			}
+    			model.addAttribute("message", "필수 항목을 입력하세요.");
+    			approvalInfoVO.setCrud("n");
+    		}
+    		else {
+    			UserRoleVO vo = userRoleService.userRole_one_chk(approvalInfoVO);
+		    	if(vo == null) {
+		    		cnt = userRoleService.userRole_reg(approvalInfoVO);
+		    		logger.info("insert count: "+cnt);
+		    		if(cnt > 0) {
+		    			approvalInfoVO.setCrud("r");
+		    			//userRoleVO.setAppr_role_old(userRoleVO.getAppr_role());
+		    	    	model.addAttribute("message", "성공");
+		    		}
+		    	}
+		    	else {
+		    		model.addAttribute("message", "이미 등록된 계정 입니다.");
+		    		approvalInfoVO.setCrud("n");
+		    	}
+    		}*/
+    	}
+    	//상세 화면
+    	else if("r".equals(approvalInfoVO.getCrud())) {
+    		approvalInfoVO = userRoleService.approvalInfo_one(approvalInfoVO);
+    		approvalInfoVO.setCrud("r");
+    	}
+    	//수정
+    	else if("u".equals(approvalInfoVO.getCrud())) {
+    		/*approvalInfoVO.setUser_id(approvalInfoVO.getNo_emp());
+    		cnt = userRoleService.userRole_update(approvalInfoVO);
+    		logger.info("update count: "+cnt);
+    		if(cnt > 0) {
+    			approvalInfoVO.setCrud("r");
+    	    	model.addAttribute("message", "성공");
+    		}*/
+     	}
+    	//삭제
+    	else if("d".equals(approvalInfoVO.getCrud())) {
+    		/*approvalInfoVO.setUser_id(approvalInfoVO.getNo_emp());
+    		logger.info("delete params:User_id"+ approvalInfoVO.getUser_id()+", Erp_job:"+approvalInfoVO.getErp_job());
+	    	cnt = userRoleService.userRole_deleteOne(approvalInfoVO);
+	    	logger.info("delete count:"+ cnt);
+	    	if(cnt > 0) {
+	    		attributes.addFlashAttribute(approvalInfoVO);
+	    		return "redirect:/manage/userRole_list.do";
+	    	}*/
+    	}
+    	approvalInfoVO.setSearchType(searchType);
+    	approvalInfoVO.setSearchTxt(searchTxt);
+    	model.addAttribute("approvalInfoVO", approvalInfoVO);
+    	model.addAttribute("pageGb", pageGb);
+    	return "/userRole/write";
+    }    
+    
+    @RequestMapping("/userRole_list_modify.do")
+    public String userRole_list_Modify(Model model, RedirectAttributes attributes, 
+    		@ModelAttribute UserRoleList userRoleList) throws Exception {  	
+//    	logger.info("userRole_list_modify["+userRoleList.getCrud().toUpperCase()+"]["+userRoleList.toString()+"]");
+	    //
+	    if("u".equals(userRoleList.getCrud())) {
+//			logger.info("update count: "+userRoleList.getList().size());
+			int ret = userRoleService.userRole_update(userRoleList);
+			if(ret == -2) {
+				attributes.addFlashAttribute("message", "중복 권한을 갖을수 없습니다.");
+			}
+	 	}
+	    else if("d".equals(userRoleList.getCrud())) {
+//	    	logger.info("delete");
+	    	userRoleService.userRole_deletes(userRoleList);
+	    }
+	    UserRoleVO userRoleVO = new UserRoleVO();
+	    userRoleVO.setSearchType(userRoleList.getSearchType());
+	    userRoleVO.setSearchTxt(userRoleList.getSearchTxt());
+	    //userRoleVO.setErp_job(userRoleList.getErp_job());
+	    attributes.addFlashAttribute(userRoleVO);
+	    return "redirect:/manage/userRole_list.do";
+    	//return "redirect:/manage/userRole_list.do?searchType="+searchType+"&searchTxt="+searchTxt;
+    }
+    
+    @RequestMapping("/userRole_list.do")
+    public String userRole_list(Model model, RedirectAttributes attributes, @ModelAttribute ApprovalInfoVO approvalInfoVO
+            ) throws Exception {    	
+//    	logger.info("userRole_list[ApprovalInfoVO:"+approvalInfoVO.toString());
+    	String currentPage = String.valueOf(approvalInfoVO.getCurrentPage());
+    	String searchType = approvalInfoVO.getSearchType();
+    	String searchTxt = approvalInfoVO.getSearchTxt();
+    	if(searchTxt != null) {
+    		approvalInfoVO.setSearchTxt(Pattern.compile("[',%,?]*").matcher(searchTxt).replaceAll(""));
+    	}
+    	//userRoleVO.setErp_job(userRoleVO.getErp_job());
+    	//logger.info("userRole_list[currentPage:"+currentPage+"][erp_job:"+erp_job+"][searchType:"+searchType+"][searchTxt:"+searchTxt+"]");
+    	int currentPageNo = 1;
+        if (isNull(currentPage) || isEmpty(currentPage)) {
+            currentPage = "1";
+        } else {
+            if (!isNumeric(currentPage)) {
+                currentPage = "1";
+            } else {
+                try {
+                    currentPageNo = Integer.parseInt(currentPage);
+                } catch (Exception e) {
+                    currentPageNo = 1;
+                }
+            }
+        }
+        if (isNull(searchTxt) || isEmpty(searchTxt)) {
+            searchType = "";
+            searchTxt = "";
+        } else {
+            if (isNull(searchType) || isEmpty(searchType)) {
+                searchType = "";
+                searchTxt = "";
+            } else {
+                if (searchType.equals("office_cd")) {
+
+                }
+            }
+        }
+
+        int recordsPerPage = 10;
+        int startRecord = (currentPageNo - 1) * recordsPerPage;
+        /*
+        UserRoleVO userRoleVT = new UserRoleVO();
+        userRoleVT.setStartRecord(startRecord);
+        userRoleVT.setRecordsPerPage(recordsPerPage);
+        userRoleVT.setErp_job(userRoleVO.getErp_job());
+        userRoleVT.setSearchType(searchType);
+        userRoleVT.setSearchTxt(searchTxt);
+        */
+        approvalInfoVO.setStartRecord(startRecord);
+        approvalInfoVO.setRecordsPerPage(recordsPerPage);
+        
+        ApprovalInfoList list = new ApprovalInfoList();
+        list.setList(userRoleService.approvalInfo_list(approvalInfoVO));        
+        // 승인 test
+        /*
+        logger.info("#Approval\n\n\n###############################################################");
+        ApprovalInfoVO approvalInfoVO = new ApprovalInfoVO();
+        approvalInfoVO.setUser_id("117261830");//10056348
+        approvalInfoVO.setErp_job("03");//01:agw, 02:reform, 03:4p
+        approvalInfoVO.setOrg("cs"); // ns or cs
+        List<ApprovalInfoVO> ls = userRoleService.listApproval(approvalInfoVO);
+        for(ApprovalInfoVO vo : ls) {
+        	logger.info(vo.toString());
+        }
+        logger.info("\n##########################################################################");
+        */
+        ////////////////////////////////////////////////       
+        model.addAttribute("approvalInfoList", list);
+        model.addAttribute("crud", "crud");
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalRecordCount", userRoleService.approvalInfo_totalCnt(approvalInfoVO));
+        model.addAttribute("recordsPerPage", recordsPerPage);
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("searchTxt", searchTxt);
+        model.addAttribute("erp_job", approvalInfoVO.getErp_job());
+        model.addAttribute("step", approvalInfoVO.getStep());
+        model.addAttribute("pageGb", pageGb);
+        return "/userRole/list";
+    }
+    
+    @RequestMapping("/userRole_list_bak.do")
+    public String userRole_list_bak(Model model, RedirectAttributes attributes, @ModelAttribute UserRoleVO userRoleVO
+    		//,@RequestParam(value = "erp_job", required = false, defaultValue = "") String erp_job
+            ) throws Exception {
+//    	logger.info("userRole_list[UserRoleVO:"+userRoleVO.toString());
+    	String currentPage = String.valueOf(userRoleVO.getCurrentPage());
+    	String searchType = userRoleVO.getSearchType();
+    	String searchTxt = userRoleVO.getSearchTxt();
+    	if(searchTxt != null) {
+    		userRoleVO.setSearchTxt(Pattern.compile("[',%,?]*").matcher(searchTxt).replaceAll(""));
+    	}
+    	//userRoleVO.setErp_job(userRoleVO.getErp_job());
+    	//logger.info("userRole_list[currentPage:"+currentPage+"][erp_job:"+erp_job+"][searchType:"+searchType+"][searchTxt:"+searchTxt+"]");
+    	int currentPageNo = 1;
+        if (isNull(currentPage) || isEmpty(currentPage)) {
+            currentPage = "1";
+        } else {
+            if (!isNumeric(currentPage)) {
+                currentPage = "1";
+            } else {
+                try {
+                    currentPageNo = Integer.parseInt(currentPage);
+                } catch (Exception e) {
+                    currentPageNo = 1;
+                }
+            }
+        }
+        if (isNull(searchTxt) || isEmpty(searchTxt)) {
+            searchType = "";
+            searchTxt = "";
+        } else {
+            if (isNull(searchType) || isEmpty(searchType)) {
+                searchType = "";
+                searchTxt = "";
+            } else {
+                if (searchType.equals("office_cd")) {
+
+                }
+            }
+        }
+
+        int recordsPerPage = 10;
+        int startRecord = (currentPageNo - 1) * recordsPerPage;
+        /*
+        UserRoleVO userRoleVT = new UserRoleVO();
+        userRoleVT.setStartRecord(startRecord);
+        userRoleVT.setRecordsPerPage(recordsPerPage);
+        userRoleVT.setErp_job(userRoleVO.getErp_job());
+        userRoleVT.setSearchType(searchType);
+        userRoleVT.setSearchTxt(searchTxt);
+        */
+        userRoleVO.setStartRecord(startRecord);
+        userRoleVO.setRecordsPerPage(recordsPerPage);
+        UserRoleList list = new UserRoleList();
+        //list.setList(userRoleService.userRole_list(userRoleVO));        
+        // 승인 test
+        /*
+        logger.info("#Approval\n\n\n###############################################################");
+        ApprovalInfoVO approvalInfoVO = new ApprovalInfoVO();
+        approvalInfoVO.setUser_id("117261830");//10056348
+        approvalInfoVO.setErp_job("03");//01:agw, 02:reform, 03:4p
+        approvalInfoVO.setOrg("cs"); // ns or cs
+        List<ApprovalInfoVO> ls = userRoleService.listApproval(approvalInfoVO);
+        for(ApprovalInfoVO vo : ls) {
+        	logger.info(vo.toString());
+        }
+        logger.info("\n##########################################################################");
+        */
+
+        ////////////////////////////////////////////////       
+        model.addAttribute("userRoleList", list);
+        model.addAttribute("crud", "crud");
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalRecordCount", userRoleService.userRole_totalCnt(userRoleVO));
+        model.addAttribute("recordsPerPage", recordsPerPage);
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("searchTxt", searchTxt);
+        //model.addAttribute("erp_job", userRoleVO.getErp_job());
+        model.addAttribute("pageGb", pageGb);
+        return "/userRole/list";
+    }
+    
+    @RequestMapping("/popup_role.do")
+    public String popup_userAppr(Model model,
+            @RequestParam(value = "currentPage", required = false, defaultValue = "1") String currentPage,
+            @RequestParam(value = "erp_job", required = false) String erp_job,
+            @RequestParam(value = "step", required = false) String step,
+            @RequestParam(value = "region", required = false) String region,
+            @RequestParam(value = "dept_code", required = false) String dept_code,
+            @RequestParam(value = "user_no", required = false) String user_no,
+            @RequestParam(value = "searchType", required = false) String searchType,
+            @RequestParam(value = "searchTxt", required = false) String searchTxt) throws Exception {
+//    	logger.info("popup_userAppr[currentPage:"+currentPage+"][region:"+region+"][dept_code:"+dept_code+"][user_no:"+user_no+"][searchType:"+searchType+"][searchTxt:"+searchTxt+"]");
+    	int currentPageNo = 1;
+        if (isNull(currentPage) || isEmpty(currentPage)) {
+            currentPage = "1";
+        } else {
+            if (!isNumeric(currentPage)) {
+                currentPage = "1";
+            } else {
+                try {
+                    currentPageNo = Integer.parseInt(currentPage);
+                } catch (Exception e) {
+                    currentPageNo = 1;
+                }
+            }
+        }
+        if (isNull(searchTxt) || isEmpty(searchTxt)) {
+            searchType = "";
+            searchTxt = "";
+        } else {
+            if (isNull(searchType) || isEmpty(searchType)) {
+                searchType = "";
+                searchTxt = "";
+            } else {
+                /*if (searchType.equals("office_cd")) {
+
+                }*/
+            }
+        }
+
+        int recordsPerPage = 10;
+        int startRecord = (currentPageNo - 1) * recordsPerPage;
+        
+        OrgVO orgVO = new OrgVO();
+        orgVO.setStartRecord(startRecord);
+        orgVO.setRecordsPerPage(recordsPerPage);
+        orgVO.setRegion(region);
+        orgVO.setSearchType(searchType);
+        orgVO.setSearchTxt(searchTxt);
+        OrgList list = new OrgList();
+        list.setList(userRoleService.org_list(orgVO));
+       
+        //model.addAttribute("orgcode", orgcode);
+        //model.addAttribute("org_name", org_name);
+        model.addAttribute("orgList", list);
+        model.addAttribute("crud", "r");
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalRecordCount", userRoleService.org_totalCnt(orgVO));
+        model.addAttribute("recordsPerPage", recordsPerPage);
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("searchTxt", searchTxt);
+        model.addAttribute("erp_job", erp_job);
+        model.addAttribute("step", step);
+        model.addAttribute("region", region);
+        model.addAttribute("dept_code", dept_code);
+        model.addAttribute("user_no", user_no);
+        //logger.info("#org_name:"+org_name);
+       return "/userRole/popup_role";
+    }
+    
+    @RequestMapping("/popup_approval_info.do")
+    public String popup_approval_info(Model model, @ModelAttribute BonbuVO bonbuVO, @ModelAttribute BonbuList bonbuList) throws Exception {
+//    	logger.info("popup_approval_info[BonbuVO("+bonbuVO.getCrud().toUpperCase()+"):"+bonbuVO.toString()+"]");
+//    	logger.info("popup_approval_info[BonbuList("+bonbuList.getCrud().toUpperCase()+"):"+bonbuList.toString()+"]");
+    	//등록
+    	if("c".equals(bonbuVO.getCrud())) {
+    		/*if(bindingResult.hasErrors()) {
+    			List<ObjectError> list = bindingResult.getAllErrors();
+    			for(ObjectError err : list) {
+    				logger.info("col:"+err.getCode()+", message:"+err.getDefaultMessage());
+    			}
+    			model.addAttribute("message", "필수 항목을 입력하세요.");
+    			approvalInfoVO.setCrud("n");
+    		}
+    		else {
+    			UserRoleVO vo = userRoleService.userRole_one_chk(approvalInfoVO);
+		    	if(vo == null) {
+		    		cnt = userRoleService.userRole_reg(approvalInfoVO);
+		    		logger.info("insert count: "+cnt);
+		    		if(cnt > 0) {
+		    			approvalInfoVO.setCrud("r");
+		    			//userRoleVO.setAppr_role_old(userRoleVO.getAppr_role());
+		    	    	model.addAttribute("message", "성공");
+		    		}
+		    	}
+		    	else {
+		    		model.addAttribute("message", "이미 등록된 계정 입니다.");
+		    		approvalInfoVO.setCrud("n");
+		    	}
+    		}*/
+    	}
+    	//상세 화면
+    	/*else if("r".equals(bonbuVO.getCrud())) {
+    		bonbuVO = userRoleService.approvalInfo_one(bonbuVO);
+    		bonbuVO.setCrud("r");
+    	}
+    	*/
+    	//상세 화면
+    	else if("r".equals(bonbuVO.getCrud())) {
+//    		logger.info("##[read]############################");
+    		BonbuList list = new BonbuList();
+    		list.setList(userRoleService.approval_user_list(bonbuVO));
+    		model.addAttribute("bonbuList", list);
+    		//bonbuVO.setCrud("r");
+    	}
+    	//수정
+    	else if("u".equals(bonbuVO.getCrud())) {
+//    		logger.info("##[update]############################");
+    		List<BonbuVO> list = bonbuList.getList();
+    		BonbuVO param = null;
+    		for(BonbuVO vo : list) {
+    			if("0".equals(vo.getDft())) {
+    				param = new BonbuVO();
+    				param.setErp_job(bonbuVO.getErp_job());
+    				param.setStep(bonbuVO.getStep());
+    				param.setRegion(bonbuVO.getRegion());
+    				param.setReq_bonbu(vo.getReq_bonbu());
+    				param.setAppr_bonbu(vo.getAppr_bonbu());
+    				param.setDept_code(vo.getDept_code());
+    				param.setUser_no(vo.getUser_no());
+    				param.setDel(vo.getDft());
+//    				logger.info("#update# "+param.toString());
+    				//userRoleService.select_default_user(param);
+    			}
+    		}
+    		/*if(cnt > 0) {
+    			bonbuVO.setCrud("r");
+    	    	model.addAttribute("message", "성공");
+    		}*/
+    		model.addAttribute("msg", "OK");
+    		//return "redirect:/manage/popup_approval_info.do?crud=r&erp_job="+bonbuVO.getErp_job()+"&step="+bonbuVO.getStep()+"&region="+bonbuVO.getRegion()+"&dept_code="+bonbuVO.getDept_code();
+     	}
+    	//삭제
+    	else if("d".equals(bonbuVO.getCrud())) {
+//    		logger.info("##[delete]############################");
+    		List<BonbuVO> list = bonbuList.getList();
+    		BonbuVO param = null;
+    		for(BonbuVO vo : list) {
+    			if(vo.getDel() != null) {
+    				param = new BonbuVO();
+    				param.setErp_job(bonbuVO.getErp_job());
+    				param.setStep(bonbuVO.getStep());
+    				param.setRegion(bonbuVO.getRegion());
+    				param.setReq_bonbu(vo.getReq_bonbu());
+    				param.setAppr_bonbu(vo.getAppr_bonbu());
+    				param.setDept_code(vo.getDept_code());
+    				param.setUser_no(vo.getUser_no());
+//    				logger.info("#delete# "+param.toString());
+    				userRoleService.delete_approval_user(param);
+    			}
+    		}
+    		return "redirect:/manage/popup_approval_info.do?crud=r&erp_job="+bonbuVO.getErp_job()+"&step="+bonbuVO.getStep()+"&region="+bonbuVO.getRegion()+"&dept_code="+bonbuVO.getDept_code();
+
+    		/*approvalInfoVO.setUser_id(approvalInfoVO.getNo_emp());
+    		logger.info("delete params:User_id"+ approvalInfoVO.getUser_id()+", Erp_job:"+approvalInfoVO.getErp_job());
+	    	cnt = userRoleService.userRole_deleteOne(approvalInfoVO);
+	    	logger.info("delete count:"+ cnt);
+	    	if(cnt > 0) {
+	    		attributes.addFlashAttribute(approvalInfoVO);
+	    		return "redirect:/manage/userRole_list.do";
+	    	}*/
+    	}
+    	model.addAttribute("bonbuVO", bonbuVO);
+    	return "/userRole/popup_appr";
+    }
+    @RequestMapping(value="/popup_approval_user.do" , method=RequestMethod.GET)
+    public String popup_approval_user(Model model,
+            @RequestParam(value = "currentPage", required = false, defaultValue = "1") String currentPage,
+            @RequestParam(value = "erp_job", required = false) String erp_job,
+            @RequestParam(value = "step", required = false) String step,
+            @RequestParam(value = "region", required = false) String region,
+            @RequestParam(value = "orgscode1", required = false) String orgscode1,
+            @RequestParam(value = "orgscode2", required = false) String orgscode2,
+            @RequestParam(value = "orgscode3", required = false) String orgscode3,
+            @RequestParam(value = "orgscode", required = false) String orgscode,
+            @RequestParam(value = "searchType", required = false) String searchType,
+            @RequestParam(value = "searchTxt", required = false) String searchTxt,
+            @RequestParam(value="dept_code", required = false) String dept_code,
+            @RequestParam(value="req_bonbu", required = false) String req_bonbu,
+            @RequestParam(value="req_name", required = false) String req_name,
+            @RequestParam(value="approval_no", required = false) String approval_no,
+            HttpSession session) throws Exception {
+//    	logger.info("popup_approval_user[currentPage:"+currentPage+"][region:"+region+"][searchType:"+searchType+"][searchTxt:"+searchTxt+"]");
+    	int currentPageNo = 1;
+        if (isNull(currentPage) || isEmpty(currentPage)) {
+            currentPage = "1";
+        } else {
+            if (!isNumeric(currentPage)) {
+                currentPage = "1";
+            } else {
+                try {
+                    currentPageNo = Integer.parseInt(currentPage);
+                } catch (Exception e) {
+                    currentPageNo = 1;
+                }
+            }
+        }
+        if (isNull(searchTxt) || isEmpty(searchTxt)) {
+            searchType = "";
+            searchTxt = "";
+        } else {
+            if (isNull(searchType) || isEmpty(searchType)) {
+                searchType = "";
+                searchTxt = "";
+            } else {
+                /*if (searchType.equals("office_cd")) {
+
+                }*/
+            }
+        }
+        int recordsPerPage = 10;
+        int startRecord = (currentPageNo - 1) * recordsPerPage;
+        
+        UserInfoVO userInfoVO = new UserInfoVO();
+        userInfoVO.setStartRecord(startRecord);
+        userInfoVO.setRecordsPerPage(recordsPerPage);
+        userInfoVO.setRegion(region);
+        userInfoVO.setSearchType(searchType);
+        userInfoVO.setSearchTxt(searchTxt);
+        userInfoVO.setDept_code((String)session.getAttribute("dept_code"));
+        userInfoVO.setBonbu((String)session.getAttribute("bonbu"));
+        userInfoVO.setRole((String)session.getAttribute("role"));
+        UserInfoList list = new UserInfoList();
+        list.setList(userRoleService.user_list(userInfoVO));
+        model.addAttribute("userList", list);
+        model.addAttribute("crud", "crud");
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalRecordCount", userRoleService.user_totalCnt(userInfoVO));
+        model.addAttribute("recordsPerPage", recordsPerPage);
+        model.addAttribute("searchType", searchType);
+        model.addAttribute("searchTxt", searchTxt);
+        model.addAttribute("erp_job", erp_job);
+        model.addAttribute("step", step);
+        model.addAttribute("region", region);
+        model.addAttribute("orgscode1", orgscode1);
+        model.addAttribute("orgscode2", orgscode2);
+        model.addAttribute("orgscode3", orgscode3);
+        model.addAttribute("orgscode", orgscode);
+        model.addAttribute("req_bonbu", req_bonbu);
+        model.addAttribute("req_name", req_name);
+        model.addAttribute("approval_no", approval_no);
+        //logger.info("#org_name:"+org_name);
+       return "/userRole/popup_user";
+    }
+    
+    @RequestMapping("/popup_approval_write.do")
+    public String user_approval_write(Model model, RedirectAttributes attributes, 
+    		@ModelAttribute BonbuVO bonbuVO, HttpSession session) throws Exception {
+//    	logger.info("popup_approval_write["+bonbuVO.toString()+"]");
+    	bonbuVO.setS_user_no(Integer.parseInt(session.getAttribute("user_no").toString()));
+//    	logger.info("TEST:["+bonbuVO.toString()+"]");
+    	bonbuVO.setReg_id((String)session.getAttribute("user_id"));
+    	int cnt = userRoleService.reg_approval_user(bonbuVO);
+    	if(cnt == 1) {
+	    	model.addAttribute("currentPage", "1");
+	    	model.addAttribute("totalRecordCount", "0");
+	    	model.addAttribute("recordsPerPage", "10");
+	    	model.addAttribute("region", bonbuVO.getRegion());
+	    	model.addAttribute("searchType", bonbuVO.getSearchType());
+	        model.addAttribute("searchTxt", bonbuVO.getSearchTxt());
+	    	model.addAttribute("message", "close");
+	    	model.addAttribute("msg","OK");
+	    	return "/userRole/popup_user";
+    	}
+    	else if(cnt == -1) {
+//    		logger.info("FAIL!!!!!");
+    		model.addAttribute("currentPage", "1");
+	    	model.addAttribute("totalRecordCount", "0");
+	    	model.addAttribute("recordsPerPage", "10");
+	    	model.addAttribute("region", bonbuVO.getRegion());
+	    	model.addAttribute("searchType", bonbuVO.getSearchType());
+	        model.addAttribute("searchTxt", bonbuVO.getSearchTxt());
+	    	model.addAttribute("message", "close");
+	    	model.addAttribute("msg","FAIL");
+	    	return "/userRole/popup_user";
+    	}
+    	else {
+	    	String region = URLEncoder.encode(bonbuVO.getRegion(), "euc_kr");
+	    	String searchType = URLEncoder.encode(bonbuVO.getSearchType(), "euc_kr");
+	    	String searchTxt = URLEncoder.encode(bonbuVO.getSearchTxt(), "euc_kr");
+	    	return "redirect:/manage/popup_approval_user.do?region="+region+"&searchType="+searchType+"&searchTxt="+searchTxt;
+    	}
+    }
+    
+    @SuppressWarnings("unchecked")
+    @RequestMapping("/role_4p")
+    public String role_4p(Model model
+    		, @ModelAttribute BonbuVO inVO) {
+    	String pageSubGb = "4p";
+    	
+//    	logger.info("role_4p[BonbuVO]:"+inVO.toString());
+    	String param = "";
+    	List<BonbuVO> bonbuList = null;
+    	List<BonbuVO> centerList = null;
+    	List<BonbuVO> branchList = null;
+    	List<BonbuVO> teamList = null;
+    	/*if (isEmpty(inVO.getRegion())) {
+    		inVO.setRegion("01");
+    	}
+    	if (isEmpty(inVO.getOrg())) {
+    		inVO.setOrg("cs");
+    	}*/
+    	if(!isEmpty(inVO.getRegion())) {
+    		if (isEmpty(inVO.getOrg())) {
+        		inVO.setOrg("cs");
+        	}
+        	param += "org="+ inVO.getOrg();
+        	if (!isEmpty(inVO.getRegion())) {
+        		param += "&region="+ inVO.getRegion();
+        		bonbuList = (List<BonbuVO>) officeService.selectBonbu(inVO.getRegion());
+        	}
+        	if (!isEmpty(inVO.getOrgscode1())) {
+        		param += "&orgscode1="+ inVO.getOrgscode1();
+        		centerList = (List<BonbuVO>) officeService.selectCenter(inVO.getOrgscode1());
+        	}
+        	if (inVO.getOrg().equals("ns")) {
+        		if (!isEmpty(inVO.getOrgscode2())) {
+        			param += "&orgscode2="+ inVO.getOrgscode2();
+        			teamList = (List<BonbuVO>) officeService.selectTeam(inVO.getOrgscode2());
+            	}
+        	} else {
+    	    	if (!isEmpty(inVO.getOrgscode2())) {
+    	    		param += "&orgscode2="+ inVO.getOrgscode2();
+    	    		branchList = (List<BonbuVO>) officeService.selectBranch(inVO.getOrgscode2());
+    	    	}
+    	    	if (!isEmpty(inVO.getOrgscode3())) {
+    	    		param += "&orgscode3="+ inVO.getOrgscode3();
+    	    		teamList = (List<BonbuVO>) officeService.selectTeam(inVO.getOrgscode3());
+    	    	}
+        	}
+        	if (!isEmpty(inVO.getOrgscode())) {
+        		param += "&orgscode="+ inVO.getOrgscode();
+        	}
+    		List<BonbuVO> roleList = (List<BonbuVO>) userRoleService.selectCSNSall(inVO);
+    		
+    		model.addAttribute("roleList", roleList);
+    	}
+    	model.addAttribute("searchVO", inVO);
+    	model.addAttribute("bonbuList", bonbuList);
+    	model.addAttribute("centerList", centerList);
+    	model.addAttribute("branchList", branchList);
+    	model.addAttribute("teamList", teamList);
+    	model.addAttribute("searchParam", param);
+    	model.addAttribute("pageGb",pageGb);
+    	model.addAttribute("pageSubGb",pageSubGb);
+    	return "/userRole/4p_list";
+    }
+    
+    @RequestMapping("/role_agw")
+    public String role_agw(Model model, UserRoleAgwVO agwvo) throws Exception {
+    	String pageSubGb = "agw";
+    	List<UserRoleAgwVO>userRoleAgwList = userRoleService.userRoleAgwList(agwvo);
+    	model.addAttribute("userRoleAgwList" , userRoleAgwList );
+    	model.addAttribute("pageGb",pageGb);
+    	model.addAttribute("pageSubGb",pageSubGb);
+    	return "/userRole/agw_list";
+    }
+    
+    @RequestMapping(value="/role_agw_pop", method = RequestMethod.POST)
+    public String role_agw_pop(Model model, HttpServletRequest request
+    		) throws Exception {
+    	String req_bonbu_post=null;
+    	req_bonbu_post =request.getParameter("req_bonbu_post");
+    	String req_bonbu = null;
+	    	if(req_bonbu_post!=null) {
+	    		UserRoleAgwVO agwvo = new UserRoleAgwVO();
+	    		agwvo.setReq_bonbu_01(req_bonbu_post);
+	    		List<UserRoleAgwVO>  userRoleAgwView= userRoleService.userRoleAgwView(agwvo);
+	    			
+//	        		logger.info(userRoleAgwOne.toString());
+	    		for(UserRoleAgwVO list : userRoleAgwView) {
+	    			if(!"".equals(list.getReq_name())) {
+	    				req_bonbu_post = list.getReq_name();
+	    				req_bonbu = list.getReq_bonbu();
+	    				
+	    			}
+	    			break;
+	    		}
+	    		model.addAttribute("req_bonbu",req_bonbu);	    		
+	    		model.addAttribute("title_bonbu",req_bonbu_post);
+	    		model.addAttribute("userRoleAgwView" , userRoleAgwView );
+	    	}
+    	return "/include/pop_userRoleAgw";
+    }
+    
+    @RequestMapping(value="/role_agw_update")
+    public  @ResponseBody String role_agw_update(Model model, HttpSession session, 
+			@RequestParam(value="approval_no[]") List<Integer> appr_arry,
+			@RequestParam(value="step") String step) throws Exception {
+    		String result ="success";
+    		String user_id = session.getAttribute("user_id").toString();
+    		if(appr_arry.size()>0) {
+    			result = userRoleService.userRoleAgwUpdate(appr_arry,user_id,step);
+    		}
+    	
+    	return result;
+    }
+    @RequestMapping(value="/role_agw_delete")
+    public @ResponseBody String role_agw_delete(Model model, HttpSession session, 
+    				@RequestParam(value="approval_no[]") List<Integer> appr_arry) throws Exception {
+    	String result = "success";
+    	for (int i = 0; i < appr_arry.size(); i++) {
+    		if(appr_arry.get(i)>0) {
+    			UserRoleAgwVO agwvo = new UserRoleAgwVO();
+    			agwvo.setApproval_no(appr_arry.get(i));
+    			agwvo.setReg_id(session.getAttribute("user_id").toString());
+    			int cnt = userRoleService.userRoleAgwDel(agwvo);
+    			if(cnt == 0) {
+    				result = "fail";
+    				break;
+    			}
+    		}
+		}
+    	
+    	return result;
+    }
+    
+    @RequestMapping("/role_agw_insert")
+    public String role_agw_insert(Model model, RedirectAttributes attributes, 
+    		@ModelAttribute UserRoleAgwVO userVO, HttpSession session) throws Exception {
+    //	logger.info(userVO.toString());
+    	String result ="";
+    	if(!isNull(userVO)) {
+    		userVO.setDft("0");
+    		userVO.setReg_id(session.getAttribute("user_id").toString());
+    		result = userRoleService.userRoleAgwInsert(userVO);
+    		model.addAttribute("message" , result);
+    	}
+    	
+    	return "/userRole/popup_user";
+    }
+    
+    @RequestMapping(value="/role_4p_delete", method = RequestMethod.GET)
+    public @ResponseBody String role_4p_delete(Model model, @RequestParam(value="approval_no") int approval_no
+    		, HttpSession session)throws Exception{
+    	
+    	String result = "success";
+    	logger.info(approval_no+"");
+    	
+    	if(approval_no>0) {
+    		BonbuVO vo = new BonbuVO();
+    		vo.setApproval_no(approval_no);
+    		vo.setUpt_id(session.getAttribute("user_id").toString());
+    		int cnt = userRoleService.delete_approval_user(vo);
+    		if(cnt == 0) {
+    			result="fail";
+    		}
+    		
+    	}else {
+    		result="fail";
+    	}
+    	
+    	
+    	return result;
+    }
+   
+    @RequestMapping(value="/role_4p_update", method = RequestMethod.GET)
+    public @ResponseBody String role_4p_delete(Model model, @RequestParam(value="approval_no[]") List<Integer> appr_arry
+    		,@RequestParam(value="approval_no_all[]") List<Integer> appr_arryAll,@RequestParam(value="orgscode") String  orgscode
+    		,@RequestParam(value="orgscode1") String  orgscode1, HttpSession session)throws Exception{
+    	
+    	String result = "success";
+    	
+    	for(Integer list : appr_arry) {
+    		//logger.info("appr_arry ::   "+ list);
+    	}
+    	for(Integer list : appr_arryAll) {
+    		//logger.info("appr_arryAll ::   "+ list);
+    	}
+    	
+    	userRoleService.select_default_user(appr_arry, appr_arryAll);
+    	
+    	
+    	return result;
+    }
+}

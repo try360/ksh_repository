@@ -1,0 +1,177 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
+<%@ taglib uri="/tags/custom-taglib" prefix="custom" %> 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<script type="text/javascript" src="/resources/js/userRole.js" charset="UTF-8"></script>
+<link type="text/css" rel="stylesheet" href="/resources/css/userRole.css" />
+</head>
+
+<body>
+<%@ include file = "/resources/inc/header_nav.jsp" %>
+<%@ include file = "/resources/inc/aside.jsp" %>
+<section id="userRole_list">
+    <h1 class="list">승인자 관리</h1>
+    <div class="contents_form">
+        <!-- 타이틀, 경로 -->
+        <div class="divDocTitle">4P-AGW</div>     
+        <!-- 검색조건 -->
+        <div class="searchArea">
+            <form id="searchForm" name="searchForm" method="get" action="/manage/role_4p">
+            <fieldset>
+                <legend>검색폼</legend>
+                <input type="hidden" name="org" id="org" />
+                <select id="region" name="region">
+                 	<option value="">지역선택</option>
+	                <option value="01">수도권강북, 강북, 강원</option>
+	                <option value="02">수도권강남, 강남, 수도권서부</option>
+	                <option value="03">부산</option>
+	                <option value="04">대구</option>
+	                <option value="05">호남, 전남, 전북, 제주</option>
+	                <option value="06">충남, 충북</option>
+	                <option value="07">네트워크운용센터</option>
+                </select>
+                <select id="orgscode1" name="orgscode1">
+                	<option value="">::본부::</option>
+                	<c:if test="${not empty bonbuList }">
+                	<c:forEach items="${bonbuList }" var="vo">
+                		<option value="${vo.orgscode }">${vo.orgname }</option>
+                	</c:forEach>
+                	</c:if>
+                </select>
+                <select id="orgscode2" name="orgscode2">
+                	<option value="">::센터::</option>
+                	<c:if test="${not empty centerList }">
+                	<c:forEach items="${centerList }" var="vo">
+                		<option value="${vo.orgscode }">${vo.orgname }</option>
+                	</c:forEach>
+                	</c:if>
+                </select>
+                <select id="orgscode3" name="orgscode3">
+                	<option value="">::지점::</option>
+                	<c:if test="${not empty branchList }">
+                	<c:forEach items="${branchList }" var="vo">
+                		<option value="${vo.orgscode }">${vo.orgname }</option>
+                	</c:forEach>
+                	</c:if>
+                </select>
+                <select id="orgscode" name="orgscode">
+                	<option value="">::팀::</option>
+                	<c:if test="${not empty teamList }">
+                	<c:forEach items="${teamList }" var="vo">
+                		<option value="${vo.orgscode }">${vo.orgname }</option>
+                	</c:forEach>
+                	</c:if>
+                </select>
+            </fieldset>
+            </form>
+        </div>
+        <!-- LIST -->
+        <div class="btnArea">
+        	<!-- <img class="regIcon" src="/resources/img/btn_regist.gif" style="cursor:pointer" alt="등록" /> -->
+            <!-- <img class="modIcon" src="/resources/img/btn_modify.gif" style="cursor:pointer" alt="수정" /> -->
+            <!-- <img class="delIcon" src="/resources/img/btn_delete.gif" style="cursor:pointer" alt="삭제" /> -->
+        </div>
+        <table class="listTable headOnly" id="listTable" border="0" cellspacing="0" cellpadding="0">
+            <thead>
+            <tr>
+                <th width="50">번호</th>
+                <th width="140">본부</th>
+                <th width="140">센터</th>
+                <th width="140">지점</th>
+                <th width="100">팀</th>
+                <th width="70">투자확정</th>
+                <th width="70">IP/MAC확정</th>
+                <th width="70">MGID확정</th>
+                <th width="70">착공(공사요청)</th>
+                <th width="70">COLCODE</th>
+                <th width="13"></th>
+            </tr>
+            </thead>
+        </table>
+        <div id="scrollArea">
+        <table class="listTable bodyOnly" id="listTable" border="0" cellspacing="0" cellpadding="0">
+			<tbody>
+			<c:forEach var="vo" items="${roleList}" varStatus="status">
+				<tr data="${vo.orgscode }">
+					<td width="50">${status.index+1 }</td>
+					<td width="140"><input type="hidden" id="orgscode1" name="list[${status.index}].orgscode1" value="${vo.orgscode1}" />${vo.orgname1 }</td>
+					<td width="140"><input type="hidden" id="orgscode2" name="list[${status.index}].orgscode2" value="${vo.orgscode2}" />${vo.orgname2 }</td>
+					<td width="140"><input type="hidden" id="orgscode3" name="list[${status.index}].orgscode3" value="${vo.orgscode3}" />${vo.orgname3 eq null || vo.orgname3 eq '' ? '-' : vo.orgname3 }</td>
+					<td width="100"><input type="hidden" id="orgscode" name="list[${status.index}].orgscode" value="${vo.orgscode}" />${vo.orgname }</td>
+					<td width="70"><input type="hidden" id="user_no_01" name="list[${status.index}].user_no_01" value="${vo.user_no_01}" />${vo.emp_name_01 }</td>
+					<td width="70"><input type="hidden" id="user_no_02" name="list[${status.index}].user_no_02" value="${vo.user_no_02}" />${vo.emp_name_02 }</td>
+					<td width="70"><input type="hidden" id="user_no_03" name="list[${status.index}].user_no_03" value="${vo.user_no_03}" />${vo.emp_name_03 }</td>
+					<td width="70"><input type="hidden" id="user_no_04" name="list[${status.index}].user_no_04" value="${vo.user_no_04}" />${vo.emp_name_04 }</td>
+					<td width="70"><input type="hidden" id="user_no_05" name="list[${status.index}].user_no_05" value="${vo.user_no_05}" />${vo.emp_name_05 }</td>
+				</tr>
+			</c:forEach>
+			</tbody>
+       	</table>
+       	</div>       	
+       	<form id="selectTd" name="selectTd" method="post" action="userRole_write.do">
+            <input type="hidden" id="crud" name="crud" value="${searchVO.crud}"/>
+            <input type="hidden" id="s_region" name="s_region" value="${searchVO.region}"/>
+            <input type="hidden" id="s_orgscode1" name="s_orgscode1" value="${searchVO.orgscode1}"/>
+            <input type="hidden" id="s_orgscode2" name="s_orgscode2" value="${searchVO.orgscode2}"/>
+            <input type="hidden" id="s_orgscode3" name="s_orgscode3" value="${searchVO.orgscode3}"/>
+            <input type="hidden" id="s_orgscode" name="s_orgscode" value="${searchVO.orgscode}"/>
+            
+            <input type="hidden" id="region" name="region" value="${bonbuVO.region}"/>
+            <input type="hidden" id="orgscode1" name="orgscode1" value="${bonbuVO.orgscode1}"/>
+            <input type="hidden" id="orgscode2" name="orgscode2" value="${bonbuVO.orgscode2}"/>
+            <input type="hidden" id="orgscode3" name="orgscode3" value="${bonbuVO.orgscode3}"/>
+            <input type="hidden" id="orgscode" name="orgscode" value="${bonbuVO.orgscode}"/>
+            <input type="hidden" id="org" name="org" value="${bonbuVO.org}"/>
+            <input type="hidden" id="csbonbu" name="csbonbu" value="${bonbuVO.csbonbu}"/>
+            <input type="hidden" id="nsbonbu" name="nsbonbu" value="${bonbuVO.nsbonbu}"/>
+            <input type="hidden" id="cm_code" name="cm_code" value="${bonbuVO.cm_code}"/>
+            <input type="hidden" id="oper_code" name="oper_code" value="${bonbuVO.oper_code}"/>
+            <input type="hidden" id="user_no_01" name="user_no_01" value="${bonbuVO.user_no_01}"/>
+            <input type="hidden" id="user_no_02" name="user_no_02" value="${bonbuVO.user_no_02}"/>
+            <input type="hidden" id="user_no_03" name="user_no_03" value="${bonbuVO.user_no_03}"/>
+            <input type="hidden" id="user_no_04" name="user_no_04" value="${bonbuVO.user_no_04}"/>
+            <input type="hidden" id="user_no_05" name="user_no_05" value="${bonbuVO.user_no_05}"/>
+        </form>
+    </div>
+</section>
+<%@ include file = "/resources/inc/footer.jsp" %>
+</body>
+<script>
+var region = "${searchVO.region}";
+var orgscode1 = "${searchVO.orgscode1}";
+var orgscode2 = "${searchVO.orgscode2}";
+var orgscode3 = "${searchVO.orgscode3}";
+var orgscode = "${searchVO.orgscode}";
+var param = "${searchParam}";
+
+if (region != "") {
+	$("#searchForm #region option").removeAttr("selected");
+	$("#searchForm #region option[value='"+ region +"']").attr("selected", "selected");
+}
+if (orgscode1 != "") {
+	$("#searchForm #orgscode1 option").removeAttr("selected");
+	$("#searchForm #orgscode1 option[value='"+ orgscode1 +"']").attr("selected", "selected");
+	if ($("#searchForm #orgscode1 option[value='"+ orgscode1 +"']").text().indexOf("네트워크운용본부") > 0) {
+		$("#searchForm #orgscode3").remove();
+		$("#searchForm #org").val("ns");
+	}
+}
+if (orgscode2 != "") {
+	$("#searchForm #orgscode2 option").removeAttr("selected");
+	$("#searchForm #orgscode2 option[value='"+ orgscode2 +"']").attr("selected", "selected");
+}
+if (orgscode3 != "") {
+	$("#searchForm #orgscode3 option").removeAttr("selected");
+	$("#searchForm #orgscode3 option[value='"+ orgscode3 +"']").attr("selected", "selected");
+}
+if (orgscode != "") {
+	$("#searchForm #orgscode option").removeAttr("selected");
+	$("#searchForm #orgscode option[value='"+ orgscode +"']").attr("selected", "selected");
+}
+</script>
+</html>

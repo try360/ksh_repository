@@ -1,0 +1,148 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR"
+	pageEncoding="EUC-KR"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file="/resources/inc/meta.jsp"%>
+<link rel="stylesheet" type="text/css" href="/resources/css/manage.css">
+<script src="/resources/js/manage.js" charset="UTF-8"></script>
+<script type="text/javascript">
+var pageGb = "${pageGb}";
+var searchTxt = "${searchVO.searchTxt}";
+var agw_cd = "${searchVO.agw_cd}";
+</script>
+<script>
+/* 코드 입력시 타이틀 확인 */
+function FormChkModule(f) {
+ if (f.model_cd.value == "") {
+        alert("<spring:message code='required.model_cd' />");
+        f.model_cd.focus();
+        return false;
+    }
+ if (f.model_nm.value == "") {
+        alert("<spring:message code='required.model_nm' />");
+        f.model_nm.focus();
+        return false;
+    }
+      if (f.shelf_num.value == "") {
+          alert("<spring:message code='required.shelf_num' />");
+          f.shelf_num.focus();
+          return false;
+      }
+      if (f.port_num.value == "") {
+          alert("<spring:message code='required.port_num' />");
+          f.port_num.focus();
+          return false;
+      }
+      return true;
+  }
+</script>
+</head>
+<body>
+<%@ include file="/resources/inc/header_nav.jsp"%>
+<%@ include file="/resources/inc/aside.jsp"%>
+	<section>
+		<h1 class="req">운용 관리</h1>
+		<div class="contents_form">
+			<!-- 타이틀, 경로 -->
+			<div class="divDocTitle">공급기종관리</div>
+			<!-- 검색조건 -->
+			<div class="searchArea">
+				<form name="searchForm" method="get" action="model">
+					<fieldset>
+					<legend>검색폼</legend>
+						<span class="radioGroup">
+							<input type="radio" id="agw01" name="agw_cd" value="01" /><label for="agw01">AGW</label>
+							<input type="radio" id="agw03" name="agw_cd" value="03" /><label for="agw03">4P-AGW</label>
+							<input type="radio" id="agw02" name="agw_cd" value="02" /><label for="agw02">Reform-AGW</label>
+                		</span>
+						<input type="text" name="searchTxt" class="txtarea w180"
+							value="${searchTxt}" placeholder="검색어"> <input
+							type="image" src="/resources/img/btn_search.gif" alt="검색">
+					</fieldset>
+				</form>
+			</div>
+		<table class="listTable" id="listTable" border="0" cellpadding="0"
+			cellspacing="0">
+			<thead>
+				<tr>
+					<th width="30">&nbsp;</th>
+					<th width="60">순번</th>
+					<th width="150">모델코드</th>
+					<th>모델명</th>
+					<th width="80">shelf</th>
+					<th width="100">port</th>
+					<th width="100">등록자</th>
+					<th width="100">등록일</th>
+					<th width="130">&nbsp;</th>
+				</tr>
+			</thead>
+		</table>
+		<form name="codeWriteForm" method="post" action="model_reg" onSubmit="return FormChkModule(this);">
+        <input type="hidden" name="model_no" id="model_no" value="0" />
+        <input type="hidden" name="searchTxt" value="${searchVO.searchTxt }" />
+        <input type="hidden" name="agw_cd" value="${searchVO.agw_cd }" />
+        
+        <table class="listTable inTable" border="0" cellspacing="0" cellpadding="0">
+        	<tbody>
+        	<tr class="notHover">
+        		<td width="24">&nbsp;</td>
+        		<td width="54"><span id="modelNo">0</span></td>
+        		<td width="144">
+        			<input type="text" name="model_cd" id="model_cd" maxlength="20" placeholder="모델코드" value="${ModelVO.model_cd}" />
+        		</td>
+        		<td>
+        			<input type="text" name="model_nm" id="model_nm" maxlength="20" placeholder="모델명" value="${ModelVO.model_nm}" />
+        		</td>
+        		<td width="74">
+        			<input type="number" name="shelf_num" min="1" max="9999" maxlength="4" id="shelf_num" placeholder="shelf" value="${ModelVO.shelf_num}" />
+        		</td>
+        		<td width="94">
+        			<input type="number" name="port_num" min="1" max="9999" maxlength="4" id="port_num" placeholder="port" value="${ModelVO.port_num}" />
+        		</td>
+        		<td width="94">${sessionScope.user_name }</td>
+        		<td width="94"><fmt:formatDate value="<%=new java.util.Date() %>" pattern="yyyy/MM/dd"/></td>
+        		<td width="124">
+					<input type="image" id="btnRegist" src="/resources/img/btn_regist.gif" alt="등록" />
+					<img id="btnClear" src="/resources/img/btn_cancel.gif" alt="취소" />
+        		</td>
+        	</tr>
+        	</tbody>
+        </table>
+        </form>
+        <table class="listTable inTable" id="t_model" border="0" cellspacing="0" cellpadding="0">
+			<tbody>
+				<c:if test="${not empty modelList}">
+					<c:forEach var="modelVO" items="${modelList}" varStatus="status">
+					<fmt:formatDate value="${modelVO.time_stamp }" pattern="yyyy/MM/dd" var="time_stamp"/>
+						<tr id="table-${modelVO.model_no }" class="selectList">
+							<td width="30" class="dragHandle"><span class="ui-icon ui-icon-triangle-2-n-s"></span></td>
+							<td width="60"><span class="seq">${modelVO.seq}</span></td>
+							<td width="150">${modelVO.model_cd}</td>
+							<td class="left"><span class="title">${modelVO.model_nm}</span></td>
+							<td width="80">${modelVO.shelf_num}</td>
+							<td width="100">${modelVO.port_num}</td>
+							<td width="100">${modelVO.update_name}</td>
+							<td width="100">${time_stamp}</td>
+							<td width="130">
+								<button class="iconBtn modi" data="${modelVO.model_no }"><i class="ui-icon ui-icon-pencil"></i></button>
+								<button class="iconBtn del" data="${modelVO.model_no }"><i class="ui-icon ui-icon-trash"></i></button>
+							</td>
+						</tr>
+					</c:forEach>
+				</c:if>
+				<c:if test="${empty modelList}">
+					<tr>
+						<td class="h100">"검색된 결과가 없습니다"</td>
+					</tr>
+				</c:if>
+			</tbody>
+		</table>
+		</div>
+	</section>
+	<%@ include file = "/resources/inc/footer.jsp" %>
+</body>
+</html>

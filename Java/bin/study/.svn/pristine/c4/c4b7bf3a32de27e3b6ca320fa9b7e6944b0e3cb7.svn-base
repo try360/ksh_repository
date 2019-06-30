@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kt.agwne.emailMapper">
+  
+  <select id="email_list_01" parameterType="bsVO" resultType="userRoleVO">
+  <![CDATA[
+  SELECT * FROM(
+		SELECT B.user_no
+			 , B.emp_name
+			 , B.dept_code
+			 , B.email_address
+		  FROM agwne.t_approval_manager A
+		       INNER JOIN agwne.t_org_user B ON (A.user_no = B.user_no)
+			   LEFT OUTER JOIN agwne.t_org_mapping C ON (B.bonbu = C.bonbu and C.use_yn = 'Y')
+			   INNER JOIN (
+							select B.bonbu
+							  from agwne.t_neoss A
+								   left outer join agwne.t_org_user B ON (A.input_id = B.no_emp)
+							 where A.del_yn = false
+							   and A.neoss_no = #{neoss_no}
+							   and A.agw_cd = #{agw_cd}
+			   ) D ON (A.req_bonbu = D.bonbu)
+		 WHERE  A.step = #{status_cd}
+			  and A.erp_job = #{agw_cd}
+			  and A.use_yn = 'Y'  
+		UNION
+		SELECT 		A.user_no
+					 , B.emp_name
+					 , B.dept_code
+					 , B.email_address
+		 FROM agwne.t_confirm A
+				INNER JOIN agwne.t_org_user B ON (A.user_no = B.user_no)
+		 WHERE 
+				A.neoss_no= #{neoss_no}
+			AND A.status_cd = #{status_cd}
+			AND A.del_yn is false) a 
+	WHERE email_address NOT IN (select z.email_address from agwne.t_org_user z where z.no_emp = #{input_id})	
+  ]]>
+  </select>
+  
+<!-- 준공시/반려시 메일리스트:::: 0-6단계 승인자, 설계, 감리, 인수시험자 , 공사업체 외부직원 리스트 -->
+    <select id="email_list_02" parameterType="bsVO" resultType="userRoleVO">
+		SELECT  distinct email_address  FROM (
+			select '00' status_cd, input_id from agwne.t_neoss where del_yn is false and neoss_no =#{neoss_no}
+			union all
+			select status_cd, input_id from agwne.t_process where neoss_no= #{neoss_no} and del_yn is false  and status_cd != '99' and status_cd != '07'
+			union all 
+			select null status_cd, b.no_emp from agwne.t_construct_mem a
+				LEFT OUTER JOIN agwne.t_org_user b on (a.user_no = b.user_no) where const_no = (select const_no from agwne.t_construct where neoss_no=#{neoss_no} and del_yn is false)) a , agwne.t_org_user b 
+		WHERE a.input_id = b.no_emp
+		AND b.email_address not in (select email_address from agwne.t_org_user where no_emp=#{input_id})
+
+  </select>
+  
+ <!--착공시 메일리스트:: 준공승인자, 2-5단계 승인자, 설계, 감리, 인수시험자 , 공사업체 외부직원 리스트-->
+      <select id="email_list_03" parameterType="int" resultType="userRoleVO">
+			SELECT  email_address, max(status_cd) status_cd  FROM (
+					select status_cd, input_id from agwne.t_process where neoss_no= #{neoss_no}  and del_yn is false and status_cd != '99' and status_cd != '01' and status_cd != '06'
+					union all 
+					 select null status_cd, no_emp from agwne.t_construct_mem where const_no = (select const_no from agwne.t_construct where neoss_no=#{neoss_no}  and del_yn is false)
+			 ) a , agwne.t_org_user b where a.input_id = b.no_emp
+			group by email_address
+			ORDER BY status_cd 
+
+  </select>
+        <select id="email_list_04" parameterType="int" resultType="userRoleVO">
+
+			SELECT  email_address, max(status_cd) status_cd  FROM (
+					select status_cd, input_id from agwne.t_process where neoss_no= #{neoss_no}  and del_yn is false and status_cd != '99' and status_cd != '01' and status_cd != '06'
+					union all 
+					 select '--' status_cd, no_emp from agwne.t_construct_mem where const_no = (select const_no from agwne.t_construct where neoss_no=#{neoss_no}  and del_yn is false)
+			 ) a , agwne.t_org_user b where a.input_id = b.no_emp
+			group by email_address
+			ORDER BY status_cd 
+
+  </select>
+  
+	<select id="select4pExGetmail" parameterType="int" resultType="userRoleVO">
+	<![CDATA[
+		select a.email_address
+		  from (
+				select c.email_address
+				  from agwne.t_construct_mem a
+					   inner join agwne.t_construct b on (a.const_no = b.const_no and b.del_yn = false and b.neoss_no = #{neoss_no})
+					   left outer join agwne.t_org_user_ex_mail c on (a.user_no = c.ex_mail_no)
+				union 
+				select b.email_address
+				  from agwne.t_process a
+					   inner join agwne.t_org_user b on (a.input_id = b.no_emp)
+				 where a.del_yn = false
+				   and a.neoss_no = #{neoss_no}
+				   and a.current_yn = true
+				   and a.status_cd in ('02', '03', '04', '05') 
+				union
+				select b.email_address
+				  from agwne.t_neoss a
+					   inner join agwne.t_org_user b on (a.input_id = b.no_emp)
+				 where a.del_yn = false
+				   and a.agw_cd = '03'
+				   and a.neoss_no = #{neoss_no}	  
+		       ) a
+	]]>
+	</select>
+	<select id ="r_email_list_01" parameterType="bsVO" resultType="userRoleVO">
+	<![CDATA[
+	SELECT a.email_address FROM (
+		SELECT email_address 
+		FROM agwne.t_confirm A 
+		LEFT OUTER JOIN agwne.t_org_user B on (A.user_no = B.user_no) 
+		WHERE agw_cd =#{agw_cd} and neoss_no = #{neoss_no} and status_cd = #{status_cd} and A.del_yn is false
+	]]>
+	<if test ="status_cd == '02'">
+	<![CDATA[	
+		UNION 
+		SELECT c.email_address 
+		FROM agwne.t_reform A 
+		INNER JOIN agwne.t_reform_person B on (A.device_cd = B.device_cd and B.del_yn is false)
+		LEFT OUTER JOIN agwne.t_org_user C on (B.user_no = C.user_no) WHERE A.neoss_no = #{neoss_no}
+	]]>
+	<if test="request_yn">
+	<![CDATA[
+		UNION
+		SELECT email_address 
+		FROM agwne.t_reform A 
+		LEFT OUTER JOIN agwne.t_org_user B on (A.input_id = B.no_emp) where A.neoss_no = #{neoss_no}
+	]]>
+	</if>
+	</if>
+	<![CDATA[
+	) a WHERE email_address NOT IN (select sub.email_address from agwne.t_org_user sub where sub.no_emp = #{no_emp})
+	]]>
+	</select>
+    <select id="r_email_list_99" parameterType="bsVO" resultType="userRoleVO">
+    	<![CDATA[
+		SELECT  distinct email_address  FROM (
+			select '00' status_cd, input_id from agwne.t_reform where del_yn is false and neoss_no =#{neoss_no}
+			union all
+			select status_cd, input_id from agwne.t_process where neoss_no= #{neoss_no} and del_yn is false  and status_cd != '99' and status_cd != '07'
+			union all 
+			select null status_cd, b.no_emp from agwne.t_construct_mem a
+				LEFT OUTER JOIN agwne.t_org_user b on (a.user_no = b.user_no) where const_no = (select const_no from agwne.t_construct where neoss_no=${neoss_no} and del_yn is false)) a , agwne.t_org_user b 
+		WHERE a.input_id = b.no_emp
+		AND b.email_address not in (select email_address from agwne.t_org_user where no_emp=(select update_id from agwne.t_process where neoss_no =${neoss_no} and status_cd ='0${status_cd}' and current_yn is true))
+		]]>
+  </select>
+
+	<select id="select_teamCode_cd" parameterType="String" resultType="map">
+	<![CDATA[
+		select a.orgscode
+		     , a.bonbu
+		     , a.oper_code
+			 , ba.bonbu as oper_bonbu
+			 , a.cm_code
+			 , bb.bonbu as cm_bonbu
+		  from (
+				select a.orgscode
+				     , a.bonbu
+					 , coalesce(ba.oper_code, a.orgscode) as oper_code
+					 , coalesce(bb.cm_code, a.orgscode) as cm_code
+				  from agwne.t_bonbu_level a
+					   left outer join agwne.t_cm_team_mapping ba on (a.orgscode = ba.cm_code)
+					   left outer join agwne.t_cm_team_mapping bb on (a.orgscode = bb.oper_code)
+				 where orgscode = #{dept_code}	  
+		       ) a
+			   left outer join agwne.t_bonbu_level ba on (a.oper_code = ba.orgscode)
+			   left outer join agwne.t_bonbu_level bb on (a.cm_code = bb.orgscode)
+		 order by a.cm_code
+		 limit 1	
+	]]>
+	</select>  
+	<select id="select_teamCode" parameterType="int" resultType="map">
+	<![CDATA[
+		select a.cm_code
+			 , a.oper_code
+			 , ba.bonbu as cm_bonbu
+			 , bb.bonbu as oper_bonbu
+			 , bc.bonbu
+		  from (
+				select a.office_no
+				     , coalesce(bb.cm_code, a.office_no) as cm_code
+					 , coalesce(ba.oper_code, a.office_no) as oper_code
+				  from agwne.t_neoss a
+					   left outer join agwne.t_cm_team_mapping ba on (a.office_no = ba.cm_code)
+					   left outer join agwne.t_cm_team_mapping bb on (a.office_no = bb.oper_code)
+				 where a.del_yn = false
+				   and a.agw_cd = '03'
+				   and a.neoss_no = #{neoss_no}
+		  ) a
+		  left outer join agwne.t_bonbu_level ba on (a.cm_code = ba.orgscode)
+		  left outer join agwne.t_bonbu_level bb on (a.oper_code = bb.orgscode)
+		  left outer join agwne.t_bonbu_level bc on (a.office_no = bc.orgscode)
+		  left outer join agwne.t_org_mapping c on (bc.bonbu = c.bonbu)
+		  order by cm_code
+		  limit 1
+	]]>
+	</select>
+	
+	<select id="select_4p_step00" parameterType="int" resultType="userInfoVO">
+	<![CDATA[
+		select usr.user_no
+		     , usr.emp_name
+			 , usr.dept_code
+			 , usr.email_address
+			 , '1' as dft
+		  from agwne.t_neoss a
+		       left outer join agwne.t_org_user usr on (a.input_id = usr.no_emp)
+		 where a.del_yn = false
+		   and a.agw_cd = '03'
+		   and a.neoss_no = #{neoss_no}	
+	]]>
+	</select>
+	<select id="select_4p_step01" parameterType="hashmap" resultType="userInfoVO">
+	<![CDATA[
+		select a.user_no
+		     , a.emp_name
+			 , a.dept_code
+			 , usr.dept_name
+			 , usr.email_address
+			 , usr.phone_number
+			 , a.dft
+			 , (case when b.neoss_no is null then 0 else 1 end) chk
+		  from agwne.t_approval_manager a
+		       INNER JOIN agwne.t_org_user usr ON (a.user_no = usr.user_no)
+		       left outer join agwne.t_confirm b on (a.user_no = b.user_no and b.neoss_no = #{neoss_no} and b.agw_cd = '03' and b.status_cd = '01' and b.del_yn = false)
+		 where a.use_yn = 'Y'
+		   and a.erp_job = '03'
+		   and a.step = '01'
+		   and a.appr_bonbu = #{cm_bonbu}	
+		 order by a.dft desc, a.emp_name asc
+	]]>
+	</select>
+	<select id="select_4p_step02" parameterType="hashmap" resultType="userInfoVO">
+	<![CDATA[
+		select a.user_no
+		     , a.emp_name
+			 , a.dept_code
+			 , usr.dept_name
+			 , usr.email_address
+			 , usr.phone_number
+			 , a.dft
+			 , (case when b.neoss_no is null then 0 else 1 end) chk
+		  from agwne.t_approval_manager a
+		       INNER JOIN agwne.t_org_user usr ON (a.user_no = usr.user_no)
+		       left outer join agwne.t_confirm b on (a.user_no = b.user_no and b.neoss_no = #{neoss_no} and b.agw_cd = '03' and b.status_cd = '02' and b.del_yn = false)
+		 where a.use_yn = 'Y'
+		   and a.erp_job = '03'
+		   and a.step = '02'
+		   and a.appr_bonbu = #{oper_code}
+		 order by a.dft desc, a.emp_name asc	
+	]]>
+	</select>
+	<select id="select_4p_step03" parameterType="hashmap" resultType="userInfoVO">
+	<![CDATA[
+		select a.user_no
+		     , a.emp_name
+			 , a.dept_code
+			 , usr.dept_name
+			 , usr.email_address
+			 , usr.phone_number
+			 , a.dft
+			 , (case when b.neoss_no is null then 0 else 1 end) chk
+		  from agwne.t_approval_manager a
+		       INNER JOIN agwne.t_org_user usr ON (a.user_no = usr.user_no)
+		       left outer join agwne.t_confirm b on (a.user_no = b.user_no and b.neoss_no = #{neoss_no} and b.agw_cd = '03' and b.status_cd = '03' and b.del_yn = false)
+		 where a.use_yn = 'Y'
+		   and a.erp_job = '03'
+		   and a.step = '03'
+	   ]]>
+		<if test="cm_code.equals('431060')">
+			<![CDATA[
+	   		and a.appr_bonbu = '382973'
+	   	   ]]>
+		</if>
+		<if test="!cm_code.equals('431060')">
+			<![CDATA[
+			and a.appr_bonbu = (select approval from agwne.t_org_mapping where bonbu = #{cm_bonbu})
+			]]>
+		</if>
+		<![CDATA[
+		 order by a.dft desc, a.emp_name asc
+	]]>
+	</select>
+	<select id="select_4p_step04" parameterType="hashmap" resultType="userInfoVO">
+		<![CDATA[
+		select a.user_no
+		     , a.emp_name
+			 , a.dept_code
+			 , usr.dept_name
+			 , usr.email_address
+			 , usr.phone_number
+			 , a.dft
+			 , (case when b.neoss_no is null then 0 else 1 end) chk
+		  from agwne.t_approval_manager a
+		       INNER JOIN agwne.t_org_user usr ON (a.user_no = usr.user_no)
+		       left outer join agwne.t_confirm b on (a.user_no = b.user_no and b.neoss_no = #{neoss_no} and b.agw_cd = '03' and b.status_cd = '04' and b.del_yn = false)
+		 where a.use_yn = 'Y'
+		   and a.erp_job = '03'
+		   and a.step = '04'
+		   and a.req_bonbu = #{cm_bonbu}
+		 order by a.dft desc, a.emp_name asc
+		]]>
+	</select>
+	<select id="select_4p_step05" parameterType="hashmap" resultType="userInfoVO">
+		<!-- select a.user_no
+		     , a.emp_name
+			 , a.dept_code
+			 , usr.dept_name
+			 , usr.email_address
+			 , usr.phone_number
+			 , a.dft
+			 , (case when b.neoss_no is null then 0 else 1 end) chk
+		  from agwne.t_approval_manager a
+		       INNER JOIN agwne.t_org_user usr ON (a.user_no = usr.user_no)
+		       left outer join agwne.t_confirm b on (a.user_no = b.user_no and b.neoss_no = #{neoss_no} and b.agw_cd = '03' and b.status_cd = '05' and b.del_yn = false)
+		 where a.use_yn = 'Y'
+		   and a.erp_job = '03'
+		   and a.step = '05'
+		   and a.req_bonbu in (
+							select coalesce(bb.cm_code, a.office_no) as cm_code
+							  from agwne.t_neoss a
+								   left outer join agwne.t_cm_team_mapping ba on (a.office_no = ba.cm_code)
+								   left outer join agwne.t_cm_team_mapping bb on (a.office_no = bb.oper_code)
+							 where a.del_yn = false
+							   and a.agw_cd = '03'
+							   and a.neoss_no = #{neoss_no}		   
+		   )
+		 order by a.dft desc, a.emp_name asc -->
+	<![CDATA[
+			select a.user_no
+		     , a.emp_name
+			 , a.dept_code
+			 , usr.dept_name
+			 , usr.email_address
+			 , usr.phone_number
+			 , a.dft
+			 , (case when b.neoss_no is null then 0 else 1 end) chk
+		  from agwne.t_approval_manager a
+		       INNER JOIN agwne.t_org_user usr ON (a.user_no = usr.user_no)
+			   left outer join agwne.t_confirm b on (a.user_no = b.user_no and b.neoss_no = #{neoss_no} and b.agw_cd = '03' and b.status_cd = '05' and b.del_yn = false)
+		 where a.use_yn = 'Y'
+		   and a.erp_job = '03'
+		   and a.step = '05'
+		   and a.req_bonbu = #{cm_code}
+		 order by a.dft desc, a.emp_name asc
+	]]>
+	</select>
+	<select id="select_4p_step05_cd" parameterType="String" resultType="userInfoVO">
+	<![CDATA[
+		select a.user_no
+		     , a.emp_name
+			 , a.dept_code
+			 , usr.dept_name
+			 , usr.email_address
+			 , usr.phone_number
+			 , a.dft
+		  from agwne.t_approval_manager a
+		       INNER JOIN agwne.t_org_user usr ON (a.user_no = usr.user_no)
+		 where a.use_yn = 'Y'
+		   and a.erp_job = '03'
+		   and a.step = '05'
+		   and a.req_bonbu = #{cm_code}
+		 order by a.dft desc, a.emp_name asc
+	]]>
+	</select>
+	<select id="select_4p_stepEx" parameterType="String" resultType="userInfoVO">
+	<![CDATA[
+		select a.ex_mail_no as user_no
+		     , a.ex_emp_nm as emp_name
+			 , a.orgscode as dept_code
+			 , a.email_address
+			 , a.ex_company_nm
+			 , a.phone_number
+			 , '1' as dft
+		  from agwne.t_org_user_ex_mail a
+		 where a.orgscode = #{oper_code}	
+	]]>
+	</select>
+	
+	<select id="select_4p_process" parameterType="bsVO" resultType="userInfoVO">
+	<![CDATA[
+		select usr.user_no
+		     , usr.emp_name
+			 , usr.dept_code
+			 , usr.email_address
+			 , '1' as dft
+		  from (
+				select a.input_id
+				  from agwne.t_process a
+				 where a.del_yn = false
+				   and a.current_yn = true
+				   and a.status_cd != '99'
+				   and a.neoss_no = #{neoss_no}
+				 group by a.input_id	  
+		  ) a
+		  left outer join agwne.t_org_user usr on (a.input_id = usr.no_emp)	
+		 where 1=1
+		   AND usr.email_address not in (select email_address from agwne.t_org_user where no_emp=#{input_id})
+	]]>
+	</select>
+	
+	<select id="select_totalCnt" parameterType="hashmap" resultType="int">
+	<![CDATA[
+		select count(*)
+		  from agwne.t_email_history a
+		 where 1=1
+	 ]]>
+	 <if test="searchTxt != null and !searchTxt.equals('')">
+	 <![CDATA[
+	 	   and ${searchType} like '%${searchTxt}%' 	 
+	 ]]>
+	 </if>
+	 <if test="radio_date != null and !radio_date.equals('')">
+	 <![CDATA[
+	 	   and to_char(input_dt, '${date_format}') >= '${st_date}' and to_char(input_dt, '${date_format}') <= '${ed_date}' 
+	 ]]>
+	 </if>
+	</select>
+	
+	<select id="select_totalList" parameterType="hashmap" resultType="emailVO">
+	<![CDATA[
+		select row_number() over(order by a.email_no asc) as rownum
+		     , a.email_no
+		     , a.receiver
+		     , a.cc
+		     , a.bcc
+		     , a.subject
+		     , a.content
+		     , a.input_id
+		     , b.emp_name as input_nm
+		     , a.input_dt
+		  from agwne.t_email_history a
+		       left outer join agwne.t_org_user b on (a.input_id = b.no_emp)
+		 where 1=1
+	 ]]>
+	 <if test="searchTxt != null and !searchTxt.equals('')">
+	 <![CDATA[
+	 	   and ${searchType} like '%${searchTxt}%' 	 
+	 ]]>
+	 </if>
+	  <if test="radio_date != null and !radio_date.equals('')">
+	 <![CDATA[
+	 	   and to_char(input_dt, '${date_format}') >= '${st_date}' and to_char(input_dt, '${date_format}') <= '${ed_date}' 
+	 ]]>
+	 </if>
+	 <![CDATA[
+		 
+		 order by email_no desc
+		 limit ${recordsPerPage} offset ${startRecord}
+	]]>
+	</select>
+	
+	<select id="select_receiver" parameterType="int" resultType="userInfoVO">
+	<![CDATA[
+		select a.receiver as email_address
+			 , coalesce(b.emp_name, c.ex_emp_nm) as emp_name
+		     , coalesce(b.dept_name, c.ex_company_nm) as dept_name
+		     , coalesce(b.phone_number, c.phone_number) as phone_number
+		  from (
+				select rtrim(ltrim(unnest(string_to_array(replace(replace(receiver, '[', ''), ']', ''), ',')))) as receiver
+				  from agwne.t_email_history a
+				 where email_no = #{email_no}	  
+			   ) a
+			   left outer join agwne.t_org_user b on (a.receiver = b.email_address)
+		       left outer join (
+				   select max(ex_emp_nm) ex_emp_nm
+				        , email_address
+				        , max(ex_company_nm) ex_company_nm
+				        , max(phone_number) phone_number
+				     from agwne.t_org_user_ex_mail 
+				    group by email_address
+			   ) c on (a.receiver = c.email_address)
+		 order by b.dept_code, b.emp_name	
+	]]>	
+	</select>
+	<select id="select_cc" parameterType="int" resultType="userInfoVO">
+	<![CDATA[
+		select a.receiver as email_address
+			 , coalesce(b.emp_name, c.ex_emp_nm) as emp_name
+		     , coalesce(b.dept_name, c.ex_company_nm) as dept_name
+		     , coalesce(b.phone_number, c.phone_number) as phone_number
+		  from (
+				select rtrim(ltrim(unnest(string_to_array(replace(replace(cc, '[', ''), ']', ''), ',')))) as receiver
+				  from agwne.t_email_history a
+				 where email_no = #{email_no}	  
+			   ) a
+			   left outer join agwne.t_org_user b on (a.receiver = b.email_address)
+		       left outer join (
+				   select max(ex_emp_nm) ex_emp_nm
+				        , email_address
+				        , max(ex_company_nm) ex_company_nm
+				        , max(phone_number) phone_number
+				     from agwne.t_org_user_ex_mail 
+				    group by email_address
+			   ) c on (a.receiver = c.email_address)
+		 order by b.dept_code, b.emp_name	
+	]]>	
+	</select>
+	<select id="select_bcc" parameterType="int" resultType="userInfoVO">
+	<![CDATA[
+		select a.receiver as email_address
+			 , coalesce(b.emp_name, c.ex_emp_nm) as emp_name
+		     , coalesce(b.dept_name, c.ex_company_nm) as dept_name
+		     , coalesce(b.phone_number, c.phone_number) as phone_number
+		  from (
+				select rtrim(ltrim(unnest(string_to_array(replace(replace(bcc, '[', ''), ']', ''), ',')))) as receiver
+				  from agwne.t_email_history a
+				 where email_no = #{email_no}	  
+			   ) a
+			   left outer join agwne.t_org_user b on (a.receiver = b.email_address)
+		       left outer join (
+				   select max(ex_emp_nm) ex_emp_nm
+				        , email_address
+				        , max(ex_company_nm) ex_company_nm
+				        , max(phone_number) phone_number
+				     from agwne.t_org_user_ex_mail 
+				    group by email_address
+			   ) c on (a.receiver = c.email_address)
+		 order by b.dept_code, b.emp_name	
+	]]>	
+	</select>
+	<select id="selectOne_email" parameterType="int" resultType="emailVO">
+	<![CDATA[
+		select a.email_no
+		     , a.subject
+			 , a.content
+			 , b.emp_name as input_nm
+			 , b.office_nm
+		  from agwne.t_email_history a
+		       left outer join agwne.t_org_user b on (a.input_id = b.no_emp)
+		 where email_no = #{email_no}
+	]]>
+	</select>
+</mapper>

@@ -1,0 +1,233 @@
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file CommonUtility.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.common;
+
+import java.lang.reflect.Field;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.poi.ss.formula.functions.T;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFDataFormat;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.view.AbstractView;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@Component
+public class CommonUtility extends AbstractView{
+//	private static final String prop="/data/tomcat8/webapps/agw-ne/WEB-INF/classes/properties/config.properties";
+	//private static final String prop="D:/zes_workspace/AGW-Ne/agw-ne/src/main/resources/properties/config.properties";
+	
+	@Value("#{config['excelDown.format']}")
+	private String format;
+	
+	public void excel_download(Object vo, HttpServletResponse response,String agw_cd, HttpServletRequest request ) throws Exception{
+					
+				//오늘날짜 셋팅
+				Date today = new Date();
+				SimpleDateFormat date= new SimpleDateFormat("yyyyMMdd");
+				
+				//프로퍼티 객체 
+//				Properties propObj = new Properties();
+//				FileInputStream fis = new FileInputStream(prop);
+//				propObj.load(new java.io.BufferedInputStream(fis));
+		
+				//if(bsVO.size()>0) {
+				XSSFWorkbook wb = new XSSFWorkbook();
+				Sheet sheet = wb.createSheet();
+				sheet.createFreezePane(0,0);
+				
+				//폰트
+				Font font = wb.createFont();
+				font.setFontName("맑은 고딕");
+				font.setFontHeightInPoints((short) 9);
+				//제목스타일
+				XSSFCellStyle headSt = wb.createCellStyle();
+				headSt.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				headSt.setFillForegroundColor(IndexedColors.LAVENDER.getIndex());
+				headSt.setFont(font);
+				headSt.setAlignment(headSt.getAlignmentEnum().CENTER);
+				headSt.setVerticalAlignment(headSt.getVerticalAlignmentEnum().CENTER);
+				
+				//숫자포맷 
+				XSSFDataFormat exformat = wb.createDataFormat();
+				//숫자포맷을위한본문스타일 
+				XSSFCellStyle formSt = wb.createCellStyle();
+				formSt.setDataFormat(exformat.getFormat("#,##0"));
+				formSt.setFont(font);
+				//일반 본문스타일
+				XSSFCellStyle dataSt = wb.createCellStyle();
+				dataSt.setFont(font);
+				
+					//title 셋팅
+					Row row = sheet.createRow(0);
+			    	Cell cell = null;
+			    	String[] nm = columnName(agw_cd);
+			    	if(nm!=null) {
+			    		for (int i = 0; i < nm.length; i++) {
+			    			cell = row.createCell(i);
+					    	cell.setCellValue(nm[i]);
+					    	if(nm[i].indexOf("(")>-1 ) {
+					    		headSt.setWrapText(true); //alt+enter r기능
+					    	}
+					    	cell.setCellStyle(headSt);
+					    	row.setHeightInPoints((2*sheet.getDefaultRowHeightInPoints()));
+					    	sheet.autoSizeColumn(i);
+					    	sheet.setColumnWidth(i, (sheet.getColumnWidth(i)+1000));
+						}
+			    	}
+			    	
+			    	//각각의 vo를 object로 받아서 list호ㅏ 했음 
+					@SuppressWarnings("unchecked")
+					List<Object> list = (List<Object>)vo;
+					int idx = 0;
+					int st_idx = 0; //소요경비셋팅
+					int ed_idx = 0;
+					
+					String title = "";
+			    	switch (agw_cd) {
+					case "01":
+						title="AGW";
+						st_idx = 17;
+						ed_idx=22;
+						break;
+					case "02":	
+						title = "ReformAGW";
+						break;
+					case "03":
+						title = "4pAGW";
+						st_idx = 24;
+						ed_idx = 29;
+						break;
+					}
+			    	
+			    		for(int i = 0; i < list.size(); i++) {
+			    			idx = 0;
+			    			row = sheet.createRow(i+1);
+			    			//한 로우당 각각의 필드를 풀어서 for문으로 돌리면서 셀에 값을 채움
+			    			for(Field field : list.get(i).getClass().getDeclaredFields() ) {
+			    				field.setAccessible(true);
+			    				Object val = field.get(list.get(i));
+			    				cell = row.createCell(idx);
+			    				if(val != null) {
+			    					if(idx > st_idx && idx < ed_idx) {
+			    						cell.setCellValue(Integer.parseInt(String.valueOf(val)));
+			    						cell.setCellStyle(formSt);
+			    					}else {
+			    						cell.setCellValue(String.valueOf(val));
+			    						cell.setCellStyle(dataSt);
+			    					}
+			    				}else {
+			    					cell.setCellValue("");
+			    				}
+			    				idx ++;
+			    			}
+			    		}
+			    	
+					String userAgent = request.getHeader("User-Agent");
+//					String format = propObj.getProperty("excelDown.format");
+					title +="_수요공급요청내역("+date.format(today)+")"+format;
+					boolean ie = userAgent.indexOf("Trident") > -1 || userAgent.indexOf("MSIE") > -1  ;
+					if (ie) {
+						title = URLEncoder.encode(title, "UTF-8");
+					} else {
+						title = new String(title.getBytes("utf-8"), "iso-8859-1");
+					}
+					
+					response.setHeader("Set-Cookie", "fileDownload=true; path=/");
+					response.setHeader("Content-Disposition", "attachment;  filename=\""+title+"\"");
+					response.setHeader("Content-Transfer-Encoding", "binary");
+					wb.write(response.getOutputStream());
+
+					try { 
+						wb.close(); 
+					} catch(Exception ignore) {
+						ignore.printStackTrace();
+					}
+		
+	}
+
+	@Override
+	protected void renderMergedOutputModel(Map<String, Object> arg0, HttpServletRequest arg1, HttpServletResponse arg2)
+			throws Exception {
+		
+	}
+	
+	public String convertObjectToJson(Object ... obj) throws Exception{
+		ObjectMapper mapper = new ObjectMapper();
+		if(obj.length > 1) {
+			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj[0]);
+		}
+		else {
+			return mapper.writeValueAsString(obj[0]);
+		}
+	}
+	
+	public T convertJsonToObject(String str, Class<T> type) throws Exception{
+		ObjectMapper mapper = new ObjectMapper();
+		return mapper.readValue(str, type);
+	}
+	
+	public String[] columnName(String agw_cd) throws Exception{
+		String[] columnArry = null;
+		
+		switch(agw_cd) {
+		//agw
+/*		case "01" : columnArry = new String[] {"요청번호","진행상태","본부","지사/센터","부서","팀","설치주소","우편번호","건물구분","건물형태","건물명/아파트명/택지","공급내역",
+																	 "세대수","시장점유율","공급회선","공급구분","공급사유","상세사유","소요재원\n(물자비)","소요재원\n(공사비)","소요재원\n(경비)","소요재원\n(계)","입주예정","공급시기","요청자","연락처","요청일",
+																	 "투자확정 의견"," ip확정 의견","MGID확정 의견","COLCODE확정 의견","장비정보확정 의견","착공의견","반려의견"}; break;*/
+		case "01" : columnArry = new String[] {"요청번호","진행상태","본부","지사/센터","부서","팀","설치주소","우편번호","건물구분","건물형태","건물명/아파트명/택지","공급내역",
+				 "세대수","시장점유율","공급회선","공급구분","공급사유","상세사유","소요재원\n(물자비)","소요재원\n(공사비)","소요재원\n(경비)","소요재원\n(계)","입주예정","공급시기","요청자","연락처","요청일",
+				 "투자확정 의견","착공의견","반려의견"}; break;
+		//reform
+		case "02" : columnArry = new String[] {"요청번호","진행상태","본부","지사/센터","부서","팀","공급시기","공급구분","공급내역","공급회선","요청자","요청일" }; break;
+		//4p
+		case "03" : columnArry = new String[] {
+				 "문서번호","진행상태","본부","지사/센터","부서","팀","설치주소","우편번호","공급직영여부"
+				,"건물구분","건물형태","건물명/아파트/택지","공급구분","공급사유","상세사유","청약전화번호"
+				,"OSPIA","장비수","선로방식","전원협정여부","전원공사","세대수","시장점유율","공급회선"
+				,"공급장비","소요재원\n(물자비)","소요재원\n(공사비)","소요재원\n(경비)","소요재원\n(계)"
+				,"설치국사","OLT이름","INET-Tie","게이트웨이","서브넷마스크","OLT_IP","OLT등록자소속"
+				,"OLT 등록자","OLT 등록자 연락처","POTS명","MGID","START_LLN","AGW IP"
+				,"IPSec-서버IP","EMS IP","POTS등록자소속"," POTS등록자","POTS등록자 연락처","COLCODE"
+				,"소속","주소","시설 등록자","시설 등록자 연락처","MAC","EPON MAC","MAC등록자소속","MAC등록자","MAC등록자 연락처"
+				,/*"착공일","협력사","공사개요",*/"요청자소속","요청자","요청일","투자확정의견","IP/MAC확정의견"
+				,"MGID확정의견","착공의견","COLCODE확정의견"}; break;
+		
+		default : columnArry=null;
+		}
+		return columnArry;
+	}
+	
+}

@@ -1,0 +1,284 @@
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file Agw4pServiceImplS.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.service.impl;
+
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import kr.co.kt.agwne.dao.BusinessDAO;
+import kr.co.kt.agwne.dao.UserRoleDAO;
+import kr.co.kt.agwne.dao.impl.Agw4pDAOImpl;
+import kr.co.kt.agwne.dto.BusinessVO;
+import kr.co.kt.agwne.dto.ConfirmUserVO;
+import kr.co.kt.agwne.dto.ConstructMemVO;
+import kr.co.kt.agwne.dto.ConstructVO;
+import kr.co.kt.agwne.dto.FacilitiesVO;
+import kr.co.kt.agwne.service.BusinessService;
+import kr.co.kt.common.Attachment;
+import kr.co.kt.common.ParamValidatChk;
+
+@Service("agw4pService")
+public class Agw4pServiceImpl extends ParamValidatChk implements BusinessService {
+	private static final String table_gb = "t_neoss";
+	
+	@Autowired
+	@Qualifier("agw4pDao")
+	private BusinessDAO businessDAO;
+    @Autowired
+    private Attachment attachment;
+	@Autowired
+	@Qualifier("agw4pDao")    
+    private Agw4pDAOImpl agwDAO;
+	@Autowired
+    private UserRoleDAO userRoleDao; 
+
+	@Override
+	public Object t_bs_code(HashMap<String, Object> listCodeInfo) throws Exception {
+		// TODO Auto-generated method stub
+		return businessDAO.t_bs_code(listCodeInfo);
+	}
+	
+	@Override
+	public Object t_bs_model(HashMap<String, Object> listModelInfo) throws Exception {
+		// TODO Auto-generated method stub
+		return businessDAO.t_bs_model(listModelInfo);
+	}
+	
+	@Transactional
+	@Override
+	public int t_bs_reg(BusinessVO bsVO, ConfirmUserVO cfVO, MultipartHttpServletRequest mhsq) throws Exception{
+		String id = bsVO.getInput_id();
+		//정보등록
+		int neoss_no = businessDAO.t_bs_reg(bsVO);
+		
+		//파일업로드
+		attachment.Attachment(mhsq, bsVO.getNeoss_no(), id, table_gb);
+		
+		//승인자 정보 입력
+		String[] user_no_array = cfVO.getUserNo().split(",");
+		List<ConfirmUserVO> cfvoList = new ArrayList<ConfirmUserVO>();
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		for (int i = 0; i < user_no_array.length; i++) {
+			ConfirmUserVO cfVO2 = new ConfirmUserVO();
+			cfVO2.setUser_no(toInteger(user_no_array[i]));
+			cfVO2.setNeoss_no(neoss_no);
+			cfVO2.setAgw_cd(cfVO.getAgw_cd()); // 01:agw 02:reform 03:4p
+			cfVO2.setInput_id(id);
+			cfVO2.setUpdate_id(id);				
+			cfVO2.setStatus_cd("0"+String.valueOf(i+1));
+			cfvoList.add(cfVO2);
+			System.out.println("Agw4pServiceImpl.t_bs_reg()[77]:"+ cfvoList.toString());
+		}
+		map.put("neoss_no", bsVO.getNeoss_no());
+		map.put("list", cfvoList);
+		
+		businessDAO.t_bs_reg_confirm(map);
+/*		//승인자권한등록
+		int j = 1;
+		for (int i = 0; i < no_emp_arry.length; i++) {
+			UserRoleVO userRoleVO = new UserRoleVO();
+			userRoleVO.setUser_id(no_emp_arry[i]);
+			userRoleVO.setErp_job("03");
+			userRoleVO.setAppr_role(String.valueOf(j)); 
+
+			System.out.println("USERROLEVOooooooooooooooooooooooooooooooooooooo"+ userRoleVO.toString());
+			userRoleDao.userRole_update_appr(userRoleVO);
+			j++;
+		}*/
+		
+		
+		return neoss_no;
+	}
+	
+	@Transactional
+	@Override
+	public Object t_bs_modify(BusinessVO bsVO, ConfirmUserVO cfVO, MultipartHttpServletRequest mhsq) throws Exception{
+		int cnt = 0;
+		String id=bsVO.getInput_id();
+		int neoss_no = bsVO.getNeoss_no();
+		businessDAO.t_bs_modify(bsVO);
+		
+		//파일업로드
+		attachment.Attachment(mhsq, bsVO.getNeoss_no(), id, table_gb);
+		
+		//승인자 정보 입력
+		String[] user_no_arry = cfVO.getUserNo().split(",");
+		List<ConfirmUserVO> cfvoList = new ArrayList<ConfirmUserVO>();
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		for (int i = 0; i < user_no_arry.length; i++) {
+			ConfirmUserVO cfVO2 = new ConfirmUserVO();
+			cfVO2.setUser_no(toInteger(user_no_arry[i]));
+			cfVO2.setNeoss_no(neoss_no);
+			cfVO2.setAgw_cd(cfVO.getAgw_cd()); // 01:agw 02:reform 03:4p
+			cfVO2.setInput_id(id);
+			cfVO2.setUpdate_id(id);
+			cfVO2.setStatus_cd("0"+String.valueOf(i+1));
+			
+			cfvoList.add(cfVO2);
+			System.out.println(cfvoList.toString());
+		}
+		map.put("neoss_no", bsVO.getNeoss_no());
+		map.put("list", cfvoList);
+		
+		businessDAO.t_bs_modi_confirm(map);
+		
+		//승인자권한등록
+/*		int j = 1;
+		for (int i = 0; i < no_emp_arry.length; i++) {
+			UserRoleVO userRoleVO = new UserRoleVO();
+			userRoleVO.setUser_id(no_emp_arry[i]);
+			userRoleVO.setErp_job("03");
+			userRoleVO.setAppr_role(String.valueOf(j));
+			System.out.println("USERROLEVOooooooooooooooooooooooooooooooooooooo"+ userRoleVO.toString());
+			userRoleDao.userRole_update_appr(userRoleVO);
+			j++;
+		}*/
+		
+		return cnt;
+		
+	}
+	
+	@Override
+	public Object t_bs_reg_history(BusinessVO bsVO) throws Exception{
+		return businessDAO.t_bs_reg_history(bsVO);
+	}
+	@Override
+	public Object t_bs_list(HashMap<String, Object> listInfo) throws Exception {
+		return businessDAO.t_bs_list(listInfo);
+	}
+	@Override
+	public Object t_bs_list_excel(HashMap<String, Object> listInfo) throws Exception {
+		return businessDAO.t_bs_list_excel(listInfo);
+	}
+	@Override
+	public int t_bs_listCnt(HashMap<String, Object> listInfo) throws Exception {
+	    return businessDAO.t_bs_listCnt(listInfo); 
+	   }	
+	
+	@Override
+	public Object t_bs_list_view(int rstNo) throws Exception {
+		return businessDAO.t_bs_list_view(rstNo);
+	}
+	
+	@Override
+	public List<BusinessVO> t_bs_list_view_hist(int rstNo) throws Exception {
+		return businessDAO.t_bs_list_view_hist(rstNo);
+	}
+
+	@Override
+	public Object t_bs_list_view_hist2(int history_no) throws Exception {
+		return businessDAO.t_bs_list_view_hist2(history_no);
+	}
+	
+	@Override
+	public HashMap<String, Object> t_bs_list_view_hist3(HashMap<String, Integer> paramInfo) throws Exception {
+		return businessDAO.t_bs_list_view_hist3(paramInfo);
+	}
+	
+	@Override
+	public Object t_bs_update(BusinessVO bsVO) throws Exception {
+		return businessDAO.t_bs_update(bsVO);
+	}
+	
+    @Override
+    public int request_prev_no(int rstNo) throws Exception {
+        return businessDAO.request_prev_no(rstNo);
+    }
+
+    @Override
+    public int request_next_no(int rstNo) throws Exception {
+        return businessDAO.request_next_no(rstNo);
+    }
+    
+    @Override
+    public HashMap<String, Integer> request_period_chk() throws Exception {
+    	return businessDAO.request_period_chk();
+    }
+    
+	@Override
+	public int t_construct_reg(ConstructVO csVO, Map<String, Object> paramMap) throws Exception{
+		return businessDAO.t_construct_reg(csVO, paramMap);
+	}
+
+	@Override
+	public int t_construct_modi(ConstructVO csVO, Map<String, Object> paramMap) throws Exception{
+		return businessDAO.t_construct_modi(csVO, paramMap);
+	}
+	@Override
+	public int t_construct_modi_ed(ConstructVO csVO) throws Exception{
+		return businessDAO.t_construct_modi_ed(csVO);
+	}
+	@Override
+	public ConstructVO t_construct_view(int rstNo) throws Exception {
+		return businessDAO.t_construct_view(rstNo);
+	}
+
+/*	@Override
+	public  List<HashMap<String, String>> t_construct_mem(int const_no) throws Exception {
+		return businessDAO.t_construct_mem(const_no);
+	}*/
+	@Override
+	public  List<ConstructMemVO> t_construct_mem(int const_no) throws Exception {
+		return businessDAO.t_construct_mem(const_no);
+	}
+	@Override
+	public int t_bs_del(int neoss_no) throws Exception{
+		return businessDAO.t_bs_del(neoss_no);
+	}
+
+	@Override
+	public int t_construct_stat_change(Map<String, Object> paramMap) throws Exception {
+		return businessDAO.t_construct_stat_change(paramMap);
+	}
+
+	@Override
+	public List<HashMap<String, Object>> t_bs_pots(String no_emp) throws Exception {
+		return businessDAO.t_bs_pots(no_emp);
+	}
+
+	@Override
+	public int t_bs_reg_confirm(HashMap<String, Object> cfVO) throws Exception {
+		return businessDAO.t_bs_reg_confirm(cfVO);
+	}
+
+	@Override
+	public List<HashMap<String, Object>> t_bs_ipsec() throws Exception {
+		return businessDAO.t_bs_ipsec();
+	}
+
+	@Override
+	public List<HashMap<String, Object>> t_bs_emsIp() throws Exception {
+		return businessDAO.t_bs_emsIp();
+	}
+	
+	public FacilitiesVO selectFacilities(HashMap<String, Object> map) {
+		return agwDAO.selectFacilities(map);
+	}
+
+}

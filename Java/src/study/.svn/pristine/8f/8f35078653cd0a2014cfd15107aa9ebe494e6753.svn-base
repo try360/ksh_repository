@@ -1,0 +1,15 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<script type="text/javascript">
+$(function(){
+	parent.document.location.reload();
+});
+</script>
+<body>
+<p>Refresh Paging!</p>
+</body>
+</head>
+</html>

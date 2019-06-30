@@ -1,0 +1,21 @@
+@charset "EUC-KR";
+
+.listTable td.h100 {
+	height: 100px !important;
+}
+
+.writeTable td p {
+	margin: 0;
+	padding-bottom: 5px;
+	font-family: "malgunGothic";
+	font-size: 9pt;
+	color: #e24c01;
+}
+
+.listTable tbody tr.notice {
+	background-color: #f7f7ec;
+}
+
+.listTable tbody tr.notice .ui-icon {
+	background-image: url('/resources/js/jquery-ui-1.12.1.custom/images/ui-icons_cc0000_256x240.png');
+}

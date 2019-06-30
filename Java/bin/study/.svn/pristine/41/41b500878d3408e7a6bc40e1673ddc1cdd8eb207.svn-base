@@ -1,0 +1,41 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AGW-Ne 공지사항</title>
+    <script src="/resources/js/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="/resources/css/common.css">
+    <link rel="stylesheet" href="/resources/css/include.css">
+    <script src="/resources/js/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
+    <link rel="stylesheet" href="/resources/js/jquery-ui-1.12.1.custom/jquery-ui.css">
+    <script src="/resources/js/common.js" charset="utf-8"></script>
+    <script src="/resources/js/include.js" charset="utf-8"></script>
+</head>
+<body>
+<div id="popNoticeWrap">
+    <h1>AGW-Ne 화면 깨짐 현상<br><span>NOTICE</span></h1>
+
+    <div id="content">
+        <h3><img src="/resources/img/internetexplorer9_icon.png" alt="Internet Explorer" /><em>Internet Explorer</em> 이용시 아래와 같이 조치 후 사용 부탁드립니다.</h3>
+
+        <div id="conList">
+            <h4>임시조치 방법</h4>
+            <ul>
+                <li>첨부파일을 다운 받아 압축 해제.</li>
+                <li><em>kt_sitelist.xml</em> 파일을 <u>C:\폴더</u>에 복사.<br>(기존파일 덮어쓰기)</li>
+                <li><em>PC 재부팅</em> 후 접속시 정상 이용 가능.</li>
+            </ul>
+            <p>※ 첨부파일 다운로드는 <a href="/resources/upload/public/kt_sitelist_20180911.zip">여기</a>를 클릭해 주세요.</p>
+            <p>- <b>해당 사이트 이용은 구글 크롬(Chrome) 브라우저 사용을 권고 드립니다.</b></p>
+            <p>- 문의사항 및 불편사항은 게시판 > QnA를 이용 부탁드립니다.<br>감사합니다.</p>
+        </div>
+    </div>
+
+    <div id="bottom">
+        <div id="left"><input type="checkbox" id="todayNotOpen" onclick="closeWinAt00('ie_notice', 1); " /> <label for="todayNotOpen">오늘 하루 이창을 열지 않음.</label></div>
+        <div id="right"><span class="ui-icon ui-icon-close"></span><a href="#" onclick="window.close();">닫기</a></div>
+    </div>
+</div>
+</body>
+</html>

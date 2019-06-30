@@ -1,0 +1,158 @@
+$(function(){
+    $("select[name=recordsPerPage]").change(function(){
+    	var f = $(this).closest("form");
+        f.submit();
+    });
+
+	$(".cancelBtn").css("cursor", "pointer");
+	$(".cancelBtn").click(function(){
+		if (confirm("등록을 취소하시겠습니까?")) {
+			$("#noticeWriteForm").reset();
+			$("#title").focus();
+		}
+	});
+	$("aside ul li").removeClass("active")
+	if (bbs_gb == "N") {
+		$("aside ul li:eq(0)").addClass("active");
+	} else if(bbs_gb == "D") {
+		$("aside ul li:eq(1)").addClass("active");
+	} else if(bbs_gb == "Q") {
+		$("aside ul li:eq(2)").addClass("active");
+	}
+	
+	$("#attachList .ui-icon-close").css("cursor", "pointer");
+	$("#attachList .ui-icon-close").click(function(){
+		if (confirm("해당 파일을 삭제하시겠습니까?")){
+			var attach_no = $(this).attr("data");
+			var li = $(this).parent();
+			console.log(attach_no);
+			$.ajax({
+				url : "filedel",
+				data : {
+					'attach_no' : attach_no
+				},
+				type : "post",
+				success : function(result) {
+					console.log(result);
+					if (result == "SUCCESS") {
+						li.remove();
+					} else {
+						alert("오류가 발생하였습니다. 다시 시도해 주세요.");
+						return;
+					}
+				},
+				error : function(result) {
+					alert("삭제실패실패!");
+					return;
+				}
+			});
+			console.log("delete close");
+		} else {
+			return false;
+		}
+	});
+	$("#replyCancel_btn").css("cursor", "pointer");
+	$("#replyCancel_btn").click(function(){
+		if (confirm("등록을 취소하시겠습니까?")){
+			var f = $(this).closest("form");
+			f.reset();
+			$("#reply_write_contents").focus();
+		}
+	});
+	
+	$(".replyDel").css("cursor", "pointer");
+	$(".replyDel").click(function(){
+		if (confirm("해당 댓글을 삭제하시겠습니까?")){
+			var data = $(this).attr("data");
+			var dl = $(this).parents("dl");
+//			console.log(dl.html());
+			$.ajax({
+				url : "reply_del",
+				data : {
+					'reply_no' : data
+				},
+				type : "post",
+				success : function(result) {
+					console.log(result);
+					if (result == "SUCCESS") {
+						dl.remove();
+					} else {
+						alert("오류가 발생하였습니다. 다시 시도해 주세요.");
+						return;
+					}
+				},
+				error : function(result) {
+					alert("삭제실패실패!");
+					return;
+				}
+			});
+		} else {
+			return false;
+		}
+	})
+});
+
+function reply_del_ready(obj){
+	// 삭제 프로그램
+	$("#dialog_contents").find('p').remove();
+	$("#dialog_contents").append('<p>&nbsp;&nbsp;삭제하시겠습니까?</p>');
+	$("#dialog_contents").attr('class', 'replyDelete'); //알림창구분자 추가
+	$("#dialog_contents").attr('name', $(obj).attr('id')); //알림창구분자 추가
+	$("#dialog_contents").dialog( "open" );
+	event.preventDefault();
+	// NODE 삭제
+}
+
+/**
+ *   contents.jsp
+ *   게시글 삭제 확인 
+ */
+function goDel(msg) {
+	if (confirm(msg)) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**
+ *   contents.jsp
+ *   댓글 삭제 josn 데이터 던진후 dl 창 리무브
+ */
+function replyDel(int){
+	$.ajax({
+        url : "/reply/reply_del.do",
+        data : {
+            'reply_no' : int
+        },
+        type : "post",
+        success : function(result) {
+               $("#replyData"+int).remove();
+        },
+        error : function(result) {
+            alert("삭제실패실패!" + "리플넘버" + reply_no);
+        }
+    });
+}
+
+
+
+function Request(){
+	var requestParam = "";
+	
+	this.getParameter = function (param){
+		var url = unescape(location.href);
+		var paramArr = (url.substring(url.indexOf("?")+1, url.length)).split("&");
+		
+		for (var i=0; i<paramArr.length; i++){
+			var temp = paramArr[i].split("=");
+			if(temp[0].toUpperCase() == param.toUpperCase()){
+				requestParam = paramArr[i].split("=")[1];
+				break;
+			}
+		}
+		return requestParam;
+	}
+}
+	
+	

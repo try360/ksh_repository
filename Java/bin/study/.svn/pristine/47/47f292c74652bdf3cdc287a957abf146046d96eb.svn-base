@@ -1,0 +1,24 @@
+package kr.co.kt.agwne.dao;
+
+import java.util.HashMap;
+
+import javax.validation.Valid;
+
+import kr.co.kt.agwne.dto.ModelInfoVO;
+import kr.co.kt.agwne.dto.data.NeossData;
+
+public interface NeossDAO {
+
+	void t_bs_modify(@Valid NeossData neossVO);
+
+	int t_bs_reg(@Valid NeossData neossVO);
+
+	void insert_inettie(ModelInfoVO infoVO);
+
+	void update_inettie(ModelInfoVO infoVO);
+
+	Object select_inettie(int neoss_no);
+
+	void insert_confirm_temp(HashMap<String, Object> map);
+
+}

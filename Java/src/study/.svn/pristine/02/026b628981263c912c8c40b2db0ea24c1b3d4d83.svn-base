@@ -1,0 +1,157 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+<%@ taglib prefix="custom" uri="/tags/custom-taglib" %> 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<script type="text/javascript">
+var pageGb = "${pageGb}";
+var agw_cd = "${agw_cd}";
+var business_cd ="${business_cd}";
+</script>
+<link rel="stylesheet" type="text/css" href="/resources/css/manage.css">
+<script src="/resources/js/manage.js" charset="UTF-8"></script>
+<script>
+/* 코드 삭제 확인 확인  현재 메세지 두개 보내는거 할줄 몰라서 여기에 남겨둠*/
+function goExceptionDel(msg) {
+	var checkRow = ""
+	$("input[name='checkRow']:checked").each(function() {
+		checkRow = checkRow + $(this).val() + "@";
+	});
+	checkRow = checkRow.substring(0, checkRow.lastIndexOf("@"));
+	if (checkRow == '') {
+		alert("<spring:message code='del.necessary' />");
+		return false;
+	}
+	if (confirm(msg)) {
+		return true;
+	} else {
+		return false;
+	}
+}
+</script>
+</head>
+<body>
+<%@ include file = "/resources/inc/header_nav.jsp" %>
+<%@ include file = "/resources/inc/aside.jsp" %>
+<section>
+    <h1 class="req">운용 관리</h1>
+    <div class="contents_form"> 
+        <!-- 타이틀, 경로 -->
+        <div class="divDocTitle">수요 입력 기간 설정</div>
+        
+        <div class="searchArea">
+            <form name="searchForm" method="get" action="period?bbs_gb=${bbs_gb}">
+            <fieldset>
+            <legend>검색폼</legend>
+        	<select id="agw_cd" name="agw_cd">
+        		<option value="B">광전화</option>
+        		<option value="R">Reform-AGW</option>
+        		<option value="4">4P-AGW</option>        		
+        	</select>
+        	<select id="business_cd" name="business_cd" >
+	            <c:forEach var="codeVO" items="${codeList}" varStatus="status"  >
+	            <option value="${codeVO.code}">${codeVO.code_nm}</option>
+	            </c:forEach>  
+            </select>
+        	</fieldset>
+            </form>
+        </div>
+        
+        <form name="periodForm" id="periodForm" method="post" action="period_reg">
+        <fieldset>
+        <legend>등록폼</legend>
+        <input type="hidden" name="agw_cd" value="${agw_cd }" />
+        <input type="hidden" name="business_cd" value="${business_cd }" /> 
+        <table class="writeTable" border="0" cellspacing="0" cellpadding="0">
+       		<tbody>
+       		<tr>
+       			<th>적용 여부</th>
+       			<td>
+       				<select id="notify_yn" name="notify_yn">
+			            <option value="true">수요입력가능</option>
+			            <option value="false">수요입력불가</option>
+		            </select>
+       			</td>
+       		</tr>
+       		<tr>
+       			<th>수요 입력 기간</th>
+       			<td>
+       				<c:if test="${not empty periodVO }">
+		            	<c:forEach var="periodVO" items="${periodVO }" varStatus="status">
+		            	<input type="hidden" name="period_no${status.index+1 }" id="office_no" value="${periodVO.period_no }">
+		            	${status.index+1 }분기 <input type="text" class="datepicker" id="${status.index + 1 }from" name="form${status.index + 1 }" value="${periodVO.start_date }">
+		            	~ <input type="text" class="datepicker" id="${status.index + 1 }to" name="to${status.index + 1 }" value="${periodVO.end_date }"><br>
+		            	</c:forEach>
+		            </c:if>
+		            <c:if test="${empty periodVO }">
+			            1분기 <input type="text" class="datepicker" id="1from" name="form1" > ~ <input type="text" class="datepicker" id="1to" name="to1" > <br>
+			            2분기 <input type="text" class="datepicker" id="2from" disabled="disabled" name="form2" > ~ <input type="text" class="datepicker" id="2to" name="to2" > <br>
+			            3분기 <input type="text" class="datepicker" id="3from" disabled="disabled" name="form3" > ~ <input type="text" class="datepicker" id="3to" name="to3" > <br>
+			            4분기 <input type="text" class="datepicker" id="4from" disabled="disabled" name="form4" > ~ <input type="text" class="datepicker" id="4to" name="to4" > <br>
+		            </c:if>
+       			</td>
+       		</tr>
+       		</tbody>
+       	</table>
+       	<div class="bottomArea">
+       		<div class="btnArea">
+       			<input type="image"  id="btnRegistPeriod" src="/resources/img/btn_regist.gif" alt="등록" style="display:block" />
+		    	<input type="image"  id="btnUpdatePeriod" src="/resources/img/btn_modify.gif" alt="수정" style="display:none"  />
+       		</div>
+       	</div>
+        </form>
+		<!-- 타이틀, 경로 -->
+        <div class="divDocTitle">수요 입력 기간 예외자</div>
+		<form name="delForm" method="post" action="exception_del.do">
+		<fieldset>
+		<legend>리스트</legend>
+			<table class="listTable" id="listTable" border="0" cellpadding="0" cellspacing="0">
+				<thead>
+					<tr>
+						<th width="60"><input type="checkbox" name="checkAllName" id="th_checkAll" onclick="checkAll();" /></th>
+						<th width="100">사원명</th>
+						<th>조직</th>
+						<th width="300">지역</th>
+						<th width="100">요청구분</th>
+					</tr>
+				</thead> 
+				<tbody>
+					<c:choose>
+						<c:when test="${not empty exceptionList}">
+							 <c:forEach var="exceptionVO" items="${exceptionList}" varStatus="status">
+								<tr id="row-1-1" class="selectList">
+									<td><input type="checkbox" name="checkRow" value="${exceptionVO.exception_no}" /></td>
+									<td>${exceptionVO.user_id}</td>
+									<td class="left">현재 조직값 없음</td>
+									<td>현재 지역값 없음</td>
+									<c:if test="${exceptionVO.business_cd eq '00'}"><td>신증설/돌발</td></c:if>
+								    <c:if test="${exceptionVO.business_cd eq '01'}"><td>신증설</td></c:if>
+								    <c:if test="${exceptionVO.business_cd eq '02'}"><td>돌발</td></c:if>
+								</tr>
+							</c:forEach> 
+						</c:when>
+						<c:when test="${empty exceptionList}">
+							<tr>
+								<td colspan="5" class="h100">"검색된 결과가 없습니다"</td>
+							</tr>
+						</c:when>
+					</c:choose>
+				</tbody>
+			</table>
+			<div class="bottomArea">
+	       		<div class="btnArea">
+	       			<a onclick="return goExceptionDel('<spring:message code="exception.del" />');"><input type="image" src="/resources/img/btn_delete.gif" alt="삭제" > </a>
+	       			<input type="image"  id="btnRegistPeriod" src="/resources/img/btn_regist.gif" alt="등록" />
+			    	<input type="image"  id="btnUpdatePeriod" src="/resources/img/btn_modify.gif" alt="수정" />
+	       		</div>
+	       	</div>
+   		</fieldset>
+   		</form>
+	</div>
+</section>
+<%@ include file = "/resources/inc/footer.jsp" %>
+</body>
+</html>

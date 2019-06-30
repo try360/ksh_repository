@@ -1,0 +1,860 @@
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file ManageController.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.web;
+
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.co.kt.agwne.dto.CodeVO;
+import kr.co.kt.agwne.dto.CostVO;
+import kr.co.kt.agwne.dto.EmailVO;
+import kr.co.kt.agwne.dto.ModelVO;
+import kr.co.kt.agwne.dto.OfficeVO;
+import kr.co.kt.agwne.dto.SearchVO;
+import kr.co.kt.agwne.dto.UserInfoVO;
+import kr.co.kt.agwne.service.CodeService;
+import kr.co.kt.agwne.service.CostService;
+import kr.co.kt.agwne.service.EmailService;
+import kr.co.kt.agwne.service.ModelService;
+import kr.co.kt.agwne.service.OfficeService;
+import kr.co.kt.agwne.service.PeriodService;
+import kr.co.kt.common.ParamValidatChk;
+
+@Controller
+@RequestMapping("/manage")
+public class ManageController extends ParamValidatChk {
+	private static final Logger logger = LoggerFactory.getLogger(ManageController.class);
+	
+    @Inject
+    private ModelService modelService;
+    @Inject
+    private CostService costService;
+    @Inject
+    private CodeService codeService;
+    @Inject
+    private PeriodService periodService;
+    @Inject
+    private OfficeService officeService;
+    @Inject
+    private EmailService emailService;
+
+    
+    private String pageGb = "cost";
+    
+    /*
+     * 작성자: 이상준 작성일: 기능: 비용관리 화면이동
+     */
+    @RequestMapping(value = "/cost", method = RequestMethod.GET)
+    public String cost(
+    		  Model model
+    		, @ModelAttribute ModelVO modelVO
+    		, @RequestParam(value="searchModel", required=false, defaultValue="") String searchModel) throws Exception {
+    	pageGb = "cost";
+    	
+    	if (modelVO.getAgw_cd() == null || modelVO.getAgw_cd() == "") {
+    		modelVO.setAgw_cd("01");
+    	}
+    	HashMap<String, String> searchMap = new HashMap<>();
+		searchMap.put("agw_cd", modelVO.getAgw_cd());
+		searchMap.put("searchModel", searchModel);
+		
+		model.addAttribute("pageGb", pageGb);
+		model.addAttribute("modelList", costService.selectModel(modelVO.getAgw_cd()));
+		model.addAttribute("modelListAll", costService.selectModelAll(modelVO.getAgw_cd()));
+		model.addAttribute("costList", costService.selectAll(searchMap));
+		model.addAttribute("search", searchMap);
+		
+		return "/manage/cost";
+    }
+    
+    /*
+     * 작성자: 이상준 작성일: 기능: 비용 등록
+     */
+    @RequestMapping(value = "/cost_reg", method = RequestMethod.POST)
+    public String cost_reg( @ModelAttribute CostVO costVO
+    		, HttpSession session
+    		, @RequestParam(value="searchModel", required=false, defaultValue="") String searchModel) throws Exception {
+		
+        costVO.setUpdate_id(getUserId(session));
+        costVO.setInput_id(getUserId(session));
+        
+        if (costVO.getCost_no() > 0) {
+        	costService.update(costVO);
+        } else {
+        	costService.cost_reg(costVO);
+        }
+        
+        return "redirect:/manage/cost?agw_cd="+ costVO.getAgw_cd() +"&searchModel="+ URLEncoder.encode(searchModel, "EUC-KR");
+    }
+    
+    @RequestMapping(value="/cost_del", method = RequestMethod.GET)
+    public String cost_del(@ModelAttribute CostVO costVO
+    		, HttpSession session) throws UnsupportedEncodingException {
+    	
+    	costVO.setUpdate_id(getUserId(session));
+    	costService.delete(costVO);
+    	
+    	return "redirect:/manage/cost?agw_cd="+ costVO.getAgw_cd() +"&model_cd="+ URLEncoder.encode(costVO.getModel_cd(), "EUC-KR");
+    }
+    
+    /*
+     * 작성자: 이상준 작성일: 기능: 코드 등록
+     */
+    @RequestMapping(value = "/code_reg", method = RequestMethod.POST)
+    public String code_rdg(
+    		  HttpServletResponse response
+    		, @ModelAttribute CodeVO codeVO
+    		, HttpSession session) throws Exception {
+       
+        // 기존 코드가 존재하는지 확인
+        int checkResult = codeService.code_check(codeVO);
+        if (checkResult > 0) {
+        	response.setCharacterEncoding("EUC-KR");
+            PrintWriter writer = response.getWriter();
+            writer.println("<script type='text/javascript'>");
+            writer.println("alert('사업코드가 중복 되었습니다. 다시 입력해 주세요.');");
+            writer.println("history.back();");
+            writer.println("</script>");
+            writer.flush();
+            return null;
+         }
+    	
+        codeVO.setCode(getParam(codeVO.getCode()));
+        codeVO.setCode_nm(getParam(codeVO.getCode_nm()));
+        codeVO.setCode_gb(getCodegb(codeVO.getColumn_nm()));
+        codeVO.setUpdate_id(getUserId(session));
+        if (codeVO.getCode_no() == 0) {
+        	codeVO.setInput_id(getUserId(session));
+        	codeService.code_reg(codeVO);
+        } else {
+        	codeService.code_update(codeVO);
+        }
+        
+        return "redirect:/manage/code?agw_cd="+ codeVO.getAgw_cd() +"&column_nm="+ codeVO.getColumn_nm();        
+    }
+    
+    @RequestMapping(value = "/code_array", method=RequestMethod.POST)
+    public @ResponseBody String code_array(@RequestParam(value="t_code[]", required=true) String[] codeNo
+    		, HttpSession session) {
+    	
+    	CodeVO vo = new CodeVO();
+//    	vo.setUpdate_id(getUserId(session));
+    	int cnt = 0;
+    	for (int i=0; i<codeNo.length; i++) {
+    		if (isNumeric(codeNo[i])) {
+    			int code_no = toInteger(codeNo[i]);
+    			if (code_no == 0 ) {
+    				break;
+    			} else {
+    				vo.setCode_no(code_no);
+    				vo.setSeq(i+1);
+    				
+    				cnt += codeService.codeArray(vo);    		
+    			}
+    		}
+    	}
+    	
+    	String result;
+    	if (codeNo.length != cnt) {
+    		logger.debug("code_no.length="+ codeNo.length +";cnt="+ cnt);
+    		result = "ERR";
+    	} else {
+    		result = "OK";
+    	}
+    	return result;
+    }
+
+    @RequestMapping(value = "/model_array", method=RequestMethod.POST)
+    public @ResponseBody String model_array(@RequestParam(value="t_model[]", required=true) String[] codeNo
+    		, HttpSession session) {
+    	
+    	ModelVO vo = new ModelVO();
+//    	vo.setUpdate_id(getUserId(session));
+    	int cnt = 0;
+    	for (int i=0; i<codeNo.length; i++) {
+    		if (isNumeric(codeNo[i])) {
+    			int model_no = toInteger(codeNo[i]);
+    			if (model_no == 0 ) {
+    				break;
+    			} else {
+    				vo.setModel_no(model_no);
+    				vo.setSeq(i+1);
+    				
+    				cnt += modelService.modelArray(vo);    		
+    			}
+    		}
+    	}
+    	
+    	String result;
+    	if (codeNo.length != cnt) {
+    		logger.debug("code_no.length="+ codeNo.length +";cnt="+ cnt);
+    		result = "ERR";
+    	} else {
+    		result = "OK";
+    	}
+    	return result;
+    }
+
+    /*
+     * 작성자: 이상준 작성일: 기능: 게시판 코드 목록, 검색
+     */
+    @RequestMapping(value = "/code", method = RequestMethod.GET)
+    public String code_list(
+    		  Model model
+    		, @ModelAttribute CodeVO codeVO) throws Exception {
+    	pageGb = "code";
+    	
+    	if (isEmpty(codeVO.getAgw_cd())) {
+    		codeVO.setAgw_cd("01");
+    	}
+    	if (isEmpty(codeVO.getColumn_nm())) {
+    		codeVO.setColumn_nm("buildshape_cd");
+    	}
+        
+        model.addAttribute("codeList", codeService.code_list(codeVO));
+        model.addAttribute("searchVO", codeVO);
+        model.addAttribute("pageGb", pageGb);
+        
+        return "/manage/code";
+    }
+
+    /*
+     * 작성자: 이상준 작성일: 기능: 게시판 코드 삭제
+     */
+    @RequestMapping(value = "/code_del", method = RequestMethod.GET)
+    public String code_del(
+    		  @ModelAttribute CodeVO codeVO
+    		, HttpSession session) throws Exception {
+    	
+    	codeVO.setUpdate_id(getUserId(session));
+        codeService.code_del(codeVO);
+        
+        return "redirect:/manage/code?agw_cd="+ codeVO.getAgw_cd() +"&column_nm="+ codeVO.getColumn_nm();
+    }
+
+    /*
+     * 작성자: 이상준 작성일: 기능: 수요입력기간 목록, 검색
+     */
+//    @RequestMapping(value = "/period", method = RequestMethod.GET)
+//    public String period_list(
+//    		  @ModelAttribute PeriodVO periodVO
+//    		, Model model) throws Exception {
+//    	pageGb = "period";
+//    	
+//        if(periodVO.getAgw_cd() == null) {
+//            periodVO.setAgw_cd("B");
+//         }
+//         if(periodVO.getBusiness_cd() == null) {
+//             periodVO.setBusiness_cd("01");
+//          }
+//        String agw_cd = periodVO.getAgw_cd();
+//        String business_cd = periodVO.getBusiness_cd();
+//       
+//        model.addAttribute("agw_cd", agw_cd);
+//        model.addAttribute("business_cd", business_cd);
+//         
+//        //수요요청 구분 가져오기
+//        model.addAttribute("codeList", periodService.code_list());
+//        //수요입력기간 가져오기
+//        model.addAttribute("periodVO", periodService.period_list(periodVO));
+//        //예외자 가져오기
+//        model.addAttribute("exceptionList", periodService.exception_list(periodVO));
+//        model.addAttribute("pageGb", pageGb);
+//        
+//        return "/manage/period";
+//    }
+    
+    /*
+     * 작성자: 이상준 작성일: 기능: 수요입력기간 등록, 업데이트, 검색
+     * 업데이트시 기존항목 del_yn으로 만든후 재입력
+     */
+//    @RequestMapping(value = "/period_reg", method = RequestMethod.POST)
+//    public String period_reg(
+//    		  @ModelAttribute PeriodVO periodVO
+//    		, HttpSession session ) throws Exception {
+//       
+//        //수요입력기간 등록
+//        
+//         //1. 수요입력기간 시작날짜 배열
+//         //2. 수요입력기간 종료 날짜 배열
+//         //3. 각 페리오드 넘버 배열       
+//         Object[] formArr = new Object[4];
+//         Object[] toArr   = new Object[4];   
+//         Object[] periodArr   = new Object[4];  
+//         
+//         //1~4 분기의 시작 입력 날짜 배열에 넣어주기
+//         formArr[0] = periodVO.getForm1();
+//         formArr[1] = periodVO.getForm2();
+//         formArr[2] = periodVO.getForm3();
+//         formArr[3] = periodVO.getForm4();
+//         
+//         //1~4 분기의 종료 입력 날짜 배열에 넣어주기
+//         toArr[0] = periodVO.getTo1();
+//         toArr[1] = periodVO.getTo2();
+//         toArr[2] = periodVO.getTo3();
+//         toArr[3] = periodVO.getTo4();
+//         
+//         //1~4 분기의 페이오드 넘버 배열에 넣어주기
+//         periodArr[0] = periodVO.getPeriod_no1();
+//         periodArr[1] = periodVO.getPeriod_no2();
+//         periodArr[2] = periodVO.getPeriod_no3();
+//         periodArr[3] = periodVO.getPeriod_no4();
+//         
+//         //현재 날짜 가져오기
+//         Date now = new Date();
+//         SimpleDateFormat yyyy = new SimpleDateFormat("yyyy");
+//         String year = yyyy.format(now);
+//         //올해의 년 4자리만 인트로 변화하여 넣어주기
+//         int yearInt = toInteger(year);
+//         
+//         // 현재 날짜와 Arr에 들어있는 날짜를 비교해 작년-1 현재 0 미래 1로 변환 하여 1~4분기 총 4번을 등록
+//         for(int i=0; i<4; i++) {
+//            // 현재의 분기를 세팅
+//            int quarter = i+1;
+//            periodVO.setQuarter(quarter+"");
+//            //form배열의 시작년도만 분리
+//            String formYear = ((String) formArr[i]).substring(0,4);
+//            int formInt = toInteger(formYear);
+//            //현재 날짜와 비교하여 작년이면 -1 현재 년도면 0 내년이면 1로 세팅
+//            int startYear= formInt-yearInt;
+//            periodVO.setStart_year(startYear);
+//            // 종료 년도 등록
+//            String toYear = ((String) toArr[i]).substring(0,4);
+//            int toInt = toInteger(toYear);
+//            int endYear= toInt-yearInt;
+//            periodVO.setEnd_year(endYear);
+//            // 시작 날짜 등록
+//            String startDt = ((String) formArr[i]).substring(5,10);
+//            periodVO.setStart_dt(startDt);
+//            // 종료 날짜 등록
+//            String endDt = ((String) toArr[i]).substring(5,10);
+//            periodVO.setEnd_dt(endDt);
+//            
+//            periodVO.setUpdate_id(getUserId(session));
+//            periodVO.setInput_id(getUserId(session));
+//            // 등록
+//            int period_no = (int) (periodArr[i]);
+//            periodVO.setPeriod_no(period_no);
+//            
+//            //페리오드 존재하는 페리오드넘버가 없다면 등록 존재한다면 업데이트 
+//            if(periodVO.getPeriod_no() == 0) {
+//                periodService.period_reg(periodVO);
+//            }
+//            else {
+//                periodService.period_update(periodVO);
+//            }
+//         }
+//        return "redirect:/manage/period?agw_cd="+ periodVO.getAgw_cd() +"&business_cd="+ periodVO.getBusiness_cd();
+//    }
+    
+    /*
+     * 작성자: 이상준 작성일: 기능: 예외자 삭제
+     */
+//    @RequestMapping(value = "/exception_del.do")
+//    public String exception_del(@RequestParam String[] checkRow, ExceptionVO exceptionVO, HttpSession session) throws Exception {
+//        exceptionVO.setUpdate_id(session.getAttribute("user_id").toString());
+//        if (checkRow != null && checkRow.length > 0) {
+//            for (int i = 0; i < checkRow.length; i++) {
+//                int exception_no = Integer.parseInt(checkRow[i]);
+//                exceptionVO.setException_no(exception_no);
+//                periodService.exception_del(exceptionVO);
+//            }
+//        }
+//    return "redirect:/manage/period";
+//    }
+    
+    /*
+     * 작성자: 이상준 작성일: 기능: 코드 등록
+     */
+    @RequestMapping(value = "/model_reg", method = RequestMethod.POST)
+    public String model_rdg(
+    		  HttpServletResponse response
+    		, @ModelAttribute ModelVO modelVO
+    		, @RequestParam(value = "searchTxt", required = false, defaultValue = "") String searchTxt
+    		, HttpSession session) throws Exception {
+    	// 기존 코드가 존재하는지 확인
+    	boolean checkResult = modelService.model_check(modelVO);
+    	if (checkResult) {
+    		response.setCharacterEncoding("EUC-KR");
+            PrintWriter writer = response.getWriter();
+            writer.println("<script type='text/javascript'>");
+            writer.println("alert('기존에 존재하는 모델코드입니다. 모델코드를 확인해 주세요.');");
+            writer.println("history.back();");
+            writer.println("</script>");
+            writer.flush();
+            return null;    		
+    	}
+    	
+        modelVO.setUpdate_id(getUserId(session));
+        
+        if (modelVO.getModel_no() == 0) {
+        	modelVO.setInput_id(getUserId(session));
+        	modelService.model_reg(modelVO);
+        } else {
+        	modelService.model_update(modelVO);
+        }
+        return "redirect:/manage/model?agw_cd="+ modelVO.getAgw_cd() +"&searchTxt="+ URLEncoder.encode(searchTxt, "EUC-KR");
+     }
+
+    /*
+     * 작성자: 이상준 작성일: 기능: 게시판 코드 목록, 검색
+     */
+    @RequestMapping(value = "/model", method = RequestMethod.GET)
+    public String model_list(
+    		  Model model
+    		, @RequestParam(value = "searchTxt", required = false, defaultValue = "") String searchTxt
+    		, @ModelAttribute ModelVO vo) throws Exception {
+    	
+    	pageGb = "model";
+    	
+    	String agw_cd = vo.getAgw_cd();
+    	if (isEmpty(agw_cd)) {
+    		vo.setAgw_cd("01");
+    	} else {
+    		if (!agw_cd.equals("01") && !agw_cd.equals("02") && !agw_cd.equals("03")) {
+    			vo.setAgw_cd("01");
+    		}
+    	}
+    	
+        HashMap<String, Object> listInfo = new HashMap<String, Object>();
+        listInfo.put("searchTxt", searchTxt);
+        listInfo.put("agw_cd", vo.getAgw_cd());
+        
+        model.addAttribute("modelList", modelService.model_list(listInfo));
+        model.addAttribute("searchVO", listInfo);
+        model.addAttribute("pageGb", pageGb);
+        
+        return "/manage/model";
+    }
+
+    /*
+     * 작성자: 이상준 작성일: 기능: 게시판 코드 삭제
+     */
+   @RequestMapping(value = "/model_del", method = RequestMethod.GET)
+    public String model_del(
+    		  HttpServletResponse response
+    		, @ModelAttribute ModelVO vo
+    		, @RequestParam(value = "searchTxt", required = false, defaultValue = "") String searchTxt) throws Exception {
+	   String result = "";
+	   String modelNo = vo.getModel_no() + "";
+	   if (!isEmpty(modelNo)) {
+		   if (isNumeric(modelNo)) {
+			   int model_no = toInteger(modelNo);
+			   if (model_no > 0) {
+				   modelService.model_del(model_no);
+			   } else {
+				   result = "minus";
+			   }
+		   } else {
+			   result = "notnum";
+		   }
+	   } else {
+		   result = "required";
+	   }
+	   
+	   if (!result.equals("")) {
+	   		response.setCharacterEncoding("EUC-KR");
+	        PrintWriter writer = response.getWriter();
+	        writer.println("<script type='text/javascript'>");
+	        writer.println("alert('유효한 값을 입력해 주세요.');");
+	        writer.println("history.back();");
+	        writer.println("</script>");
+	        writer.flush();
+	        return null;    				   
+	   }
+	   
+        return "redirect:/manage/model?agw_cd="+ vo.getAgw_cd() +"&searchTxt="+ URLEncoder.encode(searchTxt, "EUC-KR");
+    }
+
+   /*
+    * 작성자: 이상준 작성일: 기능: 코드 등록
+    */
+//   @RequestMapping(value = "/office_reg", method = RequestMethod.POST)
+//   public String office_reg(
+//		     HttpServletResponse response
+//		   , @ModelAttribute OfficeVO officeVO
+//		   , HttpSession session) throws Exception {
+//       response.setCharacterEncoding("EUC-KR");
+//       PrintWriter writer = response.getWriter();
+//       officeVO.setOffice_nm(officeVO.getOffice_nm().replace("<", "&lt;").replace(">", "&gt"));
+//       
+//    // 기존 코드가 존재하는지 확인
+//       boolean checkResult = officeService.office_check(officeVO);
+//       officeVO.setOffice_cd(officeService.office_cd_get(officeVO));
+//       
+//       if (checkResult == false) {
+//           if (officeVO.getOffice_no() > 0) {
+//               officeVO.setUpdate_id(getUserId(session));
+//               officeService.office_update(officeVO);
+//               return "redirect:/manage/office";
+//           }else {
+//               officeVO.setInput_id(getUserId(session));
+//               officeService.office_reg(officeVO);
+//               return "redirect:/manage/office";
+//           }
+//       }else {
+//           writer.println("<script type='text/javascript'>");
+//           writer.println("alert('기존에 존재하는 오피스명과 브런치명 입니다. 오피스명과 브런치명을 확인해주세요.');");
+//           writer.println("history.back();");
+//           writer.println("</script>");
+//           writer.flush();
+//       }
+//        return null;
+//    }
+
+   /*
+    * 작성자: 이상준 작성일: 기능: 게시판 코드 목록, 검색
+    */
+//   @RequestMapping(value = "/office")
+//   public String office_list(Model model, 
+//           @RequestParam(value = "currentPage", required = false, defaultValue = "1") String currentPage,
+//           @RequestParam(value = "searchType", required = false, defaultValue = "") String searchType,
+//           @RequestParam(value = "searchTxt", required = false, defaultValue = "") String searchTxt) throws Exception {
+//       
+//	   pageGb = "office";
+//	   
+//       int currentPageNo = 1;
+//       if (isNull(currentPage) || isEmpty(currentPage)) {
+//           currentPage = "1";
+//       } else {
+//           if (!isNumeric(currentPage)) {
+//               currentPage = "1";
+//           } else {
+//               try {
+//                   currentPageNo = Integer.parseInt(currentPage);
+//               } catch (Exception e) {
+//                   currentPageNo = 1;
+//               }
+//           }
+//       }
+//       
+//       int recordsPerPage = 10;
+//       int startRecord = (currentPageNo - 1) * recordsPerPage;
+//
+//       HashMap<String, Object> listInfo = new HashMap<String, Object>();
+//       listInfo.put("startRecord", startRecord);
+//       listInfo.put("recordsPerPage", recordsPerPage);
+//       listInfo.put("searchType", searchType);
+//       listInfo.put("searchTxt", searchTxt);
+//       model.addAttribute("officeNmList", officeService.office_nm_list(listInfo));
+//       model.addAttribute("list", officeService.office_list(listInfo));
+//       int totalCnt = officeService.office_totalCnt(listInfo);
+//       
+//       model.addAttribute("currentPage", currentPage);
+//       model.addAttribute("totalRecordCount", totalCnt);
+//       model.addAttribute("recordsPerPage", recordsPerPage);
+//       model.addAttribute("searchTxt", searchTxt);
+//       model.addAttribute("pageGb", pageGb);
+//       
+//       return "/manage/office";
+//   }
+
+   
+  /*  
+   * 작성자: 이상준 작성일: 기능: 게시판 코드 삭제
+   */
+//	@RequestMapping(value = "/office_del")
+//	public String office_del(@RequestParam String[] checkRow) throws Exception {
+//		if (checkRow != null && checkRow.length > 0) {
+//			for (int i = 0; i < checkRow.length; i++) {
+//				int office_no = Integer.parseInt(checkRow[i]);
+//				officeService.office_del(office_no);
+//			}
+//		}
+//		return "redirect:/manage/office";
+//	}
+
+	@RequestMapping(value = "/office_doc")
+	public String office_doc(Model model) throws Exception {
+		pageGb = "office_doc";
+		
+		model.addAttribute("OfficeList", officeService.t_office_list_top());
+		model.addAttribute("pageGb", pageGb);
+
+		return "/manage/office_doc_naming";
+	}
+
+	@RequestMapping(value = "/office_doc_save", method = RequestMethod.POST)
+	public String office_doc_save(Model model, @RequestBody List<OfficeVO> officeVO
+			,HttpSession session) throws Exception {
+
+		System.out.println(officeVO.size());
+		for (int i = 0; i < officeVO.size(); i++) {
+			if(!officeVO.get(i).getOrg_initial().isEmpty()|| !officeVO.get(i).getOrg_initial().equals("")) {
+				officeVO.get(i).setInput_id(session.getAttribute("user_id").toString());
+			}
+			System.out.println(officeVO.get(i).toString());
+			
+		}
+
+		String result = "fail";
+		int cnt = officeService.t_office_doc_reg(officeVO);
+		if (cnt > 0) {
+			result = "success";
+		}
+		return result;
+
+	}
+	
+	public HashMap<String, Object> getPageInfo(SearchVO vo, HttpSession session) throws UnsupportedEncodingException, ParseException {
+		HashMap<String, Object> pageInfo = new HashMap<String, Object>();
+		String param = "";
+		
+        int currentPageNo = 1;
+        if (isNull(vo.getCurrentPage()) || isEmpty(vo.getCurrentPage())) {
+        	currentPageNo = 1;
+        } else {
+            if (!isNumeric(vo.getCurrentPage())) {
+            	currentPageNo = 1;
+            } else {
+                try {
+                    currentPageNo = Integer.parseInt(vo.getCurrentPage());
+                } catch (Exception e) {
+                    currentPageNo = 1;
+                }
+            }
+        }
+        param += "currentPage="+ currentPageNo;
+
+        int recordsPerPage = 12;
+        int startRecord = (currentPageNo - 1) * recordsPerPage;
+        pageInfo.put("currentPage", currentPageNo);
+        pageInfo.put("startRecord", startRecord);
+        pageInfo.put("recordsPerPage", recordsPerPage);
+        
+        
+        String searchType = vo.getSearchType();
+        String searchTxt = vo.getSearchTxt();
+        if (isEmpty(searchTxt)) {
+        	searchType = "";
+        	searchTxt = "";
+        } else {
+        	if (isEmpty(searchType)) {
+        		searchType = "";
+        		searchTxt = "";
+        	} else {
+        		if (!searchType.equals("a.receiver") && !searchType.equals("a.cc") && !searchType.equals("a.bcc") && !searchType.equals("a.content") && !searchType.equals("a.date")) {
+        			searchType = "";
+        			searchTxt = "";
+        		} else {
+        			//그대로
+        			param += "&searchType="+ searchType +"&searchTxt="+ URLEncoder.encode(searchTxt, "EUC-KR");
+        		}
+        	}
+        }
+        pageInfo.put("searchType", searchType);
+        pageInfo.put("searchTxt", searchTxt);
+        
+      //검색폼 파라미터 셋팅
+    	String date_sql = "";
+    	String date_java = "yyyy-MM";
+    	String radio_date = vo.getRadio_date();
+        String st_date = vo.getSt_date();
+        String ed_date = vo.getEd_date();
+        if(!isEmpty(radio_date)) {
+        	if (radio_date.equals("year")) {
+        		date_sql = "YYYY";
+        		date_java = "yyyy";
+        	} else if(radio_date.equals("month")) {
+        		date_sql = "YYYY-MM";
+        		date_java = "yyyy-MM";
+        	} else if(radio_date.equals("day")) {
+        		date_sql = "YYYY-MM-DD";
+        		date_java = "yyyy-MM-dd";
+        	} else if (radio_date.equals("all")) {
+        		date_sql = null;
+        		date_java = null;
+        	} else {
+        		//검색이 없으면 월검색이 Default
+        		radio_date = null;
+        		date_sql = null;
+        		date_java = null;
+        	}
+        } else {
+        	radio_date = "day";
+        	date_sql = "YYYY-MM-DD";
+        	date_java = "yyyy-MM-dd";
+        }
+        if (!isEmpty(radio_date)) {
+        	param += "&radio_date="+ radio_date;
+        }
+        if (!isNull(date_java)) {
+	        SimpleDateFormat sdf = new SimpleDateFormat(date_java);
+	    	if (isEmpty(st_date) && isEmpty(ed_date)) {
+	    		ed_date = sdf.format(new Date());
+	    		Calendar c = Calendar.getInstance();
+	    		c.setTime(sdf.parse(ed_date));
+		        c.add(Calendar.DATE, -30);
+	        	st_date = sdf.format(c.getTime());
+	    	} else {
+	    		if (isEmpty(st_date)) {
+	    			st_date = null;
+	    			ed_date = null;
+	    		}
+	    		if (isEmpty(ed_date)) {
+	    			st_date = null;
+	    			ed_date = null;
+	    		}
+	    	}
+	    	if (!isNull(st_date) && !isNull(ed_date)) {
+	    		param += "&st_date="+ st_date +"&ed_date="+ ed_date;
+	    	}
+        }
+        pageInfo.put("radio_date", radio_date);
+        pageInfo.put("date_format", date_sql);
+        pageInfo.put("st_date", st_date);
+        pageInfo.put("ed_date", ed_date);
+        pageInfo.put("param", param);
+        return pageInfo;
+	}
+
+	@SuppressWarnings("unchecked")
+	@GetMapping("/email")
+	public String email_list(
+			  Model model
+			, @ModelAttribute SearchVO search
+			, HttpSession session
+			, HttpServletRequest request) throws Exception {
+		pageGb = "email";
+		model.addAttribute("pageGb", pageGb);
+
+		HashMap<String, Object> pageInfo = getPageInfo(search, session);
+		int totalCnt = emailService.select_totalCnt(pageInfo);
+		List<EmailVO> emailList = (List<EmailVO>) emailService.select_totalList(pageInfo);
+
+		String searchT = request.getParameter("searchType");
+		
+		model.addAttribute("searchT", searchT);
+		model.addAttribute("emailList", emailList);
+		model.addAttribute("pageInfo", pageInfo);
+		model.addAttribute("currentPage", pageInfo.get("currentPage"));
+        model.addAttribute("totalRecordCount", totalCnt);
+        model.addAttribute("recordsPerPage", pageInfo.get("recordsPerPage"));
+		return "/manage/email";
+	}
+	
+	@SuppressWarnings("unchecked")
+	@GetMapping("/email_view")
+	public String email_view (
+			  Model model
+			, @ModelAttribute SearchVO search
+			, @RequestParam(value="no", required=true, defaultValue="0") String no
+			, HttpSession session) throws Exception {
+		pageGb = "email";
+		model.addAttribute("pageGb", pageGb);
+		
+		int email_no = 0;
+		if (!isNull(no)) {
+			if (isNumeric(no)) {
+				email_no = toInteger(no);
+				if (email_no < 1) email_no = 0;
+			}
+		}
+		HashMap<String, Object> pageInfo = getPageInfo(search, session);
+		EmailVO emailVO = (EmailVO) emailService.selectOne_email(email_no);
+		List<UserInfoVO> receiverList = (List<UserInfoVO>) emailService.select_receiver("receiver", email_no);
+		List<UserInfoVO> ccList = (List<UserInfoVO>) emailService.select_receiver("cc", email_no);
+		List<UserInfoVO> bccList = (List<UserInfoVO>) emailService.select_receiver("bcc", email_no);
+		
+		model.addAttribute("emailVO", emailVO);
+		model.addAttribute("receiverList", receiverList);
+		model.addAttribute("ccList", ccList);
+		model.addAttribute("bccList", bccList);
+		model.addAttribute("pageInfo", pageInfo);
+		model.addAttribute("currentPage", pageInfo.get("currentPage"));
+        model.addAttribute("recordsPerPage", pageInfo.get("recordsPerPage"));
+        return "/manage/email_view";
+
+	}
+	
+    public String getUserId(HttpSession session) {
+    	return session.getAttribute("user_id").toString();
+    }
+    
+    public String getColumnNm(String code_gb) {
+    	String result = "";
+    	switch(code_gb) {
+    	case "건물형태" 		: result = "buildshape_cd"		; break;
+    	case "시장점유율"		: result = "share_cd"			; break;
+    	case "건물구분"		: result = "build_cd"			; break;
+    	case "거리수"			: result = "distance_cd"		; break;
+    	case "공급사유"		: result = "reason_cd"			; break;
+    	case "메뉴 구분"		: result = "agw_cd"				; break;
+    	case "진행상태"		: result = "status_cd"			; break;
+    	case "수요 요청 구분"	: result = "business_cd"		; break;
+    	case "공사관계자"		: result = "mem_cd"				; break;
+    	default				: result = "etc"				; break;
+    	}
+    	return result;
+    }
+    
+    public String getCodegb(String column_nm) {
+    	String result = "";
+    	switch(column_nm) {
+    	case "buildshape_cd" 	: result = "건물형태"			; break;
+    	case "share_cd"			: result = "시장점유율"		; break;
+    	case "build_cd"			: result = "건물구분"			; break;
+    	case "distance_cd"		: result = "거리수"			; break;
+    	case "reason_cd"		: result = "공급사유"			; break;
+    	case "agw_cd"			: result = "메뉴 구분"			; break;
+    	case "status_cd"		: result = "진행상태"			; break;
+    	case "business_cd"		: result = "수요 요청 구분"		; break;
+    	case "mem_cd"			: result = "공사관계자"		; break;
+    	default					: result = "etc"			; break;
+    	}
+    	return result;
+    }
+    
+    @RequestMapping(value="/managerEmail",method= {RequestMethod.POST,RequestMethod.GET})
+    public String managerEmail(Model model
+    		, HttpServletRequest request) {
+    	pageGb = "managerEmail";
+    	String msg = request.getParameter("msg");
+
+    	model.addAttribute("msg", msg);
+    	model.addAttribute("pageGb", pageGb);
+    	return "/manage/managerEmail";
+    }
+    
+}

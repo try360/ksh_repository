@@ -1,0 +1,56 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file AttachValidation.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.validate;
+
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
+
+import kr.co.kt.agwne.dto.AttachVO;
+import kr.co.kt.common.ParamValidatChk;
+
+public class AttachValidation extends ParamValidatChk implements Validator {
+
+	@Override
+	public boolean supports(Class<?> arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void validate(Object target, Errors err) {
+		AttachVO inVO = (AttachVO) target;
+		
+		String bbs_nos = inVO.getBbs_nos();
+		if (isNull(bbs_nos) || isEmpty(bbs_nos)) {
+			err.rejectValue("attach.bbs_no", "field.required.bbs_no");
+			return;
+		} else {
+			if (isNumeric(bbs_nos)) {
+				err.rejectValue("attach.bbs_no", "field.required.bbs_no");
+				return;
+			} else {
+				inVO.setRef_no(toInteger(bbs_nos));
+			}
+		}
+		
+		
+	}
+
+}

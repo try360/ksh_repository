@@ -1,0 +1,48 @@
+package kr.co.kt.agwne.dto;
+
+import java.util.Date;
+
+import lombok.Data;
+
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018. 5. 24.
+ * @ file ReplyVO.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+@Data
+public class ReplyVO{
+
+	private int bbs_no;                     //게시물 고유번호
+	private int reply_no;                //게시물 고유번호
+	private String bbs_gb;                  //게시판 고유번호
+	private String contents;               //내영
+	private String del_yn;                  //삭제 여부 false true(삭제)
+	private String input_id;                //최초 등록 아이디
+	private String update_id;               //업데이트 아이디
+	private String delete_id;               //삭제 아이디
+	private Date input_dt;                //최초 등록 일자
+	private Date update_dt;               //업데이트 일자
+	private Date delete_dt;               //삭제 일자
+	private String rnum;                   //게시물 번호
+	private String visit_no;                //게시물 조회수
+	private String searchTxt;              //게시물 조회 문구
+	
+	
+	private String input_name;
+	private String title;
+	private String email_address;
+	
+}

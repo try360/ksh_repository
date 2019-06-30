@@ -1,0 +1,72 @@
+package kr.co.kt.agwne.dao.impl;
+
+import java.util.HashMap;
+import java.util.List;
+
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import kr.co.kt.agwne.dao.AttachDAO;
+import kr.co.kt.agwne.dto.AttachVO;
+import kr.co.kt.agwne.dto.MacExcelVO;
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2010-11-22
+ * @ file UserApprValidation.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+@Repository
+public class AttachDAOImpl implements AttachDAO {
+	
+    @Autowired
+    private SqlSession sqlSession;
+
+    private static final String Namespace = "kr.co.kt.agwne.attachMapper";
+
+	@Override
+	public AttachVO selectOne(int attach_no) {
+		return sqlSession.selectOne(Namespace +".selectOne", attach_no);
+	}
+
+	@Override
+	public List<AttachVO> select(int bbs_no, String table_gb) {
+		HashMap<String,Object> map = new HashMap<String, Object>();
+		map.put("ref_no", bbs_no);
+		map.put("table_gb", table_gb);
+		return sqlSession.selectList(Namespace +".select", map);
+	}
+
+	@Override
+	public int insert(AttachVO attachVO) {
+		return sqlSession.insert(Namespace +".insert", attachVO);
+	}
+
+	@Override
+	public int deleteOne(AttachVO attachVO) {
+		return sqlSession.update(Namespace +".deleteOne", attachVO);
+	}
+
+	@Override
+	public int deleteAll(AttachVO attachVO) {
+		return sqlSession.update(Namespace +".deleteAll", attachVO);
+	}
+
+	@Override
+	public void insertExcel(MacExcelVO vo) {
+		sqlSession.insert(Namespace +".insertExcel", vo);
+	}
+
+}

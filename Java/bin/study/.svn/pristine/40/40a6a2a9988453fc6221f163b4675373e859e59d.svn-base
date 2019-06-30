@@ -1,0 +1,78 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file PeriodServiceImpl.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.service.impl;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.co.kt.agwne.dao.PeriodDAO;
+import kr.co.kt.agwne.dto.CodeVO;
+import kr.co.kt.agwne.dto.ExceptionVO;
+import kr.co.kt.agwne.dto.PeriodVO;
+import kr.co.kt.agwne.service.PeriodService;
+
+@Service
+public class PeriodServiceImpl implements PeriodService {
+
+    @Inject
+    private PeriodDAO periodDAO;
+    
+     @Override
+     public List<CodeVO> code_list() throws Exception {
+         return periodDAO.code_list();
+     }
+     @Override
+     public Object period_reg(PeriodVO periodVO) throws Exception {
+         return periodDAO.period_reg(periodVO);
+     }
+     
+     @Override
+     public List<PeriodVO> period_list(PeriodVO periodVO) throws Exception {
+         return periodDAO.period_list(periodVO);
+     }
+     
+     @Override
+     public List<String> period_update_check(PeriodVO periodVO) throws Exception {
+         return periodDAO.period_update_check(periodVO);
+     }
+     
+     @Override
+     public Object period_update_del(int period_no) throws Exception {
+         return periodDAO.period_update_del(period_no);
+     }
+     
+     @Override
+     public Object period_update(PeriodVO periodVO) throws Exception {
+         return periodDAO.period_update(periodVO);
+     }
+     
+     @Override
+     public List<ExceptionVO> exception_list(PeriodVO periodVO) throws Exception {
+         return periodDAO.exception_list(periodVO);
+     }
+     
+     @Override
+     public Object exception_del(ExceptionVO exceptionVO) throws Exception {
+         return periodDAO.exception_del(exceptionVO);
+     }
+}

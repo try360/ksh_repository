@@ -1,0 +1,65 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file ReformDAO.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.dao;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import kr.co.kt.agwne.dto.*;
+
+public interface ReformDAO {  
+
+	public Object t_bs_code(HashMap<String, Object> listCodeInfo) throws Exception; 
+	public Object t_bs_model(HashMap<String, Object> listModelInfo) throws Exception; 
+	public int t_bs_reg(ReformVO rfVO) throws Exception;
+	public int t_bs_reg_confirm(HashMap<String, Object> cfVO) throws Exception;
+	public int t_bs_modi_confirm(HashMap<String, Object> cfVO) throws Exception;
+	public Object t_bs_modify(ReformVO rfVO) throws Exception;
+	public Object t_bs_list(HashMap<String, Object> listInfo) throws Exception; 
+	public Object t_bs_list_excel(HashMap<String, Object> listInfo) throws Exception; 
+	public HashMap <String,Integer> t_bs_listCnt(HashMap<String, Object> listInfo) throws Exception;
+	public Object t_bs_list_view(int rstNo) throws Exception;
+	public Object t_bs_list_view_hist(HashMap<String, Integer> paramInfo) throws Exception;
+	public Object t_bs_update(BusinessVO bsVO) throws Exception;
+	public HashMap<String, Integer> request_period_chk() throws Exception;
+	public int t_construct_reg(ConstructVO csVO) throws Exception;
+	public int t_construct_modi(ConstructVO csVO, Map<String, Object> paramMap) throws Exception;
+	public int t_construct_stat_change(BusinessVO bsVO) throws Exception;
+	public int t_bs_del(int neoss_no) throws Exception;
+	public ConstructVO t_construct_view(int rstNo) throws Exception;
+	//public List<HashMap<String, String>> t_construct_mem(int const_no) throws Exception;
+	public List<ConstructMemVO> t_construct_mem(int const_no) throws Exception;
+    public int request_prev_no(int rstNo) throws Exception;
+    public int request_next_no(int rstNo) throws Exception;
+    public List<UserInfoVO> search_reg_name() throws Exception;
+    public UserInfoVO r_model_person(int neoss_no) throws Exception;
+    public List<ReformVO> r_history_list(int neoss_no) throws Exception;
+    public List<OrgVO> search_result_org(HashMap<String, Object> listInfo) throws Exception;
+
+	public List<ReformDeviceVO> reform_device_all(String tdx_type) throws Exception;
+	public int reform_chk_device(String device_cd)throws Exception;
+	public int reform_useyn_update(ReformVO vo)throws Exception;
+	public int reform_useyn_refresh(ReformVO vo)throws Exception;
+	public int reform_useyn_decide(BusinessVO vo)throws Exception;
+	public void t_const_mem_reg(ConstructMemVO vo)throws Exception;
+	public void t_const_mem_modi(ConstructMemVO vo)throws Exception;
+	public ConstructMemVO t_construct_mem_view(int rstNo)throws Exception;
+} 

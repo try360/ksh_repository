@@ -1,0 +1,690 @@
+$(function(){
+	$("#searchForm #region, #orgscode1, #orgscode2, #orgscode3, #orgscode").change(function(){
+		if ($(this).attr("id") == "region") {
+			$("#searchForm #orgscode1 option").removeAttr("selected");
+			$("#searchForm #orgscode2 option").removeAttr("selected");
+			$("#searchForm #orgscode3 option").removeAttr("selected");
+			$("#searchForm #orgscode option").removeAttr("selected");
+		}
+		if ($(this).attr("id") == "orgscode1") {
+			$("#searchForm #orgscode2 option").removeAttr("selected");
+			$("#searchForm #orgscode3 option").removeAttr("selected");
+			$("#searchForm #orgscode option").removeAttr("selected");
+		}
+		if ($(this).attr("id") == "orgscode2") {
+			$("#searchForm #orgscode3 option").removeAttr("selected");
+			$("#searchForm #orgscode option").removeAttr("selected");
+		}
+		if ($(this).attr("id") == "orgscode3") {
+			$("#searchForm #orgscode option").removeAttr("selected");
+		}
+		$("#searchForm").submit();
+	});
+	$(".listTable tbody tr").css("cursor", "pointer");
+	/*$(".listTable tbody tr").click(function(){
+		var data = $(this).attr("data");
+		location.href="/manage/role_4p_view?orgscode="+ data +"&"+ param; 
+	});*/
+	//
+	$('#userRole_list .srchIcon').click(function(){
+		//alert($("#s_region").val());
+		$("#userRole_list form[name='searchForm']").submit();
+	});
+	//
+	$('#userRole_list .regIcon').click(function(){ 
+		$(location).attr("href", "userRole_write.do?crud=n");
+	});	
+	//
+	$('#userRole_list .modIcon').click(function(){ 
+		var line_no = 0;
+		$("#listTable tbody tr").each(function(i){
+			if($(this).find("#del").val() == '1'){
+				if($(this).find("#role").val() == ''){			
+					var name =$(this).find("td:nth-child(4)").text();
+					alert(name + ' ���� ���� ������ �����ϴ�.');
+					line_no = -1;
+					return;
+				}
+				line_no = 1;
+			}
+		});
+		if(line_no == -1){
+			return;
+		}
+		if(line_no == 0){
+			alert("üũ�ڽ��� �����ϼ���.");
+			return;
+		}
+		
+		$("#userRole_list #listForm #crud").val("u");
+		$("#userRole_list #listForm").submit();
+	});
+	//
+	$('#userRole_list .delIcon').click(function(){
+		var line_no = 0;
+		$("#listTable tbody tr").each(function(i){
+			if($(this).find("#del").val() == '1'){
+				if($(this).find("#role").val() == ''){			
+					var name =$(this).find("td:nth-child(4)").text();
+					alert(name + ' ���� ���� ������ �����ϴ�.');
+					line_no = -1;
+					return;
+				}
+				line_no = 1;
+			}
+		});
+		if(line_no == -1){
+			return;
+		}
+		if(line_no == 0){
+			alert("üũ�ڽ��� �����ϼ���.");
+			return;
+		}
+		
+		$("#userRole_list #listForm #crud").val("d");
+		$("#userRole_list #listForm").submit();
+	});
+	// 
+	$('#userRole_list #checkAll').change(function(){
+		if($(this).is(":checked")){
+			$('#userRole_list #del').each(function(){
+				$(this).prop("checked",true);
+				$(this).val(1);
+			});
+		}
+		else{
+			$('#userRole_list #del').each(function(){
+				$(this).prop("checked",false);
+				$(this).val(0);
+			});
+		}
+	});	
+	// 
+	$("#userRole_list tbody tr td").click(function(){
+		var tdArr = new Array();
+		var td = $(this).parent().children();			
+		td.each(function(i){
+			tdArr.push(td.eq(i));
+		});
+		$("#userRole_list #selectTd #crud").val("r");
+		$("#userRole_list #selectTd #orgscode1").val(tdArr[1].find("#orgscode1").val());
+		$("#userRole_list #selectTd #orgscode2").val(tdArr[2].find("#orgscode2").val());
+		$("#userRole_list #selectTd #orgscode3").val(tdArr[3].find("#orgscode3").val());
+		$("#userRole_list #selectTd #orgscode").val(tdArr[4].find("#orgscode").val());
+		/*$("#userRole_list #selectTd #org").val(tdArr[5].find("#org").val());
+		$("#userRole_list #selectTd #region").val(tdArr[5].find("#region").val());
+		if(tdArr[5].find("#org").val() == "cs"){
+			$("#userRole_list #selectTd #csbonbu").val(tdArr[5].find("#csbonbu").val());
+		}
+		else if(tdArr[5].find("#org").val() == "ns"){
+			$("#userRole_list #selectTd #nsbonbu").val(tdArr[5].find("#nsbonbu").val());
+		}
+		$("#userRole_list #selectTd #cm_code").val(tdArr[5].find("#cm_code").val());
+		$("#userRole_list #selectTd #oper_code").val(tdArr[5].find("#oper_code").val());*/
+		$("#userRole_list #selectTd #user_no_01").val(tdArr[5].find("#user_no_01").val());
+		$("#userRole_list #selectTd #user_no_02").val(tdArr[6].find("#user_no_02").val());
+		$("#userRole_list #selectTd #user_no_03").val(tdArr[7].find("#user_no_03").val());
+		$("#userRole_list #selectTd #user_no_04").val(tdArr[8].find("#user_no_04").val());
+		$("#userRole_list #selectTd #user_no_05").val(tdArr[9].find("#user_no_05").val());
+		$("#userRole_list #selectTd #s_region").val($("#searchForm #region option[value='"+ region +"']").val());
+		$("#userRole_list #selectTd #s_orgscode1").val($("#searchForm #orgscode1 option[value='"+ orgscode1 +"']").val());
+		$("#userRole_list #selectTd #s_orgscode2").val($("#searchForm #orgscode2 option[value='"+ orgscode2 +"']").val());
+		$("#userRole_list #selectTd #s_orgscode3").val($("#searchForm #orgscode3 option[value='"+ orgscode3 +"']").val());
+		$("#userRole_list #selectTd #s_orgscode").val($("#searchForm #orgscode option[value='"+ orgscode +"']").val());
+		//$("#userRole_list #selectTd #no_emp").val(tdArr[5].find("#no_emp").val());	
+		//$("#userRole_list #selectTd #erp_job").val($("#userRole_list #searchForm #erp_job").val());	
+		//$("#userRole_list #selectTd #step").val(tdArr[6].find("#step").val());
+		//$("#userRole_list #selectTd #approval_no").val(tdArr[6].find("#approval_no").val());
+			
+			//$("#userRole_list #selectTd #appr_role").val(tdArr[5].find("select option:selected").val());	
+			//$("#userRole_list #selectTd #appr_role_old").val(tdArr[6].find("#appr_role_old").val());
+		$("#userRole_list #selectTd").submit();
+		//
+		tdArr.splice(0, tdArr.length);
+
+	});
+	
+	$("#userRole_list tbody tr").hover(function(){
+		$(this).css("background-color", "#f4f4f4");
+	}, function(){
+		$(this).css("background-color", "#ffffff");
+	});
+
+	
+	$("#userRole_write .btnArea .srchIcon").click(function(){
+		//alert("srch");
+		//var searchType = $("#searchType").val();
+		//var searchTxt = $("#searchTxt").val();
+		//alert(searchType+"/"+searchText); return;
+		//$(location).attr("href", "userRole_list.do?crud=r&searchType="+searchType+"&searchTxt="+searchTxt);
+		//$("#userRole_write #userRoleWriteForm #crud").val("r");
+		$("#userRole_write #backToList").submit();
+	});
+	
+	/*$("#userRole_write .p_reqIcon").click(function(){
+		popLink('popup_role.do?chk=req', 800, 620);
+	});
+	*/
+	/*$("#userRole_write .p_appIcon").click(function(){
+		popLink('popup_role.do?chk=app', 800, 620);
+	});
+	*/
+	// 투자확정
+	$("#userRole_write #p_modIcon_011").click(function(){
+		if( $("#userRole_write #userRoleWriteForm #dept_code_01").val() == ''){
+			alert("승인자 정보가 없습니다.");
+			return;
+		}
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		var dept_code = $("#userRole_write #userRoleWriteForm #dept_code_01").val();
+		var user_no = $("#userRole_write #userRoleWriteForm #user_no_01").val();
+		popLink('popup_role.do?crud=r&erp_job='+erp_job+'&step=01&region='+region+'&dept_code='+dept_code+'&user_no='+user_no, 800, 620);
+	});
+	
+	$("#userRole_write #p_modIcon_012").click(function(){
+		if( $("#userRole_write #userRoleWriteForm #dept_code_01").val() == ''){
+			alert("승인자 정보가 없습니다.");
+			return;
+		}
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		var req_bonbu = $("#userRole_write #userRoleWriteForm #req_bonbu_01").val();
+		var dept_code = $("#userRole_write #userRoleWriteForm #dept_code_01").val();
+		popLink('popup_approval_info.do?crud=r&erp_job='+erp_job+'&step=01&region='+region+'&req_bonbu='+req_bonbu+'&dept_code='+dept_code, 800, 620);
+	});
+	//
+/*	$("#userRole_write #p_regIcon_01").click(function(){
+		//$("#userRole_write #borgcode").attr("disabled", false)
+		//var orgcode = $("#userRole_write #borgcode").val();
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		//$("#userRole_write #borgcode").attr("disabled", true);
+		//alert(erp_job+"/"+region); 		return;
+		popLink('popup_approval_user.do?erp_job='+erp_job+'&step=01&region='+region, 800, 620);
+	});*/
+	
+	// IP확정
+	$("#userRole_write #p_modIcon_021").click(function(){
+		/*if( $("#userRole_write #userRoleWriteForm #dept_code_02").val() == ''){
+			alert("승인자 정보가 없습니다.");
+			return;
+		}*/
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		var dept_code = $("#userRole_write #userRoleWriteForm #dept_code_02").val();
+		var user_no = $("#userRole_write #userRoleWriteForm #user_no_02").val();
+		popLink('popup_role.do?crud=r&erp_job='+erp_job+'&step=02&region='+region+'&dept_code='+dept_code+'&user_no='+user_no, 800, 620);
+	});
+	
+	$("#userRole_write #p_modIcon_022").click(function(){
+		/*if( $("#userRole_write #userRoleWriteForm #dept_code_02").val() == ''){
+			alert("승인자 정보가 없습니다.");
+			return;
+		}*/
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		var req_bonbu = $("#userRole_write #userRoleWriteForm #req_bonbu_02").val();
+		var dept_code = $("#userRole_write #userRoleWriteForm #dept_code_02").val();
+		popLink('popup_approval_info.do?crud=r&erp_job='+erp_job+'&step=02&region='+region+'&req_bonbu='+req_bonbu+'&dept_code='+dept_code, 800, 620);
+	});
+	//
+/*	$("#userRole_write #p_regIcon_02").click(function(){
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		popLink('popup_approval_user.do?erp_job='+erp_job+'&step=02&region='+region, 800, 620);
+	});*/
+	// MGID확정
+	$("#userRole_write #p_modIcon_031").click(function(){
+		if( $("#userRole_write #userRoleWriteForm #dept_code_03").val() == ''){
+			alert("승인자 정보가 없습니다.");
+			return;
+		}
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		var dept_code = $("#userRole_write #userRoleWriteForm #dept_code_03").val();
+		var user_no = $("#userRole_write #userRoleWriteForm #user_no_03").val();
+		popLink('popup_role.do?crud=r&erp_job='+erp_job+'&step=03&region='+region+'&dept_code='+dept_code+'&user_no='+user_no, 800, 620);
+	});
+	
+	$("#userRole_write #p_modIcon_032").click(function(){
+		if( $("#userRole_write #userRoleWriteForm #dept_code_03").val() == ''){
+			alert("승인자 정보가 없습니다.");
+			return;
+		}
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		var req_bonbu = $("#userRole_write #userRoleWriteForm #req_bonbu_03").val();
+		var dept_code = $("#userRole_write #userRoleWriteForm #dept_code_03").val();
+		popLink('popup_approval_info.do?crud=r&erp_job='+erp_job+'&step=03&region='+region+'&req_bonbu='+req_bonbu+'&dept_code='+dept_code, 800, 620);
+	});
+	//
+/*	$("#userRole_write #p_regIcon_03").click(function(){
+		var region = $("#approval_list #listForm #region").val();
+		var erp_job = $("#approval_list #listForm #erp_job").val();
+		popLink('popup_approval_user.do?erp_job='+erp_job+'&step=03&region='+region, 800, 620);
+	});*/
+	// COLCODE
+	$("#userRole_write #p_modIcon_041").click(function(){
+		if( $("#userRole_write #userRoleWriteForm #dept_code_04").val() == ''){
+			alert("승인자 정보가 없습니다.");
+			return;
+		}
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		var dept_code = $("#userRole_write #userRoleWriteForm #dept_code_04").val();
+		var user_no = $("#userRole_write #userRoleWriteForm #user_no_04").val();
+		popLink('popup_role.do?crud=r&erp_job='+erp_job+'&step=04&region='+region+'&dept_code='+dept_code+'&user_no='+user_no, 800, 620);
+	});
+	
+	$("#userRole_write #p_modIcon_042").click(function(){
+		if( $("#userRole_write #userRoleWriteForm #dept_code_04").val() == ''){
+			alert("승인자 정보가 없습니다.");
+			return;
+		}
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		var req_bonbu = $("#userRole_write #userRoleWriteForm #req_bonbu_04").val();
+		var dept_code = $("#userRole_write #userRoleWriteForm #dept_code_04").val();
+		popLink('popup_approval_info.do?crud=r&erp_job='+erp_job+'&step=04&region='+region+'&req_bonbu='+req_bonbu+'&dept_code='+dept_code, 800, 620);
+	});
+	//
+	/*$("#userRole_write #p_regIcon_04").click(function(){
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		popLink('popup_approval_user.do?erp_job='+erp_job+'&step=04&region='+region, 800, 620);
+	});*/
+	// MAC 확정
+	$("#userRole_write #p_modIcon_051").click(function(){
+		if( $("#userRole_write #userRoleWriteForm #dept_code_05").val() == ''){
+			alert("승인자 정보가 없습니다.");
+			return;
+		}
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		var dept_code = $("#userRole_write #userRoleWriteForm #dept_code_05").val();
+		var user_no = $("#userRole_write #userRoleWriteForm #user_no_05").val();
+		popLink('popup_role.do?crud=r&erp_job='+erp_job+'&step=05&region='+region+'&dept_code='+dept_code+'&user_no='+user_no, 800, 620);
+	});
+	
+	$("#userRole_write #p_modIcon_052").click(function(){
+		if( $("#userRole_write #userRoleWriteForm #dept_code_05").val() == ''){
+			alert("승인자 정보가 없습니다.");
+			return;
+		}
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		var req_bonbu = $("#userRole_write #userRoleWriteForm #req_bonbu_05").val();
+		var dept_code = $("#userRole_write #userRoleWriteForm #dept_code_05").val();
+		popLink('popup_approval_info.do?crud=r&erp_job='+erp_job+'&step=05&region='+region+'&req_bonbu='+req_bonbu+'&dept_code='+dept_code, 800, 620);
+	});
+	//
+/*	$("#userRole_write #p_regIcon_05").click(function(){
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		popLink('popup_approval_user.do?erp_job='+erp_job+'&step=05&region='+region, 800, 620);
+	});*/
+	// 착공
+	$("#userRole_write #p_modIcon_061").click(function(){
+		if( $("#userRole_write #userRoleWriteForm #dept_code_06").val() == ''){
+			alert("승인자 정보가 없습니다.");
+			return;
+		}
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		var dept_code = $("#userRole_write #userRoleWriteForm #dept_code_06").val();
+		var user_no = $("#userRole_write #userRoleWriteForm #user_no_06").val();
+		popLink('popup_role.do?crud=r&erp_job='+erp_job+'&step=06&region='+region+'&dept_code='+dept_code+'&user_no='+user_no, 800, 620);
+	});
+	
+	$("#userRole_write #p_modIcon_062").click(function(){
+		if( $("#userRole_write #userRoleWriteForm #dept_code_06").val() == ''){
+			alert("승인자 정보가 없습니다.");
+			return;
+		}
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		var req_bonbu = $("#userRole_write #userRoleWriteForm #req_bonbu_06").val();
+		var dept_code = $("#userRole_write #userRoleWriteForm #dept_code_06").val();
+		popLink('popup_approval_info.do?crud=r&erp_job='+erp_job+'&step=06&region='+region+'&req_bonbu='+req_bonbu+'&dept_code='+dept_code, 800, 620);
+	});
+	//
+	$("#userRole_write #p_regIcon_06").click(function(){
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		popLink('popup_approval_user.do?erp_job='+erp_job+'&step=06&region='+region, 800, 620);
+	});
+		
+	$("#approval_list .btnArea .modIcon").click(function(){
+		if(!confirm("수정하시겠습니까?")){
+			return
+		}
+		$("#approval_list #listForm #crud").val("u");
+		$("#approval_list #listForm").submit();
+	});
+	
+	$("#approval_list .btnArea .delIcon").click(function(){
+		var save = true;
+		if(!confirm("삭제하시겠습니까?")){
+			return
+		}
+		if($("#approval_list .chkbox_vali:checked").length == 0){
+			alert("삭체할 승인자 정보를 선택 해 주세요.");
+			return;
+		}else{
+			$("#approval_list .chkbox_vali").each(function(){
+				if(this.checked){
+					var arg = new Array();
+					var name;
+					arg = $(this).attr('name').split(".");
+					name = arg[0]+".dft";
+					if($("input:checkbox[name='"+name+"']").is(":checked")){
+						alert("default 설정을 한 사용자는 삭제 할 수 없습니다.");
+						save = false;
+						return false;
+					}
+					
+				}
+			});
+		}
+		
+		if(save){
+			$("#approval_list #listForm #crud").val("d");
+			$("#approval_list #listForm").submit();
+		}
+	});
+	
+	$("#approval_list table").on("click", "input:checkbox[id='dft']", function(){
+		$(this).closest('table').find("input:checkbox[id='dft']").prop('checked', false);
+		$(this).prop("checked", true);
+	});
+	
+	$("#org_list tbody tr td").dblclick(function(){
+		if(!confirm("수정하시겠습니까?")){
+			return;
+		}
+		var tdArrValue = new Array();
+		var tdArrText = new Array();
+		//var td = $(this).children();
+		var td = $(this).parent().children();
+		
+		td.each(function(i){
+			tdArrValue.push(td.eq(i).children().val());
+			tdArrText.push(td.eq(i).text());
+		});
+		var erp_job = $("#org_list #searchForm #erp_job").val();
+		var step = $("#org_list #searchForm #step").val();
+		var dept_code = tdArrValue[1];
+		var dept_name = tdArrText[1];
+		//alert(tdArrValue[1]+"/"+tdArrText[1]+" => "+erp_job+", "+step);
+		//alert($(opener.document).find("#userRole_write #req_bonbu_01").val());
+		
+		if(step == '01'){
+			$(opener.document).find("#userRole_write #req_bonbu_01").val(dept_code);
+			$(opener.document).find("#userRole_write #req_name_01").prop("disabled",false);
+			$(opener.document).find("#userRole_write #req_name_01").val(dept_name);
+			$(opener.document).find("#userRole_write #req_name_01").prop("disabled",true);
+		}
+		else if(step == '02'){
+			$(opener.document).find("#userRole_write #req_bonbu_02").val(dept_code);
+			$(opener.document).find("#userRole_write #req_name_02").prop("disabled",false);
+			$(opener.document).find("#userRole_write #req_name_02").val(dept_name);
+			$(opener.document).find("#userRole_write #req_name_02").prop("disabled",true);
+		}
+		else if(step == '03'){
+			$(opener.document).find("#userRole_write #req_bonbu_03").val(dept_code);
+			$(opener.document).find("#userRole_write #req_name_03").prop("disabled",false);
+			$(opener.document).find("#userRole_write #req_name_03").val(dept_name);
+			$(opener.document).find("#userRole_write #req_name_03").prop("disabled",true);
+		}
+		else if(step == '04'){
+			$(opener.document).find("#userRole_write #req_bonbu_04").val(dept_code);
+			$(opener.document).find("#userRole_write #req_name_04").prop("disabled",false);
+			$(opener.document).find("#userRole_write #req_name_04").val(dept_name);
+			$(opener.document).find("#userRole_write #req_name_04").prop("disabled",true);
+		}
+		else if(step == '05'){
+			$(opener.document).find("#userRole_write #req_bonbu_05").val(dept_code);
+			$(opener.document).find("#userRole_write #req_name_05").prop("disabled",false);
+			$(opener.document).find("#userRole_write #req_name_05").val(dept_name);
+			$(opener.document).find("#userRole_write #req_name_05").prop("disabled",true);
+		}
+		else if(step == '06'){
+			$(opener.document).find("#userRole_write #req_bonbu_06").val(dept_code);
+			$(opener.document).find("#userRole_write #req_name_06").prop("disabled",false);
+			$(opener.document).find("#userRole_write #req_name_06").val(dept_name);
+			$(opener.document).find("#userRole_write #req_name_06").prop("disabled",true);
+		}
+		
+		$("#org_list #updateRequest #dept_code_01").val(dept_code);
+		$("#org_list #updateRequest #dept_name_01").val(dept_name);
+		
+		//alert($("#org_list #updateRequest #dept_name_01").val());
+		$("#org_list #updateRequest").submit();
+		//alert(tdArrValue[1]+"::"+tdArrText[1]+","+tdArrValue[3]+":"+tdArrText[3]);
+		//window.open('about:blank', '_self').close();
+	});
+	
+	$("#user_list tbody tr td").dblclick(function(){
+		if(!confirm("등록 하시겠습니까?")){
+			return;
+		}
+		
+		var user_no;
+		var emp_name;
+		var dept_code;
+		var dept_name;
+		var porgscode;
+		var porgsname;
+		var bonbu;
+		var bonbu_name;
+		var org;
+		
+		var td = $(this).parent().children();
+		
+		td.each(function(i){
+			if(i == 1){
+				user_no = td.eq(i).find("#ls_user_no").val();
+				emp_name = td.eq(i).find("#ls_emp_name").text();
+				dept_code = td.eq(i).find("#ls_dept_code").val();
+				dept_name = td.eq(i).find("#ls_dept_name").val();
+				porgscode = td.eq(i).find("#ls_porgscode").val();
+				porgsname = td.eq(i).find("#ls_porgsname").val();
+				bonbu = td.eq(i).find("#ls_bonbu").val();
+				bonbu_name = td.eq(i).find("#ls_bonbu_name").val();
+				org = td.eq(i).find("#ls_org").val();
+			}
+		});
+		//alert(ls_no_emp+"/"+ls_emp_name+"/"+ls_dept_code+"/"+ls_dept_name+"/"+ls_porgscode+"/"+ls_porgsname+"/"+ls_bonbu+"/"+ls_bonbu_name);
+		//return;
+		
+        $("#user_list #regUser #erp_job").val($("#user_list #searchForm #erp_job").val());
+        $("#user_list #regUser #step").val($("#user_list #searchForm #step").val());   	
+        $("#user_list #regUser #appr_bonbu").val(bonbu);
+        $("#user_list #regUser #appr_name").val(bonbu_name);
+        $("#user_list #regUser #org_code").val(porgscode);
+        $("#user_list #regUser #dept_code").val(dept_code);
+        $("#user_list #regUser #dept_name").val(dept_name);
+        $("#user_list #regUser #user_no").val(user_no);
+        $("#user_list #regUser #emp_name").val(emp_name);
+        $("#user_list #regUser #org").val(org);     
+        $("#user_list #regUser #region").val($("#user_list #searchForm #region").val());
+        $("#user_list #regUser #searchType").val($("#user_list #searchForm #searchType").val());
+        $("#user_list #regUser #searchTxt").val($("#user_list #searchForm #searchTxt").val());     
+
+        
+        if($("#erp_job").val() == '01'){
+        	if($("#user_list #regUser #approval_no").val() == ""){
+        		$("#user_list #regUser #approval_no").remove(); 
+        	}
+        	$("#user_list #regUser").attr('action','role_agw_insert');	
+        }
+        	
+        	$("#user_list #regUser").submit();
+		/*$(opener.document).find("#userRole_write #no_emp").val(tdArrValue[1]);
+		$(opener.document).find("#userRole_write #emp_name").val(tdArrText[1]);
+		$(opener.document).find("#userRole_write #dept_code").val(tdArr_dept_code[1]);
+		$(opener.document).find("#userRole_write #dept_name").val(tdArr_dept_name[1]);
+		$(opener.document).find("#userRole_write #org_code").val(tdArr_porgscode[1]);
+		$(opener.document).find("#userRole_write #org_name").val(tdArr_porgsname[1]);
+
+		window.open('about:blank', '_self').close();*/
+	});
+	
+	//
+	$("#org_list #searchForm .srchIcon").click(function(){
+		//alert($("#region").val()+"/"+$("#searchType").val()+"/"+$("input[name='searchTxt']").val());
+		var region = $("#region").val();
+		var searchType = $("#searchType").val();
+		var searchTxt = $("input[name='searchTxt']").val();
+		$(location).attr("href", "popup_role.do?crud=r&region="+region+"&searchType="+searchType+"&searchTxt="+searchTxt);
+	});
+	
+	//
+	$("#user_list #searchForm .srchIcon").click(function(){
+		//alert($("#region").val()+"/"+$("#searchType").val()+"/"+$("input[name='searchTxt']").val());
+		//return;
+		var region = $("#region").val();
+		var searchType = $("#searchType").val();
+		var searchTxt = $("input[name='searchTxt']").val();
+		var appr_no = $("#approval_no").val();
+		//alert(region+"/"+searchType+"/"+searchTxt);
+		$(location).attr("href", "popup_approval_user.do?region="+region+"&searchType="+searchType+"&searchTxt="+searchTxt+"&approval_no="+appr_no);
+	});
+	
+/*	$("#approval_list #popup_appr_subBtn").click(function(){
+		var region = $("#approval_list #listForm #region").val();
+		var erp_job = $("#approval_list #listForm #erp_job").val();
+		popLink('popup_approval_user.do?erp_job='+erp_job+'&step=01&region='+region, 800, 620);
+	});*/
+	
+	//검은 막 띄우기
+	$("#approval_list #popup_appr_addBtn").click(function(e){
+		var region = $("#approval_list #listForm #region").val();
+		var erp_job = $("#approval_list #listForm #erp_job").val();
+		var step = $("#approval_list #listForm #step").val();
+		var dept_code = $("#approval_list #listForm #dept_code").val();
+		var url  = "popup_approval_user.do?erp_job="+erp_job+"&step="+step+"&region="+region+"&dept_code="+dept_code;
+		var popOption ="width=800, height=620, resizable=no, scrollbars=yes, status=no"; 
+		window.open(url, "", popOption);
+		
+		
+	});
+	
+	//by susan
+	$("#userRole_write .delIconbtn").click(function(){
+		
+		var idx = $(this).attr("id").split("_");
+		var approval_no = $("#approval_no_"+idx[1]+"_"+idx[2]).val();
+		
+		if(confirm("승인자 '"+$("#emp_name_"+idx[1]+"_"+idx[2]).val()+"' 님을 삭제하시겠습니까?")){
+			$.ajax({ 
+				url : "role_4p_delete",
+				data : {
+					"approval_no" : approval_no
+				},
+				success : function(result) {
+					$.unblockUI();
+					if(result == 'success'){
+						alert('삭제되었습니다.');
+						location.reload();
+					}else if(result == 'fail'){
+						$.unblockUI();
+						alert('삭제에 실패했습니다. 잠시 후 다시 시도해주세요.');
+						location.reload();
+					}
+				},
+				error : function(request, status, error) {
+					$.unblockUI();
+					alert("code:" +request.status+"\n"+"message:"+request.responseText+"\n"+"error: "+ error);
+				}
+			}); 
+		}
+		
+	});
+	
+	$("#userRole_write .btnArea .modIcon").click(function(){
+		
+		if(confirm("default 승인자를 변경하시겠습니까?")){
+			$.blockUI();
+			
+			var paramName = "approval_no";
+			var orgscode = $("#orgscode").val();
+			var orgscode1 = $("#orgscode1").val();
+			var arry = new Array();
+			var arryAll = new Array();
+		
+			$("input:radio[name=check_01]").each(function(){
+				arryAll.push($(this).val());
+				if(this.checked){
+					arry.push($(this).val());
+				}
+			});
+	
+			$("input:radio[name=check_02]").each(function(){
+				arryAll.push($(this).val());
+				if(this.checked){
+					arry.push($(this).val());
+				}
+			});
+			
+			$("input:radio[name=check_03]").each(function(){
+				arryAll.push($(this).val());
+				if(this.checked){
+					arry.push($(this).val());
+				}
+			});
+			
+			$("input:radio[name=check_04]").each(function(){
+				arryAll.push($(this).val());
+				if(this.checked){
+					arry.push($(this).val());
+				}
+			});
+			
+			$("input:radio[name=check_05]").each(function(){
+				arryAll.push($(this).val());
+				if(this.checked){
+					arry.push($(this).val());
+				}
+			});
+				
+			//ajax날리기
+		    $.ajax({ 
+		        url : "role_4p_update",
+		        data : {
+		            "approval_no" : arry,
+		            "approval_no_all" : arryAll,
+		            "orgscode"	  : orgscode,
+		            "orgscode1"	  : orgscode1
+		        },
+		        success : function(result) {
+		        	$.unblockUI();
+		        		if(result == 'success'){
+		        			alert('저장되었습니다.');
+		        			opener.parent.location.reload();
+		        		}else if(result == 'fail'){
+		        			alert('저장에 실패했습니다. 잠시 후 다시 시도해주세요.');
+		        			location.reload();
+		        		}
+		        },
+		        error : function(request, status, error) {
+		        	$.unblockUI();
+		                alert("code:" +request.status+"\n"+"message:"+request.responseText+"\n"+"error: "+ error);
+		        }
+		    }); 
+		}
+	});
+	
+	$("#userRole_write .regIcon").click(function(){
+		var region = $("#userRole_write #userRoleWriteForm #region").val();
+		var erp_job = $("#userRole_write #userRoleWriteForm #erp_job").val();
+		var step = $(this).attr("id").split("_");
+		var approval_no = $("#approval_no_"+step[2]+"_"+step[3]).val();
+		step = step[2];
+		popLink('popup_approval_user.do?erp_job='+erp_job+'&step='+step+'&region='+region+"&approval_no="+approval_no, 800, 620);
+		
+	});
+
+});
+

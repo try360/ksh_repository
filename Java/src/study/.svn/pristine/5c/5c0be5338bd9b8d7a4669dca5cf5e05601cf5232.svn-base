@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kt.agwne.attachMapper">
+	<select id="selectOne" parameterType="int" resultType="attachVO">
+	<![CDATA[
+		select A.attach_no
+		     , A.ref_no
+		     , A.seq AS seqs
+		     , A.filepath
+		     , A.filename
+		     , A.filename_n
+		     , A.filesize AS filesizes
+		     , A.input_id
+		     , A.input_dt
+		  from agwne.t_attach A
+		 where 1=1
+		   and A.del_yn = false
+		   and A.attach_no = #{attach_no}
+		 order by attach_no desc
+		 limit 1
+	]]>
+	</select>
+	<select id="select" parameterType="map" resultType="attachVO">
+	<![CDATA[
+		select A.attach_no
+		     , A.seq
+		     , A.filepath
+		     , A.filename
+		     , A.filename_n
+		     , A.filesize
+		     , A.input_id
+		     , A.input_dt
+		  from agwne.t_attach A
+		 where 1=1
+		   and A.del_yn = false
+		   and A.ref_no = #{ref_no}
+		   and A.table_gb = #{table_gb}
+		 order by A.seq asc	
+	]]>
+	</select>
+	<insert id="insert" parameterType="attachVO">
+	<![CDATA[
+		insert into agwne.t_attach (
+		       ref_no
+		     , seq
+		     , filepath
+		     , filename
+		     , filename_n
+		     , filesize
+		     , input_id
+		     , update_id
+		     , table_gb
+		) values (
+		       #{ref_no}
+		     , (select coalesce(max(seq), 0)+1
+		          from agwne.t_attach A
+		         where 1=1
+		           and A.del_yn = false
+		           and A.ref_no = #{ref_no}         
+		        )
+		      , #{filepath}
+		   	  , #{filename}
+		      , #{filename_n}
+		      , #{filesize}
+		      , #{input_id}
+		      , #{input_id}
+		      , #{table_gb}
+		)
+	]]>
+		<selectKey keyProperty="attach_no" resultType="int" order="AFTER">
+		<![CDATA[
+			select CURRVAL('agwne.t_attach_attach_no_seq')
+		]]>
+		</selectKey>
+	</insert>
+	<delete id="deleteOne" parameterType="attachVO">
+	<![CDATA[
+		update agwne.t_attach set
+		       del_yn = true
+		     , delete_id = #{input_id}
+		     , delete_dt = now()
+		 where 1=1
+		   and del_yn = false
+		   and attach_no = #{attach_no}
+	]]>
+	</delete>
+	<delete id="deleteAll" parameterType="attachVO">
+	<![CDATA[
+		update agwne.t_attach set
+		       del_yn = true
+		     , delete_id = #{input_id}
+		     , delete_dt = now()
+		 where 1=1
+		   and del_yn = false
+		   and ref_no = #{ref_no}
+	]]>
+	</delete>
+	
+	<insert id="insertExcel" parameterType="excelVO">
+	<![CDATA[
+		insert into agwne.t_mac_excel (
+		       upload_file
+		     , filename_new
+		     , input_id
+		) values (
+		       #{upload_file}
+		     , #{filename_new}
+		     , #{input_id}
+		)
+	]]>
+		<selectKey keyProperty="excel_no" resultType="int" order="AFTER">
+		<![CDATA[
+			select CURRVAL('agwne.t_mac_excel_excel_no_seq')
+		]]>
+		</selectKey>
+	</insert>
+	
+</mapper>

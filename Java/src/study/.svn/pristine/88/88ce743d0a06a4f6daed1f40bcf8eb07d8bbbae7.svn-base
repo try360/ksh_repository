@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <typeAliases> 
+        <!-- 게시판 T_bbs tableVO --> 
+        <typeAlias type="kr.co.kt.agwne.dto.BbsVO" alias="bbsVO" />  
+        <!-- 덧글 T_reply tableVO -->
+        <typeAlias type="kr.co.kt.agwne.dto.ReplyVO" alias="replyVO" />
+        <!-- 첨부파일 T_attach tableVO -->
+        <typeAlias type="kr.co.kt.agwne.dto.AttachVO" alias="attachVO" />
+        <!-- code관리 T_code tableVO -->
+        <typeAlias type="kr.co.kt.agwne.dto.CodeVO" alias="codeVO" />   
+        <!-- model관리 T_code tableVO -->
+        <typeAlias type="kr.co.kt.agwne.dto.ModelVO" alias="modelVO" />      
+        <!-- 지역 리스트 -->
+        <typeAlias type="kr.co.kt.agwne.dto.OfficeVO" alias="officeVO" />  
+        <!--  광전화망설계요청 -->
+        <typeAlias type="kr.co.kt.agwne.dto.BusinessVO" alias="bsVO" />  
+        <!-- reform 엑셀 -->
+        <typeAlias type="kr.co.kt.agwne.dto.ReformExcelVO" alias="reformExcelVO" />
+        <!-- agw엑셀 -->
+         <typeAlias type="kr.co.kt.agwne.dto.AgwExcelVO" alias="agwExcelVO" />
+        <!--  4p엑셀 -->
+        <typeAlias type="kr.co.kt.agwne.dto.Agw4pExcelVO" alias="4pExcelVO" />  
+        <!-- model관리 T_model tableVO -->
+        <typeAlias type="kr.co.kt.agwne.dto.ModelVO" alias="modelVO" />
+
+        <typeAlias type="kr.co.kt.agwne.dto.ProcessVO" alias="psVO" />
+        <typeAlias type="kr.co.kt.agwne.dto.ModelInfoVO" alias="mdVO" />
+        <typeAlias type="kr.co.kt.agwne.dto.ConfirmUserVO" alias="cfVO" />
+        
+        <typeAlias type="kr.co.kt.agwne.dto.ConstructVO" alias="csVO" />
+        <typeAlias type="kr.co.kt.agwne.dto.ConstructMemVO" alias="csmemVO" />
+        <!-- 수요요청기간 설정 T_period tableVO -->
+        <typeAlias type="kr.co.kt.agwne.dto.PeriodVO" alias="periodVO" />
+        <!-- 예외자 설정 T_exception tableVO -->
+        <typeAlias type="kr.co.kt.agwne.dto.ExceptionVO" alias="exceptionVO" />
+        <!-- 사용자 관리 -->
+        <typeAlias type="kr.co.kt.agwne.dto.UserInfoVO" alias="userInfoVO" />  
+        <typeAlias type="kr.co.kt.agwne.dto.OrgVO" alias="orgVO" />  
+        <!-- 권한 관리 -->
+        <typeAlias type="kr.co.kt.agwne.dto.UserRoleVO" alias="userRoleVO" />
+        <typeAlias type="kr.co.kt.agwne.dto.ApprovalInfoVO" alias="approvalInfoVO" />
+        <!-- 비용 관리 -->
+        <typeAlias type="kr.co.kt.agwne.dto.CostVO" alias="costVO" />
+        <typeAlias type="kr.co.kt.agwne.dto.EmailVO" alias="emailVO" />
+        <typeAlias type="kr.co.kt.agwne.dto.FacilitiesVO" alias="facilitiesVO" />
+        <typeAlias type="kr.co.kt.agwne.dto.MacVO" alias="macVO" />
+        <typeAlias type="kr.co.kt.agwne.dto.UserExMailVO" alias="uemVO" />
+        <typeAlias type="kr.co.kt.agwne.dto.OrgUserExMailVO" alias="oueVO" />
+        <typeAlias type="kr.co.kt.agwne.dto.LogVO" alias="logVO" />
+        <typeAlias type="kr.co.kt.agwne.dto.BonbuVO" alias="bonbuVO" />
+        <typeAlias type="kr.co.kt.agwne.dto.ReformVO" alias="reformVO" />
+        <typeAlias type="kr.co.kt.agwne.dto.ReformDeviceVO" alias="reformDeviceVO" />
+        <typeAlias type="kr.co.kt.agwne.dto.MacExcelVO" alias="excelVO" />
+         <typeAlias type="kr.co.kt.agwne.dto.UserRoleAgwVO" alias="userRoleAgwVO" />
+		<typeAlias type="kr.co.kt.agwne.dto.data.NeossData" alias="neossDt" />
+		
+		 <typeAlias type="kr.co.kt.agwne.dto.EmsVO" alias="emsVO" />
+		 
+		 <!--  -->
+		 <typeAlias type="kr.co.kt.agwne.dto.MacOneVO" alias="macOneVO" />
+         <typeAlias type="kr.co.kt.agwne.dto.ReformFacilVO" alias="reformFacilVO" />
+         <typeAlias type="kr.co.kt.agwne.dto.SearchReformFacilVO" alias="searchReformFacilVO" />
+
+    </typeAliases>
+    
+    <!-- <plugins>
+    	<plugin interceptor="kr.co.kt.common.MybatisPlugin"></plugin>
+    </plugins> -->
+    
+</configuration>

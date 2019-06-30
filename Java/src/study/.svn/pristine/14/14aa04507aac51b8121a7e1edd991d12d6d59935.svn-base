@@ -1,0 +1,73 @@
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file ConstructVO.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.dto;
+
+import lombok.Data;
+
+@Data
+public class ConstructVO {
+
+	private int const_no; 			//공사번호
+	private int neoss_no;			//요청번호
+	private String st_dt;			//착공일
+	private String ed_dt;			//준공일
+	private String const_st_desc;	//공사개요
+	private String const_ed_desc;	//준공보고
+	private String input_id; 		//작성자
+	private String update_id;		//수정자
+	private String input_dt;		//작성일
+	private String time_stamp;		//수정일
+	
+	private int const_mem_no;		//인수자번호
+	private String mem_cd;			//인수자 종류 01:설계자 02:책임감리자 03:인수시험자 04: 공사업체
+	private String no_emp;
+	private int user_no;
+	private String emp_name;
+	private String ex_agency_nm;
+	private String dept_name;
+	private String ex_biz_company_nm;
+	
+	
+	private int const_mem_no_01;
+	private String mem_01_id;
+	private String mem_01_dept;
+	private String mem_01_name;
+	private int const_mem_no_02;
+	private String mem_02_id;
+	private String mem_02_dept;
+	private String mem_02_name;
+	private int const_mem_no_03;
+	private String mem_03_id;
+	private String mem_03_dept;
+	private String mem_03_name;
+	private int const_mem_no_04;
+	private String mem_04_id;
+	private String mem_04_dept;
+	private String mem_04_name;
+	
+	private int expense1; // 물자비
+	private int	expense2; //공사비
+	private int expense3; //경비
+	private int tot_expense; //총 비용 
+	
+	private String address1;
+	private String address2;
+	
+}

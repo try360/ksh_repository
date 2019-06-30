@@ -1,0 +1,109 @@
+@charset "EUC-KR";
+@import "common.css";
+
+section {
+    width: 100%;
+    margin: 0 auto !important;
+    min-height: 565px;
+}
+.container {
+    width: 1115px;
+    margin: 0 auto;
+    text-align: center;
+}
+.leftArea {
+    width: 686px;
+    display: inline-block;
+    float: left;
+    margin: 9px 0 0 0;
+}
+.rightArea {
+    width: 404px;
+    float: left;
+    display:inline-block;
+    margin: 9px 15px 0 10px;
+}
+#bottomArea {
+	clear: both;
+}
+#bottomArea ul {
+    width: 355px;
+    font-family: Dotum;
+    letter-spacing: -1px;
+    margin:20px 10px 0 0;
+    display: inline-block;
+    vertical-align: top;
+}
+#bottomArea ul h5 {
+    font-size: 13pt;
+    color: #ff2b2b;
+    border-bottom: 1px solid #d2d2d2;
+    padding:0 0 5px 0 ;
+    margin: 0 0  5px 0;
+    font-weight: bold;
+}
+#bottomArea ul img {
+    float: right;
+}
+#bottomArea ul li {
+    clear: both;
+    padding: 2px 0;
+    font-size:10pt;
+    font-family:gulim;
+    color:#666;
+    list-style-image: url("/resources/img/main_login_dott.gif");
+    list-style-position: inside;
+    letter-spacing: 0;
+}
+#bottomArea ul li:first-child li {
+    padding-top: 5px;
+    border-top: 1px solid #d2d2d2;
+}
+
+#bottomArea ul li em {
+    float: right;
+    font: 8pt Dotum;
+}
+#bottomArea ul li:hover {
+    background-color: #f7f7f7;
+}
+#userInfoArea {
+    border:1px solid #333;
+    display: inline-block;
+    width: calc(100% - 4px);
+}
+#userInfoArea img {
+    float: left;
+    padding: 10px;
+}
+#userInfoArea ul {
+    float: left;
+}
+#userInfoArea ul h5 {
+    margin: 0;
+    padding: 10px 0 5px 0;
+    color: #e74147;
+}
+#userInfoArea ul li {
+    list-style-image: url("/resources/img/main_login_dott.gif");
+    list-style-position: inside;
+    padding: 2px 0;
+    color: #727272;
+}
+#userInfoArea ul li b {
+    color: #000;
+}
+#favoriteIcon {
+    display: inline-block;
+    width: 100%;
+}
+#favoriteIcon img {
+    display: inline-block;
+}
+#favoriteIcon img:nth-child(even){
+    padding: 7px 0 10px 7px;
+}
+
+#daemun img {
+	width: 686px;
+}

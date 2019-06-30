@@ -1,0 +1,81 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file="/resources/inc/meta.jsp"%>
+<link rel="stylesheet" type="text/css" href="/resources/css/manage.css">
+<script src="/resources/js/manage.js" charset="UTF-8"></script>
+</head>
+<body>
+<%@ include file="/resources/inc/header_nav.jsp"%>
+<%@ include file="/resources/inc/aside.jsp"%>
+	<section>
+		<h1 class="req">이메일 관리</h1>
+		<div class="contents_form">
+			<!-- 타이틀, 경로 -->
+			<div class="divDocTitle">이메일 목록</div>
+			<div class="searchArea">
+			<form method="get" name="searchFrm" action="email">
+			<fieldset>
+			<legend>검색폼</legend>
+				<div id="controlgroup">
+					<input type="radio" name="searchType" id="searchType_1" value="a.receiver" placeholder="받는사람" ${pageInfo.searchType eq 'a.receiver'? 'checked' : '' } /><label for="searchType_1">받는사람</label>
+					<input type="radio" name="searchType" id="searchType_2" value="a.cc" placeholder="참조" ${pageInfo.searchType eq 'a.cc'? 'checked' : '' } /><label for="searchType_2">참조</label>
+					<input type="radio" name="searchType" id="searchType_3" value="a.bcc" placeholder="숨은참조" ${pageInfo.searchType eq 'a.bcc'? 'checked' : '' } /><label for="searchType_3">숨은참조</label>
+					<input type="radio" name="searchType" id="searchType_4" value="a.content" placeholder="내용" ${pageInfo.searchType eq 'a.content' || pageInfo.searchType eq ''? 'checked' : '' } /><label for="searchType_4">내용</label>
+					<input type="radio" name="searchType" id="searchType_5" value="a.date" placeholder="날짜" ${searchT eq 'a.date'? 'checked' : '' } /><label for="searchType_5">날짜</label>
+					<input type="text" name="searchTxt" value="${pageInfo.searchTxt }" class="ui-input" placeholder="내용" />
+					<button>검색</button>
+				</div>
+				<div class="search_box" style="display: none;">
+					<div class="radioset" >
+						<input type="radio" id="radio1" name="radio_date" value="all" ${pageInfo.radio_date eq 'all' || pageInfo.radio_date eq null ? 'checked' : '' }><label for="radio1">전체</label>
+						<input type="radio" id="radio2" name="radio_date" value="year" ${pageInfo.radio_date eq 'year' ? 'checked' : '' }><label for="radio2">년</label>
+						<input type="radio" id="radio3" name="radio_date" value="month" ${pageInfo.radio_date eq 'month' ? 'checked' : '' }><label for="radio3">월</label>
+						<input type="radio" id="radio4" name="radio_date" value="day" ${pageInfo.radio_date eq 'day' ? 'checked' : '' }><label for="radio4">일</label>
+					</div>
+					<div id="search_date" style="padding-left:10px; display:inline;">
+						<input type="text" style="width:80px" readonly="readonly" class="datepicker" name="st_date" id="st_date" value="${pageInfo.st_date }" readonly="readonly"/>&nbsp;~&nbsp;
+						<input type="text" style="width:80px" readonly="readonly" class="datepicker" name="ed_date" id="ed_date" value="${pageInfo.ed_date }" readonly="readonly"/>
+					</div>
+				</div>
+			</fieldset>
+			</form>			
+			</div>
+			
+			<table class="listTable" border="0" cellspacing="0" cellpadding="0">
+			<thead>
+			<tr>
+				<th width="60">번호</th>
+				<th>제목</th>
+				<th width="100">발송자</th>
+				<th width="100">발송일</th>
+			</tr>
+			</thead>
+			<c:if test="${not empty emailList }">
+			<tbody>
+				<c:forEach items="${emailList }" var="vo">
+			    <fmt:formatDate value="${vo.input_dt }" var="input_dt" pattern="yy/MM/dd hh:mm" />
+				<tr>
+					<td>${vo.rownum }</td>
+					<td class="left"><span class="title"><a href="email_view?no=${vo.email_no }&${pageInfo.param }">${vo.subject }</a></span></td>
+					<td>${vo.input_nm }</td>
+					<td>${input_dt }</td>
+				</tr>
+				</c:forEach>
+			</tbody>
+			</c:if>
+			</table>
+			
+			<%@ include file="/resources/inc/paging.jsp" %>
+		</div>
+	</section>
+<%@ include file = "/resources/inc/footer.jsp" %>
+<script type="text/javascript">
+var pageGb = "${pageGb}";
+</script>
+</body>
+</html>

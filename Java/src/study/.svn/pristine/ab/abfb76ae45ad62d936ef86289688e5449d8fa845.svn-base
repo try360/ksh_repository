@@ -1,0 +1,37 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file MacExcelVO.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.dto;
+
+import java.util.Date;
+import lombok.Data;
+
+
+@Data
+public class MacExcelVO {
+	private int excel_no;
+	private String upload_file;
+	private String filename_new;
+	private String insert_file;
+	private String duplicate_file;
+	private String input_id;
+	private Date input_dt;
+	
+	private String filepath;
+}

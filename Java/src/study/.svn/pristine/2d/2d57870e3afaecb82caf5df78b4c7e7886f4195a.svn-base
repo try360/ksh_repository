@@ -1,0 +1,467 @@
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file UserRoleServiceImpl.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.service.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import kr.co.kt.agwne.dao.UserRoleDAO;
+import kr.co.kt.agwne.dto.ApprovalInfoVO;
+import kr.co.kt.agwne.dto.BonbuVO;
+import kr.co.kt.agwne.dto.OrgVO;
+import kr.co.kt.agwne.dto.UserInfoVO;
+import kr.co.kt.agwne.dto.UserRoleAgwVO;
+import kr.co.kt.agwne.dto.UserRoleList;
+import kr.co.kt.agwne.dto.UserRoleVO;
+import kr.co.kt.agwne.service.UserRoleService;
+
+@Service
+public class UserRoleServiceImpl implements UserRoleService {
+	@Autowired
+    private UserRoleDAO userRoleDao; 
+	
+	private static final Logger logger = LoggerFactory.getLogger(UserRoleServiceImpl.class);
+	
+	@Override
+	public int userRole_totalCnt(UserRoleVO userRoleVO) throws Exception{
+		return userRoleDao.userRole_totalCnt(userRoleVO);
+	}
+	
+	@Override
+	public int approvalInfo_totalCnt(ApprovalInfoVO approvalInfoVO) throws Exception{
+		return userRoleDao.approvalInfo_totalCnt(approvalInfoVO);
+	}
+	
+	@Override
+	public List<ApprovalInfoVO> approvalInfo_list(ApprovalInfoVO approvalInfoVO) throws Exception{
+		return userRoleDao.approvalInfo_list(approvalInfoVO); 
+	}
+	
+	@Override
+	public List<UserRoleVO> userRole_list(UserRoleVO userRoleVO) throws Exception {
+		/*List<UserRoleVO> list = userRoleDao.userRole_list(userRoleVO);
+		StringBuffer sb;
+		for(int i=0; i<list.size(); i++) {
+			UserRoleVO vo = list.get(i);
+				sb = new StringBuffer();
+				if("1".equals(vo.getAppr_01())){
+					sb.append("투자확정,");
+				}
+				if("1".equals(vo.getAppr_02())){
+					sb.append("IP확정,");
+				}
+				if("1".equals(vo.getAppr_03())){
+					sb.append("MGID확정,");
+				}
+				if("1".equals(vo.getAppr_04())){
+					sb.append("COLCODE확정,");
+				}
+				if("03".equals(vo.getErp_job())) {
+					if("1".equals(vo.getAppr_05())){
+						sb.append("MAC확정&EMS전송,");
+					}
+					if("1".equals(vo.getAppr_06())){
+						sb.append("착공(공사요청),");
+					}
+				}
+				else {
+					if("1".equals(vo.getAppr_05())){
+						sb.append("장비정보등록,");
+					}
+					if("1".equals(vo.getAppr_06())){
+						sb.append("공사요청(착공),");
+					}
+					if("1".equals(vo.getAppr_07())){
+						sb.append("준공,");
+					}
+				}
+				String[] names = sb.toString().split(",");
+				if(names.length > 3) {
+					vo.setAppr_name(names[0]+","+names[1]+","+names[2]+"...");
+				}
+				else {
+					if(sb.toString().length() > 1) {
+						vo.setAppr_name(sb.toString().substring(0, sb.length()-1));
+					}
+				}
+				//System.out.println("##"+vo.getAppr_name());
+				list.get(i).setAppr_name(vo.getAppr_name());
+			//}
+		}
+		return list;*/
+		return null;
+	}	
+	
+	@Override
+	public List<UserRoleVO> userRoleInfo(UserRoleVO userRole) throws Exception{
+		/*List<UserRoleVO> list = userRoleDao.userRoleInfo(userRole);
+		if(list.size() != 3) {
+			return null;
+		}
+		StringBuffer sb;
+		for (int i=0;i<list.size();i++) {
+			sb = new StringBuffer();	
+			UserRoleVO userRoleVO = list.get(i);
+			if("1".equals(userRoleVO.getAppr_01())){
+				sb.append("투자확정,");
+			}
+			if("1".equals(userRoleVO.getAppr_02())){
+				sb.append("IP확정,");
+			}
+			if("1".equals(userRoleVO.getAppr_03())){
+				sb.append("MGID확정,");
+			}
+			if("1".equals(userRoleVO.getAppr_04())){
+				sb.append("COLCODE확정,");
+			}
+			if("03".equals(userRoleVO.getErp_job())) {
+				if("1".equals(userRoleVO.getAppr_05())){
+					sb.append("MAC확정&EMS전송,");
+				}
+				if("1".equals(userRoleVO.getAppr_06())){
+					sb.append("착공(공사요청),");
+				}
+			}
+			else {
+				if("1".equals(userRoleVO.getAppr_05())){
+					sb.append("장비정보등록,");
+				}
+				if("1".equals(userRoleVO.getAppr_06())){
+					sb.append("공사요청(착공),");
+				}
+				if("1".equals(userRoleVO.getAppr_07())){
+					sb.append("준공,");
+				}
+			}
+			String[] names = sb.toString().split(",");
+			if(names.length > 3) {
+				list.get(i).setAppr_name(names[0]+","+names[1]+","+names[2]+"...");
+			}
+			else {
+				if(sb.toString().length() > 1) {
+					list.get(i).setAppr_name(sb.toString().substring(0, sb.length()-1));
+				}
+			}
+			System.out.println("##"+list.get(i).getErp_job()+"#"+list.get(i).getAppr_name()+"::"+list.get(i).getAppr_role());			
+		}
+		
+		return list;*/
+		return null;
+	}
+	
+
+	@Override
+	public int userRole_update(UserRoleList userRoleList) throws Exception{
+		int count = 0;
+		for(UserRoleVO vo : userRoleList.getList()) {
+			vo.setUser_id(vo.getNo_emp());
+			System.out.println("#################Del:"+vo.getDel()+",User_id:"+vo.getUser_id()+",Appr_role:"+vo.getAppr_role());
+			if("1".equals(vo.getDel())) {
+				System.out.println("#UPDATE: "+vo.toString());
+				count += userRoleDao.userRole_update(vo);
+			}
+		}
+		return count;
+	}
+	
+	@Override
+	public ApprovalInfoVO approvalInfo_one(ApprovalInfoVO approvalInfoVO) throws Exception{
+		return userRoleDao.approvalInfo_one(approvalInfoVO);
+	}
+	
+	@Override
+	public BonbuVO approvalInfo_one(BonbuVO bonbuVO) throws Exception{
+		return userRoleDao.approvalInfo_one(bonbuVO);
+	}
+	
+	@Override
+	public UserRoleVO userRole_one(UserRoleVO userRoleVO) throws Exception{
+		UserRoleVO vo = userRoleDao.userRole_one(userRoleVO);
+		/*String appr = vo.getAppr_role();
+		if(appr != null) {
+			vo.setAppr1(vo.getAppr_role().substring(0,1));
+			vo.setAppr2(vo.getAppr_role().substring(1,2));
+			vo.setAppr3(vo.getAppr_role().substring(2,3));
+			vo.setAppr4(vo.getAppr_role().substring(3,4));
+			vo.setAppr5(vo.getAppr_role().substring(4,5));
+			vo.setAppr6(vo.getAppr_role().substring(5,6));
+			vo.setAppr7(vo.getAppr_role().substring(6));
+		}
+		System.out.println("#userRole_one:["+vo.getAppr1()+":"+vo.getAppr2()+":"+vo.getAppr3()+":"+vo.getAppr4()+":"+vo.getAppr5()+":"+vo.getAppr6()+":"+vo.getAppr7()+"]");
+		*/
+		return vo;
+	}
+	
+	@Override
+	public UserRoleVO userRole_one_chk(UserRoleVO userRoleVO) throws Exception{
+		return userRoleDao.userRole_one_chk(userRoleVO);
+	}
+	
+	@Override
+	@Transactional
+	public int userRole_reg(UserRoleVO userRoleVO) throws Exception{
+		System.out.println("# userRole_reg:INSERT:"+userRoleVO.toString());
+		return userRoleDao.userRole_reg(userRoleVO);
+	}
+	
+	@Override
+	@Transactional
+	public int userRole_update(UserRoleVO userRoleVO) throws Exception{
+		return userRoleDao.userRole_update(userRoleVO);
+	}
+	
+	@Override
+	@Transactional
+	public int userRole_updateOne(UserRoleVO userRoleVO) throws Exception{
+		return userRoleDao.userRole_updateOne(userRoleVO);
+	}
+	
+	@Override
+	@Transactional
+	public int userRole_deleteOne(UserRoleVO userRoleVO) throws Exception{
+		userRoleDao.userRole_deleteOne(userRoleVO);
+		/*userRoleVO.setAppr_01("0");
+		userRoleVO.setAppr_02("0");
+		userRoleVO.setAppr_03("0");
+		userRoleVO.setAppr_04("0");
+		userRoleVO.setAppr_05("0");
+		userRoleVO.setAppr_06("0");
+		userRoleVO.setAppr_07("0");*/
+		return userRoleDao.userRole_reg(userRoleVO);
+	}
+	
+	@Override
+	@Transactional
+	public int userRole_deletes(UserRoleList userRoleList) throws Exception{
+		int count = 0;
+		for(UserRoleVO vo : userRoleList.getList()) {
+			/*if(vo.getDel() == 1) {
+				System.out.println("2#################seq:"+vo.getSeq()+","+vo.getUser_id());
+				count += userRoleDao.userRole_deleteOne(vo);
+			}*/
+			vo.setUser_id(vo.getNo_emp());
+			System.out.println("#################Del:"+vo.getDel()+",User_id:"+vo.getUser_id()+",Appr_role:"+vo.getAppr_role());
+			if("1".equals(vo.getDel())) {
+				System.out.println("#DELETE: "+vo.toString());
+				count += userRoleDao.userRole_deleteOne(vo);
+				/*vo.setAppr_01("0");
+				vo.setAppr_02("0");
+				vo.setAppr_03("0");
+				vo.setAppr_04("0");
+				vo.setAppr_05("0");
+				vo.setAppr_06("0");
+				vo.setAppr_07("0");*/
+				userRoleDao.userRole_reg(vo);
+			}
+		}
+		return count;
+	}
+	
+	@Override
+	public int org_totalCnt(OrgVO orgVO) throws Exception{
+		return userRoleDao.org_totalCnt(orgVO);
+	}
+	
+	@Override
+	public List<OrgVO> org_list(OrgVO orgVO) throws Exception{
+		return userRoleDao.org_list(orgVO);
+	}
+	
+	@Override
+	public int user_totalCnt(UserInfoVO userInfoVO) throws Exception{
+		return userRoleDao.user_totalCnt(userInfoVO);
+	}
+	
+	@Override
+	public List<UserInfoVO> user_list(UserInfoVO userInfoVO) throws Exception{
+		return userRoleDao.user_list(userInfoVO);
+	}
+	
+	@Override
+	public List<ApprovalInfoVO> listApproval(ApprovalInfoVO info) throws Exception{
+//		List<ApprovalInfoVO> approvalList = userRoleDao.getApprovalList(info);
+		List<ApprovalInfoVO> approvalList = new ArrayList<ApprovalInfoVO>(); //테스트
+//		logger.info("### getApprovalList : "+approvalList.toString());
+//		if(approvalList.size() == 0 && ("cs".equals(info.getOrg()) || "ns".equals(info.getOrg()))) {
+			if("01".equals(info.getErp_job())) {// AGW
+				approvalList = userRoleDao.listApproval_AGW(info);
+			}
+			else if("02".equals(info.getErp_job())) {// Reform
+				approvalList = userRoleDao.listApproval_Reform(info);
+			}
+			else if("03".equals(info.getErp_job())) {// 4P
+				approvalList = new ArrayList<ApprovalInfoVO>();
+				info.setStep("01");//투장 확정
+				for(ApprovalInfoVO approvalInfoVO : userRoleDao.listApproval_4P(info)) {
+					if("1".equals(approvalInfoVO.getDft())){
+						approvalList.add(approvalInfoVO);
+					}
+				}
+				info.setStep("02");//IP 확정
+				for(ApprovalInfoVO approvalInfoVO : userRoleDao.listApproval_4P(info)) {
+					if("1".equals(approvalInfoVO.getDft())){
+						approvalList.add(approvalInfoVO);
+					}
+				}
+				info.setStep("03");//MGID 확정
+				for(ApprovalInfoVO approvalInfoVO : userRoleDao.listApproval_4P(info)) {
+					if("1".equals(approvalInfoVO.getDft())){
+						approvalList.add(approvalInfoVO);
+					}
+				}
+				info.setStep("04");//착공 확정
+				for(ApprovalInfoVO approvalInfoVO : userRoleDao.listApproval_4P(info)) {
+					if("1".equals(approvalInfoVO.getDft())){
+						approvalList.add(approvalInfoVO);
+					}
+				}
+				info.setStep("05");//colcode확정
+				for(ApprovalInfoVO approvalInfoVO : userRoleDao.listApproval_4P(info)) {
+					approvalInfoVO.setStep("05");
+					if("1".equals(approvalInfoVO.getDft())){
+						approvalList.add(approvalInfoVO);
+					}
+				}
+				/*info.setStep("06");//착공
+				for(ApprovalInfoVO approvalInfoVO : userRoleDao.listApproval_4P(info)) {
+					if("1".equals(approvalInfoVO.getDft())){
+						approvalList.add(approvalInfoVO);
+					}
+				}*/				
+			}
+//			if(approvalList.size() > 0) {
+//				System.out.println("\n\n"); logger.info("##########################################################################");
+//				for(ApprovalInfoVO vo : approvalList) {
+//					logger.info("STEP: "+vo.getStep()+" => "+vo.toString());
+//					userRoleDao.insertApproval(vo); //테스트시 주석
+//				}
+//				logger.info("##########################################################################");
+//			}
+//		}
+		logger.info("### approvalList size: "+approvalList.size());
+		return approvalList;
+	}
+
+	@Override
+	public int selectCmCnt(String dept_code) {
+		return userRoleDao.selectCmCnt(dept_code);
+	}	
+	@Override
+	public Map<String, ApprovalInfoVO> approvalMap(ApprovalInfoVO info) throws Exception{
+		return userRoleDao.approvalMap(info).stream().collect(Collectors.toMap(ApprovalInfoVO::getStep, approvalInfoVO->approvalInfoVO,(oldObj, newObj)->oldObj));
+	}
+
+	@Override
+	public Object selectCSNSall(BonbuVO vo) {
+		return userRoleDao.selectCSNSall(vo);
+	}
+	
+	@Override
+	public int reg_approval_user(BonbuVO bonbuVO) throws Exception{
+		//COLCODE(04) 경우 agwne.t_cm_team_mapping 확인
+/*		BonbuVO ret  = new BonbuVO();
+		if("05".equals(bonbuVO.getStep())) {
+			ret= userRoleDao.get_cm_code(bonbuVO);
+			if(ret == null) {
+				return -1;
+			}
+			bonbuVO.setReq_bonbu(ret.getReq_bonbu());
+			bonbuVO.setReq_name(ret.getReq_name());
+		}
+		logger.info("# reg_approval_user:"+bonbuVO.toString());*/
+		//userRoleDao.update_default_approval_user(bonbuVO);
+		
+		
+		return userRoleDao.reg_approval_user(bonbuVO);
+	}
+	
+	@Override
+	public List<BonbuVO> approval_user_list(BonbuVO bonbuVO) throws Exception{
+	/*	if("05".equals(bonbuVO.getStep())) {
+			bonbuVO.setStep("02");
+		}*/
+		return userRoleDao.approval_user_list(bonbuVO);
+	}
+	
+	@Override
+	public int select_default_user(List<Integer> appr_arry, List<Integer> appr_arryAll) throws Exception{
+		//userRoleDao.update_default_approval_user(bonbuVO);
+		return userRoleDao.select_default_user(appr_arry, appr_arryAll);
+	}
+	
+	@Override
+	public int delete_approval_user(BonbuVO bonbuVO) throws Exception{
+		return userRoleDao.delete_approval_user(bonbuVO);
+	}
+	
+	@Override
+	public int approval_req_update(BonbuVO bonbuVO) throws Exception{
+		return userRoleDao.approval_req_update(bonbuVO);
+	}
+
+	@Override
+	public List<UserRoleAgwVO> userRoleAgwList(UserRoleAgwVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		return userRoleDao.userRoleAgwList(vo);
+	}
+
+	@Override
+	public List<UserRoleAgwVO>  userRoleAgwView(UserRoleAgwVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		return userRoleDao.userRoleAgwView(vo);
+	}
+
+	@Override
+	public String userRoleAgwUpdate(List<Integer> vo, String user_id, String step) throws Exception {
+		// TODO Auto-generated method stub
+		return userRoleDao.userRoleAgwUpdate(vo, user_id,step);
+	}
+
+	@Override
+	public String userRoleAgwInsert(UserRoleAgwVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		return userRoleDao.userRoleAgwInsert(vo);
+	}
+	
+	@Override
+	public int userRoleAgwDel(UserRoleAgwVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		return  userRoleDao.userRoleAgwDel(vo);
+	}
+	
+	@Override
+	public List<ApprovalInfoVO> approvalInfo_list_one(BonbuVO bonbuVO) throws Exception {
+		// TODO Auto-generated method stub
+		return  userRoleDao.approvalInfo_list_one(bonbuVO);
+	}
+	
+	public BonbuVO reqInfoOne(BonbuVO bonbuVO) throws Exception {
+		// TODO Auto-generated method stub
+		return  userRoleDao.reqInfoOne(bonbuVO);
+	}	
+}

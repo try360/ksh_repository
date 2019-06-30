@@ -1,0 +1,58 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file FacilityDAO.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.dao;
+
+import java.util.HashMap;
+import java.util.List;
+
+import kr.co.kt.agwne.dto.*;
+
+public interface FacilityDAO {
+
+	public Object selectMacAll(HashMap<String, Object> map);
+	
+	public Object selectMacCnt(HashMap<String, Object> map);
+
+	public int selectDuplicate(String agw_mac);
+
+	public void insertOrUpdateExcelUpload(MacVO vo);
+
+	public void updateExcelFile(MacExcelVO excelVO);
+
+	public MacExcelVO selectMacExcel(int excel_no);
+
+	public void insertOrUpdateMac(MacOneVO vo);
+
+	public int excelUploadChk(String agw_mac);
+
+	public void macDelete(HashMap<String, Object> map);
+	
+	public MacOneVO macOneInfo(int mac_no);
+	
+	public int macUploadChk(String agw_mac);
+	
+	public void updateOK(MacOneVO vo);
+
+	public Object reformFacilList(SearchReformFacilVO vo);
+
+    public Object reformSearchCode();
+
+    public Object reformSearchVendor();
+}

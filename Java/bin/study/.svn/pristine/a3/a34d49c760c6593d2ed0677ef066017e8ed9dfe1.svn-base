@@ -1,0 +1,354 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file UserRoleDAOImpl.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.dao.impl;
+
+import java.util.List;
+
+import org.apache.ibatis.session.SqlSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import kr.co.kt.agwne.dao.UserRoleDAO;
+import kr.co.kt.agwne.dto.ApprovalInfoVO;
+import kr.co.kt.agwne.dto.BonbuVO;
+import kr.co.kt.agwne.dto.OrgVO;
+import kr.co.kt.agwne.dto.UserInfoVO;
+import kr.co.kt.agwne.dto.UserRoleAgwVO;
+import kr.co.kt.agwne.dto.UserRoleVO;
+
+
+@Repository
+public class UserRoleDAOImpl implements UserRoleDAO {
+	@Autowired
+	private SqlSession sqlSession;
+
+    private static final String Namespace = "kr.co.kt.agwne.userRoleMapper";
+
+    @SuppressWarnings("unused")
+	private static final Logger logger = LoggerFactory.getLogger(UserRoleDAOImpl.class);
+    
+    @Override
+    public int userRole_totalCnt(UserRoleVO userRoleVO) throws Exception{
+        return sqlSession.selectOne(Namespace + ".userRole_totalCnt", userRoleVO);
+    }
+    
+    @Override
+    public int approvalInfo_totalCnt(ApprovalInfoVO approvalInfoVO) throws Exception{
+    	return sqlSession.selectOne(Namespace + ".approvalInfo_totalCnt", approvalInfoVO);
+    }
+    
+    @Override
+    public List<ApprovalInfoVO> approvalInfo_list(ApprovalInfoVO approvalInfoVO) throws Exception{
+    	return sqlSession.selectList(Namespace + ".approvalInfo_list", approvalInfoVO);    
+    }
+    /*
+	@Override
+    public List<UserRoleVO> userRole_list(UserRoleVO userRoleVO) throws Exception{
+        return sqlSession.selectList(Namespace + ".userRole_list", userRoleVO);    
+    }
+	*/
+	@Override
+	public List<UserRoleVO> userRoleInfo(UserRoleVO userRoleVO) throws Exception{
+		return sqlSession.selectList(Namespace + ".userRoleInfo", userRoleVO);
+	}
+
+	
+	@Override
+	public int userRole_update(UserRoleVO userRoleVO) throws Exception{
+		/*if(sqlSession.selectOne(Namespace + ".userRole_one_chk", userRoleVO) != null) {
+			System.out.println("# duplication Error!!!");
+			return -2;
+		}
+		UserRoleVO temp = (UserRoleVO)sqlSession.selectOne(Namespace + ".userRole_old", userRoleVO);
+		if(temp == null) {
+			System.out.println("1.select t_user_role Fail! "+userRoleVO.getUser_id());
+			throw new Exception();
+		}
+		*/
+		/*if(sqlSession.update(Namespace + ".userRole_delete", temp) != 1) {
+			System.out.println("2.delete t_user_role Fail! "+userRoleVO.getUser_id());
+			throw new Exception();
+		}*/
+		//StringBuffer sb = new StringBuffer();
+		//sb.append(userRoleVO.getAppr1());
+		//sb.append(userRoleVO.getAppr2());
+		//sb.append(userRoleVO.getAppr3());
+		//sb.append(userRoleVO.getAppr4());
+		//sb.append(userRoleVO.getAppr5());
+		//sb.append(userRoleVO.getAppr6());
+		//sb.append(userRoleVO.getAppr7());
+		//userRoleVO.setAppr_role(sb.toString());
+		return sqlSession.update(Namespace + ".userApprRole_update", userRoleVO);
+	}
+
+	@Override
+	public int userRole_updateOne(UserRoleVO userRoleVO) throws Exception{
+		//userInfo ¿¡¼­ »ç¿ë
+		return sqlSession.insert(Namespace + ".userRole_update_one", userRoleVO);
+	}
+	
+	@Override
+	public int userApprRole_update(UserRoleVO userRoleVO) throws Exception{
+		return sqlSession.update(Namespace + ".userApprRole_update", userRoleVO);
+	}
+	
+	@Override
+	public UserRoleVO userRole_one(UserRoleVO userRoleVO) throws Exception{
+		return (UserRoleVO)sqlSession.selectOne(Namespace + ".userRole_one", userRoleVO);
+	}
+	
+	@Override
+	public ApprovalInfoVO approvalInfo_one(ApprovalInfoVO approvalInfoVO) throws Exception{
+		return (ApprovalInfoVO)sqlSession.selectOne(Namespace + ".approvalInfo_one", approvalInfoVO);
+	}
+	
+	@Override
+	public BonbuVO approvalInfo_one(BonbuVO bonbuVO) throws Exception{
+		return (BonbuVO)sqlSession.selectOne(Namespace + ".approvalInfo_one", bonbuVO);
+	}
+	
+	@Override
+	public UserRoleVO userRole_one_chk(UserRoleVO userRoleVO) throws Exception{
+		return (UserRoleVO)sqlSession.selectOne(Namespace + ".userRole_one_chk", userRoleVO);
+	}	
+	
+	@Override
+	public int userRole_reg(UserRoleVO userRoleVO) throws Exception{
+		return sqlSession.insert(Namespace + ".userRole_insert", userRoleVO);
+	}
+	
+	@Override
+	public int userRole_delete(UserRoleVO userRoleVO) throws Exception{
+		return sqlSession.update(Namespace + ".userRole_delete", userRoleVO);
+	}
+	
+	@Override
+	public int userRole_dels(UserRoleVO userRoleVO) throws Exception{
+		return sqlSession.update(Namespace + ".userRole_dels", userRoleVO);
+	}
+
+	@Override
+	public int userRole_deleteOne(UserRoleVO userRoleVO) throws Exception{
+		return sqlSession.update(Namespace + ".userRole_delete_one", userRoleVO);
+	}
+
+	@Override
+	public int org_totalCnt(OrgVO orgVO) throws Exception{
+		return sqlSession.selectOne(Namespace + ".org_totalCnt", orgVO);
+	}
+	
+	@Override
+	public List<OrgVO> org_list(OrgVO orgVO) throws Exception{
+		return sqlSession.selectList(Namespace + ".org_list", orgVO);
+	}
+	
+	@Override
+	public int user_totalCnt(UserInfoVO userInfoVO) throws Exception{
+		return sqlSession.selectOne(Namespace + ".user_totalCnt", userInfoVO);
+	}
+	
+	@Override
+	public List<UserInfoVO> user_list(UserInfoVO userInfoVO) throws Exception{
+		return sqlSession.selectList(Namespace + ".user_list", userInfoVO);
+	}
+	
+	@Override
+	public List<ApprovalInfoVO> listApproval(ApprovalInfoVO info) throws Exception{
+		return sqlSession.selectList(Namespace + ".listApproval", info);
+	}
+	
+	@Override
+	public List<ApprovalInfoVO> approvalMap(ApprovalInfoVO info) throws Exception{
+		return sqlSession.selectList(Namespace + ".listApprovalMap", info);
+	}
+	
+	@Override
+	public List<ApprovalInfoVO> listApproval_AGW(ApprovalInfoVO info) throws Exception{
+		return sqlSession.selectList(Namespace + ".listApproval_AGW", info);
+	}
+	
+	@Override
+	public List<ApprovalInfoVO> listApproval_Reform(ApprovalInfoVO info) throws Exception{
+		return sqlSession.selectList(Namespace + ".listApproval_Reform", info);
+	}
+	
+	@Override
+	public List<ApprovalInfoVO> listApproval_4P(ApprovalInfoVO info) throws Exception{
+//		logger.info("##4P#PARAM::"+info.toString());
+		if("02".equals(info.getStep())) {
+			// CMÆÀ(cs) => ¿î¿ëÆÀ(ns) ½ÂÀÎÀÚ
+			return sqlSession.selectList(Namespace + ".listApproval_4P_IP", info);
+		}
+		else if("05".equals(info.getStep())) {
+			// CMÆÁ(cs) => CSÁö¿ø(cs) ½ÂÀÎÀÚ
+			return sqlSession.selectList(Namespace + ".listApproval_4P_Col", info);
+		}
+		else {
+			return sqlSession.selectList(Namespace + ".listApproval_4P", info);
+		}
+	}
+	
+	@Override
+	public List<ApprovalInfoVO> getApprovalList(ApprovalInfoVO info) throws Exception{
+		return sqlSession.selectList(Namespace + ".getApprovalList", info);
+	}
+	
+	@Override
+	public int insertApproval(ApprovalInfoVO info) throws Exception{
+		return sqlSession.insert(Namespace + ".insertApproval", info);
+	}
+	/*	
+	@Override
+	public int userRole_update_appr(UserRoleVO userRoleVO) throws Exception{
+		if(userRoleVO.getUser_id() == null || userRoleVO.getErp_job() == null || userRoleVO.getAppr_role() == null) {
+			return 0;
+		}
+		System.out.println("\n\n\n\n"+userRoleVO.toString());
+		return sqlSession.update(Namespace + ".userRole_update_appr", userRoleVO);
+	}
+*/
+	@Override
+	public int selectCmCnt(String dept_code) {
+		return sqlSession.selectOne(Namespace +".selectCmCnt", dept_code);
+	}
+
+	@Override
+	public Object selectCSNSall(BonbuVO vo) {
+		return sqlSession.selectList(Namespace +".selectCSNSall", vo);
+	}
+	
+	@Override
+	public int reg_approval_user(BonbuVO bonbuVO) throws Exception{
+		/*if("05".equals(bonbuVO.getStep())) {
+			bonbuVO.setStep("02");
+		}*/
+		int user_no = bonbuVO.getUser_no();
+		String user_id = bonbuVO.getReg_id();
+		BonbuVO apprVO = sqlSession.selectOne(Namespace+".selectApprUser" , bonbuVO);
+		apprVO.setUser_no(user_no);
+		apprVO.setReg_id(user_id);
+		apprVO.setDft("0");
+		return sqlSession.insert(Namespace + ".insertApprovalUser", apprVO);
+	}
+	
+	@Override
+	public int update_default_approval_user(BonbuVO bonbuVO) throws Exception{
+		return sqlSession.update(Namespace + ".updateDefaultApprovalUser", bonbuVO);
+	}
+	
+	@Override
+	public List<BonbuVO> approval_user_list(BonbuVO bonbuVO) throws Exception{
+		return sqlSession.selectList(Namespace + ".selectApprovalUserList", bonbuVO);
+	}
+	
+	@Override
+	public int select_default_user(List<Integer> appr_arry, List<Integer> appr_arryAll) throws Exception{
+		 sqlSession.update(Namespace + ".setDefaultUser", appr_arryAll);
+		return sqlSession.update(Namespace + ".selectDefaultUser", appr_arry);
+	}
+
+	@Override
+	public int delete_approval_user(BonbuVO bonbuVO) throws Exception{
+		return sqlSession.update(Namespace + ".deleteApprovalUser", bonbuVO);
+	}
+	
+	@Override
+	public BonbuVO get_cm_code(BonbuVO bonbuVO) throws Exception{
+		return sqlSession.selectOne(Namespace +".getCmCode", bonbuVO);
+	}
+	
+	@Override
+	public BonbuVO get_req_bonbu(BonbuVO bonbuVO) throws Exception{
+		return sqlSession.selectOne(Namespace +".get_req_bonbu", bonbuVO);
+	}
+	
+	@Override
+	public int approval_req_update(BonbuVO bonbuVO) throws Exception{
+		return sqlSession.update(Namespace + ".updateApprovalReq", bonbuVO);
+	}
+
+	@Override
+	public List<UserRoleAgwVO> userRoleAgwList(UserRoleAgwVO vo) throws Exception {
+		return sqlSession.selectList(Namespace + ".userRoleAgwList", vo);
+	}
+
+	@Override
+	public List<UserRoleAgwVO> userRoleAgwView(UserRoleAgwVO vo) throws Exception {
+		return sqlSession.selectList(Namespace + ".userRoleAgwView", vo);
+	}
+
+	@Override
+	public String userRoleAgwUpdate(List<Integer> vo,String user_id, String step) throws Exception {
+		String result = "success";
+		int cnt = 0;
+		UserRoleAgwVO agwvo = new UserRoleAgwVO();
+		agwvo.setDft("1");
+		agwvo.setReg_id(user_id);
+		agwvo.setStep(step);
+		if(vo.get(0)>0) {
+			agwvo.setApproval_no(vo.get(0));
+			cnt = sqlSession.update(Namespace + ".userRoleAgwUpdateBefore",  agwvo);
+		}else {
+			result="fail";
+		}
+		if(cnt>0) {
+			cnt=0;
+			for(Integer approval_no : vo) {
+				agwvo.setApproval_no(approval_no);
+				cnt +=sqlSession.update(Namespace + ".userRoleAgwUpdate", agwvo);
+			}
+		}else {
+			result ="fail";
+		}
+		if(vo.size() != cnt) {
+			result="fail";
+		}
+		return result;
+	}
+
+	@Override
+	public String userRoleAgwInsert(UserRoleAgwVO vo) throws Exception {
+		String result = "OK";
+		int sf = 0;
+					sf = sqlSession.insert(Namespace + ".userRoleAgwInsert", vo);
+					if(sf==0) {
+						result="FAIL";
+					}
+		return result;
+	}
+
+	@Override
+	public int userRoleAgwDel(UserRoleAgwVO vo) throws Exception {
+		return sqlSession.update(Namespace + ".userRoleAgwDel", vo);
+	}
+
+	@Override
+	public List<ApprovalInfoVO> approvalInfo_list_one(BonbuVO bonbuVO) throws Exception {
+		return sqlSession.selectList(Namespace + ".approvalInfo_list_one", bonbuVO);
+	}
+	
+	@Override
+	public BonbuVO reqInfoOne(BonbuVO bonbuVO) throws Exception {
+		return sqlSession.selectOne(Namespace + ".reqInfoOne", bonbuVO);
+	}
+	
+}

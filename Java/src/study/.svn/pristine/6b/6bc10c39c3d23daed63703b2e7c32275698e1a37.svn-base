@@ -1,0 +1,62 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file OrgUserVO.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.dto;
+
+import kr.co.kt.common.PagingInfo;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@EqualsAndHashCode(callSuper=false)
+@SuppressWarnings("serial")
+@Data
+@Getter @Setter @ToString
+public class OrgUserVO extends PagingInfo {
+	
+	String no_emp;
+	String emp_name;
+	String status;
+	String jikwi_cd;
+	String jikwi;
+	String ex_title_cd;
+	String ex_title_nm;
+	String dept_code;
+	String dept_name;
+	String org_code;
+	String org_name;
+	String ex_bonbu_cd;
+	String ex_bonbu_nm;
+	String ex_agency_cd;
+	String ex_agency_nm;
+	String ex_company_cd;
+	String ex_company_nm;
+	String email_address;
+	String phone_number;
+	String batch_flag;
+	String batch_date;	
+	String bonbu;
+	String bonbu_name;
+	String office_nm;
+	String org;
+	String staff;	
+	
+}

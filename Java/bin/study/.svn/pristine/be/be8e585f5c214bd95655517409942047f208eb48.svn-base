@@ -1,0 +1,1648 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kt.agwne.userRoleMapper">
+
+    <select id="userRole_totalCnt" parameterType="userRoleVO" resultType="int">
+    /* userRoleMapper.userRole_totalCnt */
+    
+        select count(*) totalRecordCount
+	    from agwne.t_org_user usr left outer join (
+		    select user_no, role, erp_job, appr_role, orgcodes, orgnames from agwne.t_user_role where erp_job = '${erp_job}' and use_yn = 'Y') rol 
+		    on rol.user_no = usr.user_no
+	    where 1=1
+        <if test="searchTxt != null and searchTxt != ''">
+	    	<choose>
+        	<when test="searchType == 'bonbu' or searchType == 'dept_code'">
+        	<![CDATA[
+        		and usr.${searchType} in (select orgscode from agwne.t_org where orgname like '%${searchTxt}%' )
+        	]]>
+        	</when>
+        	<otherwise>
+	        <![CDATA[ 	        
+		      	and usr.${searchType} like '%${searchTxt}%'
+		    ]]>
+		    </otherwise>
+		    </choose>
+	    </if>
+                   
+    </select>
+    
+    <select id="approvalInfo_totalCnt" parameterType="approvalInfoVO" resultType="int">
+    /* userRoleMapper.approvalInfo_totalCnt */
+    
+        select count(*) totalRecordCount
+	    from agwne.t_approval_manager a, agwne.t_org_user u
+	    where a.no_emp = u.no_emp
+	    and a.use_yn = 'Y'
+	    and a.erp_job = '${erp_job}'
+	    and a.step = '${step}'
+        <if test="searchTxt != null and searchTxt != ''">
+		   	and a.${searchType} like '%${searchTxt}%'
+	    </if>          
+	         
+    </select> 	
+ 	
+ 	<select id="approvalInfo_one" parameterType="bonbuVO" resultType="bonbuVO">
+ 	/* userRoleMapper.approvalInfo_one */ 	
+ 		<!-- <![CDATA[
+		select a.orgscode, a.orgname
+		     , a.orgscode3, a.orgname3
+			 , a.orgscode2, a.orgname2
+			 , a.orgscode1, a.orgname1
+			 , a.office_nm
+			 , a.region
+			 , a.csbonbu, b1.orgname as csbonbu_name
+			 , a.nsbonbu, b2.orgname as nsbonbu_name
+			 , a.cm_code, b3.orgname as cm_code_name
+			 , a.oper_code, b4.orgname as oper_code_name
+			 , b3.hierarchy as cm_office_cd
+			 , b3.office_nm as cm_office_nm
+			 , b4.hierarchy as oper_office_cd
+			 , b4.office_nm as oper_office_nm
+			 , a.org
+			 
+             , p01.req_bonbu as req_bonbu_01
+             , p01.req_name as req_name_01
+             , p01.appr_bonbu as appr_bonbu_01
+             , p01.appr_name as appr_name_01
+             , p01.org_code as org_code_01
+             , p01.dept_code as dept_code_01
+             , p01.dept_name as dept_name_01
+             , p01.user_no as user_no_01
+			 , p01.emp_name as emp_name_01
+			 
+             , p02.req_bonbu as req_bonbu_02
+             , p02.req_name as req_name_02
+             , p02.appr_bonbu as appr_bonbu_02
+             , p02.appr_name as appr_name_02
+             , p02.org_code as org_code_02
+             , p02.dept_code as dept_code_02
+             , p02.dept_name as dept_name_02
+             , p02.user_no as user_no_02
+			 , p02.emp_name as emp_name_02
+
+             , p03.req_bonbu as req_bonbu_03
+             , p03.req_name as req_name_03
+             , p03.appr_bonbu as appr_bonbu_03
+             , p03.appr_name as appr_name_03
+             , p03.org_code as org_code_03
+             , p03.dept_code as dept_code_03
+             , p03.dept_name as dept_name_03
+             , p03.user_no as user_no_03
+			 , p03.emp_name as emp_name_03
+
+             , p04.req_bonbu as req_bonbu_04
+             , p04.req_name as req_name_04
+             , p04.appr_bonbu as appr_bonbu_04
+             , p04.appr_name as appr_name_04
+             , p04.org_code as org_code_04
+             , p04.dept_code as dept_code_04
+             , p04.dept_name as dept_name_04
+             , p04.user_no as user_no_04
+			 , p04.emp_name as emp_name_04
+
+             , p05.req_bonbu as req_bonbu_05
+             , p05.req_name as req_name_05
+             , p05.appr_bonbu as appr_bonbu_05
+             , p05.appr_name as appr_name_05
+             , p05.org_code as org_code_05
+             , p05.dept_code as dept_code_05
+             , p05.dept_name as dept_name_05
+             , p05.user_no as user_no_05
+			 , p05.emp_name as emp_name_05
+		 from (
+				select a.orgscode
+					 , a1.orgname as orgname1, a1.orgscode as orgscode1
+					 , a2.orgname as orgname2, a2.orgscode as orgscode2
+					 , a3.orgname as orgname3, a3.orgscode as orgscode3
+					 , a.orgname as orgname
+					 , b01.region as region
+			         , a1.orgscode as csbonbu
+					 , b01.approval as nsbonbu
+			         , a.orgscode as cm_code
+					 , b02.oper_code as oper_code
+					 , 'cs' as org
+			 	     , a.office_nm
+				  from agwne.t_bonbu_level a
+					   left outer join agwne.t_bonbu_level a1 on (cast(a.hierarchy[1] as varchar) = a1.orgscode)
+					   left outer join agwne.t_bonbu_level a2 on (cast(a.hierarchy[2] as varchar) = a2.orgscode)
+					   left outer join agwne.t_bonbu_level a3 on (cast(a.hierarchy[3] as varchar) = a3.orgscode)
+					   left outer join agwne.t_org_mapping b01 on (a1.orgscode = b01.bonbu)
+					   left outer join agwne.t_cm_team_mapping b02 on (a.orgscode = b02.cm_code)
+				 where a.orgname like '%CM팀'
+		       ) a
+			   left outer join agwne.t_bonbu_level b1 on (a.csbonbu = b1.orgscode)
+			   left outer join agwne.t_bonbu_level b2 on (a.nsbonbu = b2.orgscode)
+			   left outer join agwne.t_bonbu_level b3 on (a.cm_code = b3.orgscode)
+			   left outer join agwne.t_bonbu_level b4 on (a.oper_code = b4.orgscode)
+			   left outer join agwne.t_approval_manager p01 on (a.csbonbu = p01.appr_bonbu and p01.use_yn = 'Y' and p01.erp_job = '03' and p01.step = '01' and p01.dft = '1')
+			   left outer join agwne.t_approval_manager p02 on (a.oper_code = p02.appr_bonbu and p02.use_yn = 'Y' and p02.erp_job = '03' and p02.step = '02' and p02.dft = '1')
+			   left outer join agwne.t_approval_manager p03 on (a.nsbonbu = p03.appr_bonbu and p03.use_yn = 'Y' and p03.erp_job = '03' and p03.step = '03' and p03.dft = '1')
+			   left outer join agwne.t_approval_manager p04 on (a.csbonbu = p04.req_bonbu and p04.use_yn = 'Y' and p04.erp_job = '03' and p04.step = '04' and p04.dft = '1')
+			   left outer join agwne.t_approval_manager p05 on (a.cm_code = p05.req_bonbu and p05.use_yn = 'Y' and p05.erp_job = '03' and p05.step = '05' and p05.dft = '1')
+		 where 1=1
+		   and region = #{region}
+	]]>
+	<if test="orgscode1 != null and orgscode1 != ''">
+		   and a.orgscode1 = #{orgscode1}
+	</if>
+	<if test="orgscode2 != null and orgscode2 != ''">
+		   and a.orgscode2 = #{orgscode2}
+	</if>
+	<if test="orgscode3 != null and orgscode3 != ''">
+		   and a.orgscode3 = #{orgscode3}
+	</if>
+	<if test="orgscode != null and orgscode != ''">
+		   and a.orgscode = #{orgscode}
+	</if>
+	<if test="csbonbu != null and csbonbu != ''">
+		   and csbonbu = #{csbonbu}
+	</if>
+	<if test="nsbonbu != null and nsbonbu != ''">
+		   and nsbonbu = #{nsbonbu}
+	</if>
+	<if test="cm_code != null and cm_code != ''">
+		   and cm_code = #{cm_code}
+	</if>
+	<if test="oper_code != null and oper_code != ''">
+		   and oper_code = #{oper_code}
+	</if>	
+	<if test="user_no_01 != null and user_no_01 != ''">
+		   and p01.user_no = #{user_no_01}
+	</if>
+	<if test="user_no_02 != null and user_no_02 != ''">
+		   and p02.user_no = #{user_no_02}
+	</if>
+	<if test="user_no_03 != null and user_no_03 != ''">
+		   and p03.user_no = #{user_no_03}
+	</if>
+	<if test="user_no_04 != null and user_no_04 != ''">
+		   and p04.user_no = #{user_no_04}
+	</if>
+	<if test="user_no_05 != null and user_no_05 != ''">
+		   and p05.user_no = #{user_no_05}
+	</if>
+	<if test="user_no_06 != null and user_no_06 != ''">
+		   and p06.user_no = #{user_no_06}
+	</if>
+			limit 1  -->
+    </select>
+    
+    <select id="approvalInfo_one_bak" parameterType="approvalInfoVO" resultType="approvalInfoVO">
+ 	/* userRoleMapper.approvalInfo_one_bak */ 	
+ 		select 
+			 a.erp_job
+		    ,a.step
+		    ,a.req_bonbu
+		    ,a.req_name
+		    ,a.appr_bonbu
+		    ,a.appr_name
+		    ,a.org_code
+		    ,u.porgsname org_name
+		    ,a.dept_code
+		    ,a.dept_name
+		    ,a.no_emp
+		    ,a.emp_name
+		    ,a.dft
+		    ,a.approval_no
+		    ,a.reg_id
+		    ,a.reg_date
+		    ,a.upt_id
+		    ,a.upt_date
+	    from agwne.t_approval_manager a, agwne.t_org_user u
+	    where a.no_emp = u.no_emp
+	    and a.use_yn = 'Y'
+	    and a.erp_job = '${erp_job}'
+	    and a.step = '${step}' 
+	    and a.no_emp = '${no_emp}' 
+	    and a.approval_no = '${approval_no}' 
+
+    </select>
+    
+    <select id="approvalInfo_list_one" parameterType="bonbuVO" resultType="approvalInfoVO">
+    /* userRoleMapper.approvalInfo_one_list */
+    select * from (
+    	SELECT * FROM agwne.t_approval_manager 
+    	WHERE req_bonbu = #{orgscode1}
+		AND erp_job = '03' AND step ='01' AND use_yn ='Y' 
+			UNION ALL
+		SELECT a.* FROM agwne.t_approval_manager a
+		LEFT OUTER JOIN agwne.t_cm_team_mapping b ON(a.appr_bonbu = b.oper_code and b.use_yn ='Y')
+		WHERE b.cm_code =#{orgscode}
+		AND erp_job = '03' AND step ='02' AND a.use_yn ='Y' 
+			UNION ALL
+		SELECT a.* FROM agwne.t_approval_manager a
+		LEFT OUTER JOIN agwne.t_org_mapping b ON (a.appr_bonbu = b.approval and b.use_yn ='Y')
+		WHERE b.bonbu= #{orgscode1}
+		AND erp_job = '03' AND step ='03' AND a.use_yn ='Y'
+			UNION ALL
+		SELECT * FROM agwne.t_approval_manager a 
+		WHERE req_bonbu=#{orgscode1}
+		AND erp_job = '03' AND step ='04' AND a.use_yn ='Y'
+			UNION ALL
+		SELECT * FROM agwne.t_approval_manager WHERE 
+		req_bonbu=#{orgscode}
+		AND erp_job = '03' AND step ='05' AND use_yn ='Y' 
+		
+     ) a order by a.step, dft desc, appr_name, emp_name asc
+    </select>
+    <select id="reqInfoOne" parameterType="bonbuVO" resultType="bonbuVO">
+    	<![CDATA[
+    	SELECT 
+    		org1.orgscode orgscode1, org2.orgscode orgscode2, org3.orgscode orgscode3, a.orgscode orgscode, 
+    		org1.orgname orgname1, org2.orgname orgname2, org3.orgname orgname3, a.orgname 
+    	FROM agwne.t_bonbu_level a 
+			LEFT OUTER JOIN agwne.t_bonbu_level org1 ON (cast (a.hierarchy[1] as varchar) = org1.orgscode)
+			LEFT OUTER JOIN agwne.t_bonbu_level org2 ON (cast (a.hierarchy[2] as varchar) = org2.orgscode)
+			LEFT OUTER JOIN agwne.t_bonbu_level org3 ON (cast (a.hierarchy[3] as varchar) = org3.orgscode)
+		WHERE a.orgscode =#{orgscode}
+    	]]>
+    	
+    </select>
+ 	
+ 	<select id="approvalInfo_list" parameterType="approvalInfoVO" resultType="approvalInfoVO">
+ 	/* userRoleMapper.approvalInfo_list */
+ 	
+		select 
+			 a.erp_job
+		    ,a.step
+		    ,a.req_bonbu
+		    ,a.req_name
+		    ,a.appr_bonbu
+		    ,a.appr_name
+		    ,a.org_code
+		    ,u.porgsname org_name
+		    ,a.dept_code
+		    ,a.dept_name
+		    ,a.no_emp
+		    ,a.emp_name
+		    ,a.dft
+		    ,a.approval_no
+		    ,a.reg_id
+		    ,a.reg_date
+		    ,a.upt_id
+		    ,a.upt_date
+		from agwne.t_approval_manager a, agwne.t_org_user u
+	    where a.no_emp = u.no_emp
+	    and a.use_yn = 'Y'
+	    and a.erp_job = '${erp_job}'
+	    and a.step = '${step}'
+        <if test="searchTxt != null and searchTxt != ''">
+		   	and a.${searchType} like '%${searchTxt}%'
+	    </if>
+	    order by u.org, a.appr_bonbu, a.dept_code, a.no_emp
+ 	    limit ${recordsPerPage} offset ${startRecord} 		
+
+    </select>
+ 	
+ 	<select id="userRole_list" parameterType="userRoleVO" resultType="userRoleVO">
+ 	/* userRoleMapper.userRole_list */
+ 	
+		select 
+			 usr.user_no
+		    ,usr.emp_name
+		    ,usr.dept_code
+		    ,usr.dept_name
+		    ,usr.dept_name
+		    ,usr.bonbu
+		    ,(select o.orgname from agwne.t_org o where o.orgscode = usr.bonbu) bonbu_name
+		    ,ex_agency_nm bonbu_name
+		    ,usr.porgscode
+		    ,usr.org
+		    ,rol.role
+		    ,rol.erp_job
+		    ,rol.appr_01
+		    ,rol.appr_02
+		    ,rol.appr_03
+		    ,rol.appr_04
+		    ,rol.appr_05
+		    ,rol.appr_06
+		    ,rol.appr_07
+		    <!-- ,rol.appr_role appr_role_old -->
+		    ,rol.orgcodes
+		    ,rol.orgnames
+		from agwne.t_org_user usr left outer join (
+		    select user_no, role, erp_job, appr_01, appr_02, appr_03, appr_04, appr_05, appr_06, appr_07, orgcodes, orgnames 
+		    from agwne.t_user_role 
+		    where erp_job = '${erp_job}' 
+		    and use_yn = 'Y') rol 
+		    on rol.user_no = usr.user_no
+	    where 1=1
+        <if test="searchTxt != null and searchTxt != ''">
+	    	<choose>
+        	<when test="searchType == 'bonbu' or searchType == 'dept_code'">
+        	<![CDATA[
+        		and usr.${searchType} in (select orgscode from agwne.t_org where orgname like '%${searchTxt}%' )
+        	]]>
+        	</when>
+        	<otherwise>
+	        <![CDATA[ 	        
+		      	and usr.${searchType} like '%${searchTxt}%'
+		    ]]>
+		    </otherwise>
+		    </choose>
+	    </if>
+	    order by bonbu, dept_code, no_emp
+ 	    limit ${recordsPerPage} offset ${startRecord} 		
+
+    </select>
+    
+    <select id="userRoleInfo" parameterType="userRoleVO" resultType="userRoleVO">
+    /* userRoleMapper.userRoleInfo */
+ 		select
+			rol.user_no,
+		    rol.role,
+            rol.use_yn,
+            rol.reg_id,
+            rol.reg_date,
+            rol.upt_id,
+            rol.upt_date
+ 		from agwne.t_user_role rol 
+ 		where rol.use_yn = 'Y'
+ 		and rol.user_no in (select user_no from agwne.t_org_user where no_emp = #{user_id})
+    </select>
+    
+    <select id="userRole_erp_job" parameterType="userRoleVO" resultType="userRoleVO">
+    /* userRoleMapper.userRole_erp_job */
+ 		select
+			rol.user_no,
+			rol.ip,
+		    rol.role,
+		    rol.erp_job,
+            rol.appr_role,
+            rol.orgcodes,
+            rol.orgnames,
+            rol.use_yn,
+            rol.reg_id,
+            rol.reg_date,
+            rol.upt_id,
+            rol.upt_date
+ 		from agwne.t_user_role rol 
+ 		where rol.use_yn = 'Y'
+ 		and rol.user_no = '${user_no}'
+ 		and rol.erp_job = '${erp_job}'
+    </select>
+    
+    <select id="userRole_old" parameterType="userRoleVO" resultType="userRoleVO">
+    /* userRoleMapper.userRole_old */
+ 		select
+			rol.user_no,
+			rol.ip,
+		    rol.role,
+		    rol.erp_job,
+            rol.appr_role,
+            rol.orgcodes,
+            rol.orgnames,
+            rol.use_yn,
+            rol.reg_id,
+            rol.reg_date,
+            rol.upt_id,
+            rol.upt_date
+ 		from agwne.t_user_role rol 
+ 		where rol.use_yn = 'Y'
+ 		and rol.erp_job = '${erp_job}'
+ 		and rol.appr_role = '${appr_role_old}'
+ 		and rol.user_no = '${user_no}'	    
+    </select>
+    
+    <update id="userRole_update" parameterType="userRoleVO">
+    /* userRoleMapper.userRole_update */
+		update agwne.t_user_role set 
+			role		= #{role},
+ 			upt_id		= #{upt_id},
+ 			upt_date	= localtimestamp 			
+		where user_no	= #{user_no}
+		and erp_job		= #{erp_job}
+		and appr_role	= #{appr_role}
+		and use_yn = 'Y'
+	</update>
+
+    <update id="userRole_update_one" parameterType="userRoleVO"> 
+    /* userRoleMapper.userRole_update_one */
+		update agwne.t_user_role set 
+			role		= #{role},
+ 			upt_id		= #{upt_id},
+ 			upt_date	= localtimestamp
+		where user_no = (select user_no from agwne.t_org_user where no_emp = #{user_id} limit 1 )
+		and use_yn = 'Y'
+	</update>
+	    
+    <update id="userRole_delete" parameterType="userRoleVO">
+    /* userRoleMapper.userRole_delete */
+    <![CDATA[ 
+    	update agwne.t_user_role set 
+    		use_yn = 'N',
+    		upt_id = #{upt_id},
+    		upt_date = localtimestamp
+    	where user_no 	= #{user_no}
+    	and erp_job		= #{erp_job}
+    	and appr_role	= #{appr_role}
+    	and use_yn = 'Y'
+    ]]>
+    </update>
+    
+    <update id="userRole_dels" parameterType="userRoleVO">
+    /* userRoleMapper.userRole_dels */
+    <![CDATA[ 
+    	update agwne.t_user_role set 
+    		use_yn = 'N',
+    		upt_id = #{upt_id},
+    		upt_date = localtimestamp
+    	where user_no 	= #{user_no}
+    	and use_yn = 'Y'
+    ]]>
+    </update>
+    
+    <update id="userRole_delete_one" parameterType="userRoleVO">
+    /* userRoleMapper.userRole_delete_one */
+    <![CDATA[ 
+    	update agwne.t_user_role set 
+    		use_yn    = 'N',
+    		upt_id    = #{upt_id},
+    		upt_date  = localtimestamp
+    	where user_no = #{user_no}
+    	and erp_job   = #{erp_job}
+    	and use_yn    = 'Y'
+    ]]>
+    </update>
+    
+    <update id="userApprRole_old_update" parameterType="userRoleVO">
+    /* userRoleMapper.userApprRole_old_update */
+    <![CDATA[ 
+    	update agwne.t_user_role set 
+    		appr_role = #{appr_role},
+    		upt_id    = #{upt_id},
+    		upt_date  = localtimestamp
+    	where user_no = #{user_no}
+    	and erp_job   = #{erp_job}
+    	and appr_role = #{appr_role_old}
+    	and use_yn    = 'Y'
+    ]]>
+    </update>
+    
+    <update id="userApprRole_update" parameterType="userRoleVO">
+    /* userRoleMapper.userApprRole_update */
+    <![CDATA[ 
+    	update agwne.t_user_role set 
+    		appr_01 = #{appr_01},
+    		appr_02 = #{appr_02},
+    		appr_03 = #{appr_03},
+    		appr_04 = #{appr_04},
+    		appr_05 = #{appr_05},
+    		appr_06 = #{appr_06},
+    		appr_07 = #{appr_07},
+    		upt_id    = #{upt_id},
+    		upt_date  = localtimestamp
+    	where user_no = #{user_no}
+    	and erp_job   = #{erp_job}
+    	and use_yn    = 'Y'
+    ]]>
+    </update>
+    
+    <update id="updateApprovalReq" parameterType="bonbuVO">
+    /* userRoleMapper.updateApprovalReq */
+    <![CDATA[ 
+    	update agwne.t_approval_manager set 
+    		req_bonbu = #{dept_code_01},
+    		req_name = #{dept_name_01}
+    	where erp_job = #{erp_job}
+    	and step   = #{step}
+    	and appr_bonbu in (select bonbu from agwne.t_org_mapping where region = #{region})
+    	and dept_code   = #{dept_code}
+    	and user_no   = #{user_no}
+    	and use_yn    = 'Y'
+    ]]>
+    </update>
+    
+    <insert id="userRoleHist" parameterType="userRoleVO"> 
+    /* userRoleMapper.userRoleHist */
+	<![CDATA[ 
+		insert into agwne.t_user_role_hist (
+	         user_no
+	        ,seq 
+ 			,erp_job_1
+ 			,erp_job_2
+ 			,erp_job_3
+ 			,reg_id
+ 			,reg_date
+ 			,upt_id
+ 			,upt_date
+		)
+		select 
+		 	 user_no
+	        ,seq 
+ 			,erp_job_1
+ 			,erp_job_2
+ 			,erp_job_3
+ 			,reg_id
+ 			,reg_date
+ 			,upt_id
+ 			,localtimestamp
+		from agwne.t_user_role
+		where user_no = #{user_no}
+		and seq = #{seq} 
+	]]>
+	</insert>    
+    
+    <select id="userRole_one" parameterType="userRoleVO" resultType="userRoleVO">
+ 	/* userRoleMapper.userRole_one */ 	
+ 		select 
+		    usr.bonbu,
+		    (select org.orgname from agwne.t_org org where org.orgscode = usr.bonbu) bonbu_name, 
+		    usr.dept_code,
+		    (select org.orgname from agwne.t_org org where org.orgscode = usr.dept_code) dept_name,
+		    usr.no_emp user_id,
+		    usr.no_emp,
+		    usr.emp_name,
+		    usr.staff,
+            rol.role,
+            rol.erp_job,
+		    rol.appr_01,
+		    rol.appr_02,
+		    rol.appr_03,
+		    rol.appr_04,
+		    rol.appr_05,
+		    rol.appr_06,
+		    rol.appr_07,
+		    <!-- rol.appr_role appr_role_old, -->
+            rol.orgcodes,
+            rol.orgnames
+	    from agwne.t_org_user usr left outer join (
+		    select user_no, appr_01, appr_02, appr_03, appr_04, appr_05, appr_06, appr_07,role,erp_job, orgcodes, orgnames 
+		    from agwne.t_user_role 
+		    where erp_job = '${erp_job}' 
+		    and use_yn = 'Y') rol 
+		    on rol.user_no = usr.user_no
+	    where usr.no_emp = '${no_emp}'
+    </select>
+
+    <select id="userRole_one_chk" parameterType="userRoleVO" resultType="userRoleVO">
+ 	/* userRoleMapper.userRole_one_chk */ 	
+ 		select 
+		    usr.bonbu,
+		    (select org.orgname from agwne.t_org org where org.orgscode = usr.bonbu) bonbu_name, 
+		    usr.dept_code,
+		    (select org.orgname from agwne.t_org org where org.orgscode = usr.dept_code) dept_name,
+		    usr.no_emp user_id,
+		    usr.no_emp,
+		    usr.emp_name,
+            rol.role,
+            rol.erp_job,
+		    <!-- rol.appr_role, -->
+		    rol.appr_01,
+		    rol.appr_02,
+		    rol.appr_03,
+		    rol.appr_04,
+		    rol.appr_05,
+		    rol.appr_06,
+		    rol.appr_07,
+            rol.orgcodes,
+            rol.orgnames
+	    from agwne.t_org_user usr left outer join (
+		    select user_no, appr_01, appr_02, appr_03, appr_04, appr_05, appr_06, appr_07, role, erp_job, orgcodes, orgnames 
+		    from agwne.t_user_role 
+		    where erp_job = '${erp_job}' and use_yn = 'Y') rol 
+		    on rol.user_no = usr.user_no
+	    where usr.no_emp = '${no_emp}'	   
+	   	
+    </select>
+        
+    <insert id="userRole_insert" parameterType="userRoleVO"> 
+    /* userRoleMapper.userRole_insert */
+	<![CDATA[ 
+		insert into agwne.t_user_role (
+	         user_no
+	        ,role
+	        ,use_yn
+ 			,reg_id
+ 			,reg_date
+ 			,upt_id
+ 			,upt_date
+		) values( 
+	         #{user_no}
+	        ,#{role} 
+ 			,'Y'
+ 			,#{reg_id}
+ 			,localtimestamp
+ 			,#{upt_id}
+ 			,localtimestamp
+		)
+	]]>
+	</insert>
+	
+	<select id="org_totalCnt" parameterType="OrgVO" resultType="int">
+    /* userRoleMapper.org_totalCnt */
+    
+        select count(*) totalRecordCount
+	    from agwne.t_bonbu_level bon
+	    where 1=1
+	    and bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')
+        <if test="searchTxt != null and searchTxt != ''">
+ 	       	<if test="searchType == 'porgscode'">
+	       	<![CDATA[
+	       		and bon.${searchType} in (select orgscode from agwne.t_org where orgname like '%${searchTxt}%' )
+	       	]]>
+	       	</if>
+	       	<if test="searchType == 'orgname'">
+		    <![CDATA[ 	        
+			   	and bon.${searchType} like '%${searchTxt}%'
+			 ]]>
+			 </if>
+	    </if>
+                   
+    </select>
+	
+	<select id="org_list" parameterType="orgVO" resultType="orgVO">
+ 	/* userRoleMapper.org_list */
+ 	
+		select 
+			bon.hierarchy, 
+			bon.bonbu,
+			(select org.orgname from agwne.t_org org where org.orgscode = bon.bonbu) bonbuname,
+			bon.porgscode,
+			(select org.orgname from agwne.t_org org where org.orgscode = bon.porgscode) porgname,
+			bon.orgscode,
+			bon.orgname,
+			bon.office_nm
+		from agwne.t_bonbu_level bon
+	    where 1=1
+	    <!-- and bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}') -->
+       <if test="searchTxt != null and searchTxt != ''">
+ 	       	<if test="searchType == 'porgscode'">
+	       	<![CDATA[
+	       		and bon.${searchType} in (select orgscode from agwne.t_org where orgname like '%${searchTxt}%' )
+	       	]]>
+	       	</if>
+	       	<if test="searchType == 'orgname'">
+		    <![CDATA[ 	        
+			   	and bon.${searchType} like '%${searchTxt}%'
+			 ]]>
+			 </if>
+	    </if>
+	    limit ${recordsPerPage} offset ${startRecord} 	
+    </select>
+	
+	<select id="user_totalCnt" parameterType="userInfoVO" resultType="int">
+    /* userRoleMapper.user_totalCnt */
+    
+        select count(*) totalRecordCount
+	    from agwne.t_org_user
+	    where 1=1
+	    <if test="region != null and region != ''  and (role =='01' or role == '')">
+ 		    <![CDATA[ 	     
+	    		and bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')
+	   		]]>
+	    </if>
+	    <if test="dept_code != null and dept_code != '' and (role =='01' or role == '')">
+	      <![CDATA[ 
+	    		and dept_code = #{dept_code}
+	    	]]>
+	    </if>
+       <if test="searchTxt != null and searchTxt != ''">
+ 		    <![CDATA[ 	        
+			   	and ${searchType} like '%${searchTxt}%'
+			 ]]>
+	    </if>
+                   
+    </select>
+	
+	
+	<select id="getCmCode" parameterType="bonbuVO" resultType="bonbuVO">
+ 	/* userRoleMapper.getCmCode */
+				
+		select 
+		<if test="org == 'ns'">
+			cm_code as req_bonbu, 
+			cm_name as req_name
+		</if>
+		<if test="org == 'cs'">
+			oper_code as req_bonbu, 
+			oper_name as req_name
+		</if>
+		from agwne.t_cm_team_mapping
+		where use_yn = 'Y'
+		<if test="org == 'cs'">
+			and cm_code = '${dept_code}'
+		</if>
+		<if test="org == 'ns'">
+			and oper_code = '${dept_code}'
+		</if>
+		limit 1
+	</select>
+	
+	<select id="user_list" parameterType="userInfoVO" resultType="userInfoVO">
+ 	/* userRoleMapper.user_list */
+ 	
+		select 
+			user_no,
+			no_emp,
+			emp_name,
+			dept_code,
+			dept_name,
+			porgscode,
+			porgsname,
+			bonbu,
+			bonbu_name,
+			hierarchy,
+			office_nm,
+			org
+		from agwne.t_org_user
+	    where 1=1
+	   <if test="region != null and region != ''  and (role =='01' or role == '')">
+ 		    <![CDATA[ 	     
+	    		and bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')
+	   		]]>
+	    </if>
+	    <if test="dept_code != null and dept_code != '' and (role =='01' or role == '')">
+	      <![CDATA[ 
+	    		and dept_code = #{dept_code}
+	    	]]>
+	    </if>
+       <if test="searchTxt != null and searchTxt != ''">
+ 		    <![CDATA[ 	        
+			   	and ${searchType} like '%${searchTxt}%'
+			 ]]>
+	    </if>
+	    order by dept_code, emp_name, no_emp
+	    limit ${recordsPerPage} offset ${startRecord} 	
+    </select>	
+	
+	<select id="getApprovalList" parameterType="approvalInfoVO" resultType="approvalInfoVO">
+	/* userRoleMapper.getApprovalList */
+		
+		select 
+			 user_no
+			,erp_job
+			,req_bonbu
+			,req_name
+			,appr_bonbu
+			,appr_name
+			,step
+			,org_code
+			,org_name
+			,dept_code
+			,dept_name
+			,emp_name
+			,reg_id
+			,reg_date
+			,upt_id
+			,upt_date
+		from 
+			agwne.t_approval_list
+		where
+			use_yn = 'Y'
+		and
+			erp_job = #{erp_job}
+		and 
+			user_id = #{user_id}
+		order by step		
+	</select>
+	
+	<insert id="insertApproval" parameterType="approvalInfoVO"> 
+    /* userRoleMapper.insertApproval */
+		insert into agwne.t_approval_list(
+			user_id,
+			erp_job,
+			req_bonbu,
+			req_name,
+			appr_bonbu,
+			appr_name,
+			step,
+			org_code,
+			org_name,
+			dept_code,
+			dept_name,
+			dft,
+			use_yn,
+			user_no,
+			emp_name,
+			reg_id,
+			reg_date,
+			upt_id,
+			upt_date
+		)
+		values(
+			'${user_id}',
+			'${erp_job}',
+			'${req_bonbu}',
+			'${req_name}',
+			'${appr_bonbu}',
+			'${appr_name}',
+			'${step}',
+			'${org_code}',
+			'${org_name}',
+			'${dept_code}',
+			'${dept_name}',
+			'${dft}',
+			'Y',
+			'${user_no}',
+			'${emp_name}',
+			'${user_id}',
+			localtimestamp,
+			'${user_id}',
+			localtimestamp
+		)
+	</insert>
+	
+	<update id="updateDefaultApprovalUser" parameterType="bonbuVO"> 
+    /* userRoleMapper.updateDefaultApprovalUser */
+    
+		update agwne.t_approval_manager set dft = '0'
+		where
+			use_yn = 'Y'
+		and
+			erp_job = #{erp_job}
+		and 
+			step = #{step}
+		<!-- <choose>	
+			<when test="step == '01'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+			<when test="step == '03'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+			<when test="step == '05'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+			<when test="step == '06'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+		</choose> -->	
+	<!-- 	<if test="step != '05'">
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+		</if>
+		<if test="step == '05' or step">
+			and req_bonbu = '${req_bonbu}'
+		</if> -->
+		and 
+			dept_code = #{dept_code}	
+	</update>
+	<update id="setDefaultUser" parameterType="Map">
+	<![CDATA[
+			UPDATE agwne.t_approval_manager 
+			SET
+				 dft = '0'	
+			WHERE 
+			approval_no in 
+		]]>	
+		<foreach collection="list" item="item" separator=", " open="(" close=")">
+		<![CDATA[
+			#{item}
+		]]>	
+		</foreach>
+	</update>
+	
+	<update id="selectDefaultUser" parameterType="Map"> 
+    /* userRoleMapper.selectDefaultUser */
+    
+<!-- 		update agwne.t_approval_manager set dft = '1'
+		where
+			use_yn = 'Y'
+		and
+			erp_job = #{erp_job}
+		and 
+			step = #{step}
+		<choose>	
+			<when test="step == '01'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+			<when test="step == '03'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+			<when test="step == '05'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+			<when test="step == '06'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+		</choose>	
+		<if test="step != '05'">
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+		</if>
+		<if test="step == '05'">
+			and req_bonbu = '${req_bonbu}'
+		</if>
+		and 
+			dept_code = #{dept_code}
+		and 
+			user_no = #{user_no}	 -->
+		<![CDATA[
+			UPDATE agwne.t_approval_manager 
+			SET
+				 dft = '1'
+			WHERE 
+			approval_no in 
+		]]>	
+		<foreach collection="list" item="item" separator=", " open="(" close=")">
+		<![CDATA[
+			#{item}
+		]]>	
+		</foreach>
+				 
+	</update>
+	
+	<update id="deleteApprovalUser" parameterType="bonbuVO"> 
+    /* userRoleMapper.deleteApprovalUser */
+    
+<!-- 		update agwne.t_approval_manager set use_yn = 'N'
+		where
+			use_yn = 'Y'
+		and
+			erp_job = #{erp_job}
+		and 
+			step = #{step}
+		<choose>	
+			<when test="step == '01'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+			<when test="step == '03'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+			<when test="step == '05'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+			<when test="step == '06'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+		</choose>	
+		<if test="step != '05'">
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+		</if>
+		<if test="step == '05'">
+			and req_bonbu = '${req_bonbu}'
+		</if>	
+		and 
+			dept_code = #{dept_code}
+		and 
+			user_no = #{user_no}	 -->
+			
+		UPDATE agwne.t_approval_manager 
+		SET 
+			use_yn 		='N'
+			,dft			='0'
+			,upt_date 	= now()
+			,upt_id 	= #{upt_id}
+		WHERE 
+			approval_no = #{approval_no}
+	</update>
+	
+	<insert id="insertApprovalUser" parameterType="bonbuVO"> 
+    /* userRoleMapper.insertApprovalUser */
+<!-- 		insert into agwne.t_approval_manager(
+			erp_job,
+			step,
+			req_bonbu,
+			req_name,
+			appr_bonbu,
+			appr_name,
+			org_code,
+			dept_code,
+			dept_name,
+			user_no,
+			emp_name,
+			dft,
+			use_yn,
+			reg_id,
+			reg_date,
+			upt_id,
+			upt_date
+		)
+		values(
+	'${erp_job}',
+			'${step}',
+		<choose>
+
+			<when test="step == '05' or step == '02'">
+			'${req_bonbu}',
+			'${req_name}',
+			'${dept_code}',
+			'${dept_name}',
+			'${org_code}',
+			'${dept_code}',
+			'${dept_name}',
+			</when>
+			<otherwise>
+			'${req_bonbu}',
+			'${req_name}',
+			'${appr_bonbu}',
+			'${appr_name}',
+			'${org_code}',
+			'${dept_code}',
+			'${dept_name}',
+			</otherwise>
+		</choose>	
+			'${user_no}',
+			'${emp_name}',
+			'1',
+			'Y',
+			'${s_user_no}',
+			localtimestamp,
+			'${s_user_no}',
+			localtimestamp
+		) -->
+	<![CDATA[	
+		INSERT INTO agwne.t_approval_manager 
+			(erp_job, step, req_bonbu, req_name, appr_bonbu, appr_name, emp_name, dft, use_yn, reg_id, reg_date, upt_id, upt_date
+	  		, dept_code, dept_name, org_code, user_no)
+	  		(SELECT #{erp_job}, #{step}, #{req_bonbu},#{req_name}, #{appr_bonbu}, #{appr_name}, emp_name, #{dft}, 'Y', #{reg_id}, now() 
+	  		, #{reg_id}, now(), dept_code, dept_name, porgscode, user_no FROM agwne.t_org_user where user_no=#{user_no})
+	 ]]> 
+	</insert>
+	
+	<select id ="selectApprUser" parameterType="bonbuVO" resultType="bonbuVO">
+		SELECT erp_job, step, req_bonbu, req_name, appr_bonbu, appr_name 
+		FROM agwne.t_approval_manager WHERE approval_no = #{approval_no}
+	
+	</select>	
+	
+	<select id="selectApprovalUserList" parameterType="bonbuVO" resultType="bonbuVO">
+	/* userRoleMapper.selectApprovalUserList */		
+		select 
+			 erp_job
+			,step
+			,req_bonbu
+			,req_name
+			,appr_bonbu		
+			,appr_name
+			,org_code
+			,(select b.orgname from agwne.t_bonbu_level b where b.orgscode = org_code) org_name
+			,dept_code
+			,dept_name
+			,user_no
+			,emp_name
+			,dft
+		from 
+			agwne.t_approval_manager
+		where
+			use_yn = 'Y'
+		and
+			erp_job = '${erp_job}'
+		and 
+			step = '${step}'
+		<!-- <choose>	
+			<when test="step == '01'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+			<when test="step == '03'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+			<when test="step == '05'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+			<when test="step == '06'">		
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+			</when>
+		</choose> -->	
+		<if test="step == '01' or step == '03'">
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '${region}')	
+		</if>
+		<if test="step == '05' or step=='02'  or step == '04' ">
+			and req_bonbu = '${req_bonbu}'
+		</if>	
+		<!--  and dept_code = #{dept_code} -->
+		<if test="step != '05'">
+			and org_code in (select CAST(hierarchy[2] as varchar) org_code from agwne.t_bonbu_level where orgscode =#{dept_code})
+		</if>
+		<if test="step == '05'">
+			and org_code in (select CAST(hierarchy[3] as varchar) org_code from agwne.t_bonbu_level where orgscode =#{dept_code})
+		</if>
+		order by user_no	
+	</select>
+		
+	<select id="listApproval" parameterType="approvalInfoVO" resultType="approvalInfoVO">
+	/* userRoleMapper.listApproval */
+		
+		select 
+			'${user_id}' as user_id
+			,erp_job
+			,step
+			,req_bonbu
+			,req_name
+			,appr_bonbu
+			,appr_name
+			,org_code
+			,(select b.orgname from agwne.t_bonbu_level b where b.orgscode = org_code) org_name
+			,dept_code
+			,dept_name
+			,no_emp
+			,emp_name
+			,'${user_id}' reg_id
+			,localtimestamp reg_date
+			,'${user_id}' upt_id
+			,localtimestamp upt_date
+		from 
+			agwne.t_approval_manager
+		where
+			use_yn = 'Y'
+		and
+			erp_job = '${erp_job}'
+		and 
+			(select b.org from agwne.t_bonbu_level b where b.orgscode = appr_bonbu) = (select org from agwne.t_org_user where no_emp = '${user_id}')
+	
+		<if test="org != null and org == 'ns'">	
+			and region_appr in (select region from agwne.t_org_mapping where bonbu in (select bonbu from agwne.t_org_user where no_emp = '${user_id}')  and use_yn='Y')
+			and	dft = '1'
+		</if>
+		<if test="org != null and org == 'cs'">	
+			and region in (select region from agwne.t_org_mapping where bonbu in (select bonbu from agwne.t_org_user where no_emp = '${user_id}')  and use_yn='Y')
+		</if>	
+		order by step, appr_name				
+	</select>
+	
+	<select id="listApprovalMap" parameterType="approvalInfoVO" resultType="approvalInfoVO">
+	/* userRoleMapper.listApprovalMap */		
+		select 
+			'${user_id}' as user_id
+			,A.erp_job
+			,A.step
+			,A.req_bonbu
+			,A.req_name
+			,A.appr_bonbu
+			,A.appr_name
+			,A.org_code
+			,(select b.orgname from agwne.t_bonbu_level b where b.orgscode = A.org_code) as org_name
+			,A.dept_code
+			,A.dept_name
+			,A.user_no no_emp
+			,A.emp_name
+			,'${user_id}' as reg_id
+			,localtimestamp as reg_date
+			,#{user_id} as upt_id
+			,localtimestamp as upt_date
+		from 
+			agwne.t_approval_manager A
+			inner join agwne.t_org_user B on (A.user_no = B.user_no and B.no_emp = #{user_id})
+		where
+			A.use_yn = 'Y'
+		and
+			A.erp_job = #{erp_job}
+		order by A.step, A.appr_name				
+	</select>
+	
+	<select id="listApproval_AGW" parameterType="approvalInfoVO" resultType="approvalInfoVO">
+	/* userRoleMapper.listApproval_AGW */		
+		select 
+			'${user_id}' user_id
+			,erp_job
+			,step
+			,req_bonbu
+			,req_name
+			,appr_bonbu
+			,appr_name
+			,org_code
+			,(select b.orgname from agwne.t_bonbu_level b where b.orgscode = org_code) org_name
+			,dept_code
+			,dept_name
+			,user_no 
+			,emp_name
+			,'${user_id}' reg_id
+			,localtimestamp reg_date
+			,'${user_id}' upt_id
+			,localtimestamp upt_date
+		from 
+			agwne.t_approval_manager
+		where
+			use_yn = 'Y'
+		and
+			erp_job = '${erp_job}'
+		and
+			dft ='1'	
+			
+		and req_bonbu in (select ${req_name} from agwne.t_org_user where no_emp = '${user_id}')	
+		<!-- <if test="org != null and org == 'cs'">	
+			and req_bonbu in (select bonbu from agwne.t_org_user where no_emp = '${user_id}')
+		</if> -->
+		<!-- <if test="org != null and org == 'ns'">	
+			and appr_bonbu in (select bonbu from agwne.t_org_user where no_emp = '${user_id}')
+			and	dft = '1'
+		</if> -->
+		order by step, appr_name				
+	</select>
+	
+	<select id="listApproval_Reform" parameterType="approvalInfoVO" resultType="approvalInfoVO">
+	/* userRoleMapper.listApproval_Reform */		
+		select 
+			'${user_id}' user_id
+			,erp_job
+			,step
+			,req_bonbu
+			,req_name
+			,appr_bonbu
+			,appr_name
+			,org_code
+			,(select b.orgname from agwne.t_bonbu_level b where b.orgscode = org_code) org_name
+			,dept_code
+			,dept_name
+			,user_no 
+			,emp_name
+			,'${user_id}' reg_id
+			,localtimestamp reg_date
+			,'${user_id}' upt_id
+			,localtimestamp upt_date
+		from 
+			agwne.t_approval_manager
+		where
+			use_yn = 'Y'
+		and
+			erp_job = '${erp_job}'
+			<!-- and req_bonbu in (select bonbu from agwne.t_org_user where no_emp = '${user_id}') -->
+		order by step, appr_name
+	</select>
+	
+	<select id="listApproval_4P" parameterType="approvalInfoVO" resultType="approvalInfoVO">
+	/* userRoleMapper.listApproval_4P */		
+		select 
+			'${user_id}' user_id
+			,erp_job
+			,step
+			,req_bonbu
+			,req_name
+			,appr_bonbu
+			,appr_name
+			,org_code
+			,(select b.orgname from agwne.t_bonbu_level b where b.orgscode = org_code) org_name
+			,dept_code
+			,dept_name
+			,user_no
+			,emp_name
+			,dft
+			,'${user_id}' reg_id
+			,localtimestamp reg_date
+			,'${user_id}' upt_id
+			,localtimestamp upt_date
+		from
+			agwne.t_approval_manager
+		where
+			use_yn = 'Y'
+		and
+			erp_job = '${erp_job}'
+		and
+			step = '${step}'		
+		<if test="org != null and org == 'cs' and step == '01'">	
+			and appr_bonbu in (select bonbu from agwne.t_org_user where no_emp = '${user_id}')
+		</if>	
+		<if test="org != null and org == 'cs' and step == '04'">	
+			and req_bonbu in (select bonbu from agwne.t_org_user where no_emp = '${user_id}')
+		</if>	
+		<if test="org != null and org == 'cs' and step != '01' and step !='04'">	
+			and appr_bonbu in (select approval from agwne.t_org_mapping where use_yn = 'Y' 
+								and bonbu in (select bonbu from agwne.t_org_user where no_emp = '${user_id}')  and use_yn ='Y')
+		</if>
+		<if test="org != null and org == 'ns'">	
+			and appr_bonbu in (select bonbu from agwne.t_org_user where no_emp = '${user_id}')
+		</if>
+		order by step, appr_name
+	</select>
+	
+	<select id="listApproval_4P_IP" parameterType="approvalInfoVO" resultType="approvalInfoVO">
+	/* userRoleMapper.listApproval_4P_IP */		
+		select 
+			'${user_id}' user_id
+			,erp_job
+			,step
+			,req_bonbu
+			,req_name
+			,appr_bonbu
+			,appr_name
+			,org_code
+			,(select b.orgname from agwne.t_bonbu_level b where b.orgscode = org_code) org_name
+			,dept_code
+			,dept_name
+			,user_no
+			,emp_name
+			,dft
+			,'${user_id}' reg_id
+			,localtimestamp reg_date
+			,'${user_id}' upt_id
+			,localtimestamp upt_date
+		from 
+			agwne.t_approval_manager
+		where
+			use_yn = 'Y'
+		and
+			erp_job = '${erp_job}'
+		and
+			step = '${step}'
+		<if test="org != null and org == 'cs'">		
+		and	appr_bonbu in (select oper_code from agwne.t_cm_team_mapping 
+							where cm_code in (select dept_code from agwne.t_org_user 
+												where org = 'cs' and  no_emp = '${user_id}') and use_yn = 'Y')
+		</if>
+		<if test="org != null and org == 'ns'">	
+			and appr_bonbu in (select dept_code from agwne.t_org_user where no_emp = '${user_id}')
+		</if>
+		order by step, appr_name
+	</select>
+	
+	<select id="listApproval_4P_Col" parameterType="approvalInfoVO" resultType="approvalInfoVO">
+	/* userRoleMapper.listApproval_4P_Col */		
+		select 
+			'${user_id}' user_id
+			,erp_job
+			,step
+			,req_bonbu
+			,req_name
+			,appr_bonbu
+			,appr_name
+			,org_code
+			,(select b.orgname from agwne.t_bonbu_level b where b.orgscode = org_code) org_name
+			,dept_code
+			,dept_name
+			,user_no
+			,emp_name
+			,dft
+			,'${user_id}' reg_id
+			,localtimestamp reg_date
+			,'${user_id}' upt_id
+			,localtimestamp upt_date
+		from
+			agwne.t_approval_manager
+		where
+			use_yn = 'Y'
+		and
+			erp_job = '${erp_job}'
+		and
+			step = '${step}'
+		<if test="org != null and org == 'cs'">		
+		and
+			req_bonbu in (select dept_code from agwne.t_org_user
+							where org = 'cs' and  no_emp = '${user_id}')
+		</if>
+		<if test="org != null and org == 'ns'">
+		and req_bonbu in (select cm_code from agwne.t_cm_team_mapping 
+							where oper_code in (select dept_code from agwne.t_org_user 
+												where org = 'ns' and  no_emp = '${user_id}') and use_yn = 'Y' order by cm_code limit 1)
+		</if>
+		order by step, appr_name				
+	</select>
+	
+	<update id="userRole_update_appr" parameterType="userRoleVO">
+    /* userRoleMapper.userRole_update_appr */
+    	
+    	update agwne.t_user_role set 
+		<if test="appr_role == 1">	
+			appr_01 = '1',
+		</if>
+		<if test="appr_role == 2">
+			appr_02 = '1',
+		</if>
+		<if test="appr_role == 3">
+			appr_03 = '1',
+		</if>
+		<if test="appr_role == 4">
+			appr_04 = '1',
+		</if>
+		<if test="appr_role == 5">
+			appr_05 = '1',
+		</if>
+		<if test="appr_role == 6">
+			appr_06 = '1',
+		</if>
+		<if test="appr_role == 7">
+			appr_07 = '1',
+		</if>
+ 			upt_id		= #{upt_id},
+ 			upt_date	= localtimestamp 			
+		where user_no	= #{user_no}
+		  and erp_job	= #{erp_job}
+		  and use_yn 	= 'Y'
+	</update>
+	
+	<select id="selectCmCnt" parameterType="String" resultType="int">
+	<![CDATA[
+		select count(*) cnt
+		  from agwne.t_cm_team_mapping
+		 where cm_code = #{cm_code}	
+	]]>
+	</select>
+	
+	<select id="selectCSNSall" parameterType="bonbuVO" resultType="bonbuVO">
+	<![CDATA[
+		select a.orgscode, a.orgname
+		     , a.orgscode3, a.orgname3
+			 , a.orgscode2, a.orgname2
+			 , a.orgscode1, a.orgname1
+			 , a.office_nm
+			 , a.region
+			 , a.csbonbu, b1.orgname as csbonbu_name
+			 , a.nsbonbu, b2.orgname as nsbonbu_name
+			 , a.cm_code, b3.orgname as cm_code_name
+			 , a.oper_code, b4.orgname as oper_code_name
+			 , b3.hierarchy as cm_office_cd
+			 , b3.office_nm as cm_office_nm
+			 , b4.hierarchy as oper_office_cd
+			 , b4.office_nm as oper_office_nm
+			 , a.org
+             , p01.req_bonbu as req_bonbu_01
+             , p01.req_name as req_name_01
+             , p01.appr_bonbu as appr_bonbu_01
+             , p01.appr_name as appr_name_01
+             , p01.dept_code as dept_code_01
+             , p01.dept_name as dept_name_01
+             , p01.user_no as user_no_01
+			 , p01.emp_name as emp_name_01
+			 
+             , p02.req_bonbu as req_bonbu_02
+             , p02.req_name as req_name_02
+             , p02.appr_bonbu as appr_bonbu_02
+             , p02.appr_name as appr_name_02
+             , p02.dept_code as dept_code_02
+             , p02.dept_name as dept_name_02
+             , p02.user_no as user_no_02
+			 , p02.emp_name as emp_name_02
+
+             , p03.req_bonbu as req_bonbu_03
+             , p03.req_name as req_name_03
+             , p03.appr_bonbu as appr_bonbu_03
+             , p03.appr_name as appr_name_03
+             , p03.dept_code as dept_code_03
+             , p03.dept_name as dept_name_03
+             , p03.user_no as user_no_03
+			 , p03.emp_name as emp_name_03
+
+             , p04.req_bonbu as req_bonbu_04
+             , p04.req_name as req_name_04
+             , p04.appr_bonbu as appr_bonbu_04
+             , p04.appr_name as appr_name_04
+             , p04.dept_code as dept_code_04
+             , p04.dept_name as dept_name_04
+             , p04.user_no as user_no_04
+			 , p04.emp_name as emp_name_04
+
+             , p05.req_bonbu as req_bonbu_05
+             , p05.req_name as req_name_05
+             , p05.appr_bonbu as appr_bonbu_05
+             , p05.appr_name as appr_name_05
+             , p05.dept_code as dept_code_05
+             , p05.dept_name as dept_name_05
+             , p05.user_no as user_no_05
+			 , p05.emp_name as emp_name_05
+
+		 from (
+				select distinct on ( a.orgscode) a.orgscode as orgscode
+					 , a1.orgname as orgname1, a1.orgscode as orgscode1
+					 , a2.orgname as orgname2, a2.orgscode as orgscode2
+					 , a3.orgname as orgname3, a3.orgscode as orgscode3
+					 , a.orgname as orgname
+					 , b01.region as region
+			         , a1.orgscode as csbonbu
+					 , b01.approval as nsbonbu
+			         , a.orgscode as cm_code
+					 , b02.oper_code as oper_code
+					 , 'cs' as org
+			 	     , a.office_nm
+				  from agwne.t_bonbu_level a
+					   left outer join agwne.t_bonbu_level a1 on (cast(a.hierarchy[1] as varchar) = a1.orgscode)
+					   left outer join agwne.t_bonbu_level a2 on (cast(a.hierarchy[2] as varchar) = a2.orgscode)
+					   left outer join agwne.t_bonbu_level a3 on (cast(a.hierarchy[3] as varchar) = a3.orgscode)
+					   left outer join agwne.t_org_mapping b01 on (a1.orgscode = b01.bonbu)
+					   left outer join agwne.t_cm_team_mapping b02 on (a.orgscode = b02.cm_code)
+				 where a.orgname like '%CM팀'
+		       ) a
+			   left outer join agwne.t_bonbu_level b1 on (a.csbonbu = b1.orgscode)
+			   left outer join agwne.t_bonbu_level b2 on (a.nsbonbu = b2.orgscode)
+			   left outer join agwne.t_bonbu_level b3 on (a.cm_code = b3.orgscode)
+			   left outer join agwne.t_bonbu_level b4 on (a.oper_code = b4.orgscode)
+			   left outer join agwne.t_approval_manager p01 on (a.csbonbu = p01.req_bonbu and p01.use_yn = 'Y' and p01.erp_job = '03' and p01.step = '01' and p01.dft = '1')
+			   left outer join agwne.t_approval_manager p02 on (a.oper_code = p02.appr_bonbu and p02.use_yn = 'Y' and p02.erp_job = '03' and p02.step = '02' and p02.dft = '1')
+			   left outer join agwne.t_approval_manager p03 on (a.nsbonbu = p03.appr_bonbu and p03.use_yn = 'Y' and p03.erp_job = '03' and p03.step = '03' and p03.dft = '1')
+			   left outer join agwne.t_approval_manager p04 on (a.csbonbu = p04.req_bonbu and p04.use_yn = 'Y' and p04.erp_job = '03' and p04.step = '04' and p04.dft = '1')
+			   left outer join agwne.t_approval_manager p05 on (a.cm_code = p05.req_bonbu and p05.use_yn = 'Y' and p05.erp_job = '03' and p05.step = '05' and p05.dft = '1')
+		 where 1=1
+		   and region = #{region}
+	]]>
+	<if test="orgscode1 != null and orgscode1 != ''">
+		   and a.orgscode1 = #{orgscode1}
+	</if>
+	<![CDATA[		   
+	]]>
+	<if test="orgscode2 != null and orgscode2 != ''">
+		   and a.orgscode2 = #{orgscode2}
+	</if>
+	<![CDATA[		   
+	]]>
+	<if test="orgscode3 != null and orgscode3 != ''">
+		   and a.orgscode3 = #{orgscode3}
+	</if>
+	<![CDATA[		   
+	]]>
+	<if test="orgscode != null and orgscode != ''">
+		   and a.orgscode = #{orgscode}
+	</if>
+	<![CDATA[		   
+		  order by a.orgscode1, a.orgscode2, a.orgscode3, a.orgscode, csbonbu, nsbonbu, cm_code, oper_code
+	]]>
+	</select>
+	
+	
+	<select id="userRoleAgwList" parameterType="userRoleAgwVO" resultType="userRoleAgwVO">
+	<![CDATA[		   
+	SELECT * from(	
+		SELECT s1.approval_no appr_no_01, s1.step step_01, s1.req_bonbu req_bonbu_01, s1.req_name req_name_01, s1.appr_bonbu appr_bonbu_01, s1.appr_name appr_name_01, s1.emp_name emp_name_01, s1.user_no  user_no_01, s1.reg_id, s1.reg_name, s1.reg_org, to_char(s1.upt_date,'yyyy-mm-dd') reg_date
+			,s6.approval_no appr_no_06, s6.step step_06, s6.req_bonbu req_bonbu_06, s6.req_name req_name_06, s6.appr_bonbu appr_bonbu_06, s6.appr_name appr_name_06, s6.emp_name emp_name_06, s6.user_no user_no_06 
+		FROM (
+			select a.approval_no, a.step, a.req_bonbu, a.req_name, a.appr_bonbu, a.appr_name, a.emp_name, a.user_no, b.emp_name reg_name, upt_id reg_id, c.orgname reg_org, a.upt_date 
+			from (select * from agwne.t_approval_manager a, agwne.t_bonbu_level b where a.req_bonbu = b.orgscode and a.erp_job='01' and a.step='01' and a.use_yn ='Y' and a.dft='1' order by step, b.org, req_bonbu) a 
+			left outer join agwne.t_org_user b on (a.upt_id =b.no_emp )
+			left outer join agwne.t_bonbu_level c on (cast(b.hierarchy[2] as varchar) = c.orgscode)) s1 LEFT OUTER JOIN 
+			(select * from agwne.t_approval_manager a, agwne.t_bonbu_level b where a.req_bonbu = b.orgscode and a.erp_job='01' and a.step='06' and a.use_yn ='Y'  and a.dft='1' order by step, b.org, req_bonbu) s6 on (s1.req_bonbu = s6.req_bonbu)
+	 )tb
+	]]>	
+	<if test="req_bonbu_01 !=null and req_bonbu_01 != ''">
+	<![CDATA[	
+		WHERE req_bonbu_01 = #{req_bonbu_01}	   
+	]]>
+	</if>
+	</select>
+	<select id="userRoleAgwView" parameterType="userRoleAgwVO" resultType="userRoleAgwVO">
+	 <![CDATA[
+		SELECT a.approval_no, a.step, a.req_bonbu, a.req_name, a.appr_bonbu, a.appr_name, a.emp_name, a.dft, a.user_no , u.bonbu_name, org2.orgname office_nm, u.dept_name
+		FROM agwne.t_approval_manager a 
+		LEFT OUTER JOIN agwne.t_org_user u on (a.user_no = u.user_no)
+		LEFT OUTER JOIN agwne.t_bonbu_level org2 on (CAST(u.hierarchy[2] as VARCHAR)  = org2.orgscode) 
+		WHERE a.erp_job='01' 
+		AND a.use_yn='Y' 
+		AND a.req_bonbu = #{req_bonbu_01}
+		ORDER BY office_nm, emp_name
+	]]>
+	</select>
+	<update id="userRoleAgwUpdateBefore" parameterType="int">
+		<![CDATA[
+			update agwne.t_approval_manager 
+			set dft ='0'
+			WHERE erp_job='01' 
+			AND use_yn='Y' 
+			AND step =#{step}
+			AND req_bonbu = (select req_bonbu from agwne.t_approval_manager where approval_no = #{approval_no})
+		]]>
+	</update>
+	<update id="userRoleAgwUpdate"  parameterType="userRoleAgwVO">
+			<![CDATA[
+				UPDATE agwne.t_approval_manager 
+				SET 
+					dft 		= #{dft}
+					,upt_id 	= #{reg_id}
+					,upt_date	= now()
+				WHERE 
+					approval_no = #{approval_no}	
+				
+			 ]]>
+	</update>
+	<insert id="userRoleAgwInsert" parameterType="userRoleAgwVO" useGeneratedKeys="true" keyProperty="approval_no" keyColumn="approval_no">
+	<![CDATA[	
+		INSERT INTO agwne.t_approval_manager 
+			(erp_job, step, req_bonbu, req_name, appr_bonbu, appr_name, emp_name, dft, use_yn, reg_id, reg_date, upt_id, upt_date
+	  		, dept_code, dept_name, org_code, user_no)
+	  		(SELECT #{erp_job}, #{step}, #{req_bonbu},(select orgname from agwne.t_bonbu_level where orgscode=#{req_bonbu}), bonbu, bonbu_name, emp_name, #{dft}, 'Y', #{reg_id}, now() 
+	  		, #{reg_id}, now(), dept_code, dept_name, porgscode, user_no FROM agwne.t_org_user where user_no=#{user_no})
+	 ]]> 		
+	 <selectKey keyProperty="approval_no" resultType="int" order="AFTER">
+		 <![CDATA[
+		   select CURRVAL('agwne.t_approval_manager_approval_no_seq')
+		  ]]>
+		</selectKey>
+	</insert>
+	<update id="userRoleAgwDel" parameterType="userRoleAgwVO">
+	<![CDATA[	
+		UPDATE agwne.t_approval_manager 
+		SET 
+			use_yn ='N'
+			,upt_id = #{reg_id}
+			,upt_date = now()
+		WHERE approval_no =#{approval_no}
+	 ]]>
+	</update>
+	<select id="userRoleAgwValidate" parameterType="userRoleAgwVO" resultType="int">
+	<![CDATA[	
+		SELECT count(approval_no) FROM agwne.t_approval_manager 
+		WHERE use_yn = 'Y' 
+			and dft='1'
+			and erp_job='01'
+			and step=#{step_01}
+			and req_bonbu=#{req_bonbu_01}
+	]]>
+	</select>
+	<select id ="get_req_bonbu" parameterType="bonbuVO" resultType="bonbuVO">
+		<![CDATA[	
+		select 
+			req_bonbu
+			,req_name
+
+		from 
+			agwne.t_approval_manager
+		where
+			use_yn = 'Y'
+		and
+			erp_job = '03'
+		and 
+			step = #{step}
+
+			and	appr_bonbu in (select bonbu from agwne.t_org_mapping where region = '01')	
+
+		and
+			dept_code = #{dept_code}
+		limit 1
+		]]>
+	</select>
+</mapper>

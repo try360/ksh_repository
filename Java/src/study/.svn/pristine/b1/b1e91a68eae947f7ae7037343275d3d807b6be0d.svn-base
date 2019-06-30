@@ -1,0 +1,31 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AGW-Ne</title>
+    <link rel="stylesheet" href="/resources/css/include.css">
+</head>
+<body>
+<div id="warningWrap">
+    <div id="centerArea">
+        <img src="/resources/img/logo.png" height="65" width="100"/>
+        <div id="warning">
+            <div class="image">
+                <img src="/resources/img/error-icon-25242.png" alt="Error" />
+            </div>
+            <div class="message">
+                <h1>죄송합니다!</h1>
+                <h2>서비스 이용에 불편을 드려 죄송합니다.</h2>
+                <p>요청하신 페이지에서 일시적인 에러가 발생하였습니다.<br>동일한 문제가 지속적으로 발생할 경우<br>관리자에게 문의해 주시기 바랍니다.</p>
+                <div id="btnArea">
+                    <a href="/" title="초기화면" class="button home">초기화면</a>
+                    <a href="javascript:history.back(-1);" title="돌아가기" class="button back">돌아가기</a>
+                </div>
+            </div>
+        </div>
+        <div class="bottom"><img src="/resources/img/h1_kt.png" alt="kt" /></div>
+    </div>
+</div>
+</body>
+</html>

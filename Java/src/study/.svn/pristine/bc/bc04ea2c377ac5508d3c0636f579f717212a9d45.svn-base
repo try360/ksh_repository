@@ -1,0 +1,65 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file MainServiceImpl.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.service.impl;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import kr.co.kt.agwne.dao.MainDAO;
+import kr.co.kt.agwne.service.MainService;
+
+@Service
+public class MainServiceImpl implements MainService {
+
+	@Inject
+	private MainDAO dao;
+	
+	@Override
+	public Object select_business01() throws Exception {
+		return dao.select_business01();
+	}
+	
+	@Override
+	public Object select_business02() throws Exception {
+		return dao.select_business02();
+	}
+	
+	@Override
+	public Object select_business03() throws Exception {
+		return dao.select_business03();
+	}
+
+	@Override
+	public Object select_board() throws Exception {
+		return dao.select_board();
+	}
+
+	@Override
+	public Object select_data() throws Exception {
+		return dao.select_data();
+	}
+
+	@Override
+	public Object select_qna() throws Exception {
+		return dao.select_qna();
+	}
+
+}

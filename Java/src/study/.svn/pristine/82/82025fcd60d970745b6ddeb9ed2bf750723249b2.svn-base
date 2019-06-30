@@ -1,0 +1,68 @@
+package kr.co.kt.agwne.dao;
+
+import java.util.HashMap;
+import java.util.List;
+
+import kr.co.kt.agwne.dto.OfficeVO;
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2010-11-22
+ * @ file UserApprValidation.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+public interface OfficeDAO {  
+
+	public Object t_office_list() throws Exception;  
+	
+	public OfficeVO t_my_office(String dept_code) throws Exception;    
+	public Object t_office_list_top() throws Exception;  
+	
+	public int t_office_doc_reg(List<OfficeVO> voList) throws Exception;
+	
+	public int t_office_list2(int office_no) throws Exception;  
+	
+	public List<OfficeVO> t_office_sub_list(HashMap<String, Object> listInfo) throws Exception;  
+	
+	public Object office_reg(OfficeVO officeVO) throws Exception;
+	
+	/*public Object office_getCd(OfficeVO officeVO) throws Exception;*/
+	
+	public Object office_list(HashMap<String, Object> listInfo) throws Exception;  
+	
+	public Object office_nm_list(HashMap<String, Object> listInfo) throws Exception;  
+	
+	public Object office_del(int office_no)  throws Exception;
+	
+	public int office_totalCnt(HashMap<String, Object> listInfo) throws Exception;
+	
+    public Object office_check(OfficeVO officeVO) throws Exception;
+	
+    public Object office_update(OfficeVO officeVO) throws Exception;
+    
+    public int office_cd_get(OfficeVO officeVO) throws Exception;
+    
+    public Object selectBonbu(String region);
+    public Object selectCenter(String bonbu);
+    public Object selectBranch(String center);
+    public Object selectTeam(String branch);
+
+	public Object select_cmBonbuAll();
+
+	public Object select_cmBranchAll(String orgscode);
+
+	public Object select_cmOfficeAll(String orgscode);
+
+	public Object select_mycmOffice(String dept_code);
+} 

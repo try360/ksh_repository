@@ -1,0 +1,109 @@
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file BusinessService.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.validation.Valid;
+
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import kr.co.kt.agwne.dto.BusinessVO;
+import kr.co.kt.agwne.dto.ConfirmUserVO;
+import kr.co.kt.agwne.dto.ConstructMemVO;
+import kr.co.kt.agwne.dto.ConstructVO;
+import kr.co.kt.agwne.dto.data.NeossData;
+
+
+@Transactional
+public interface BusinessService {
+	
+	//코드불러오기
+	public Object t_bs_code(HashMap<String, Object> listCodeInfo) throws Exception;
+
+	//pots 불러오기 
+	public List<HashMap<String, Object>> t_bs_pots(String no_emp) throws Exception;
+	
+	//pots 불러오기 
+		public List<HashMap<String, Object>> t_bs_ipsec() throws Exception;
+
+	//pots 불러오기 
+	public List<HashMap<String, Object>> t_bs_emsIp() throws Exception;	
+	
+	//기종불러오기
+	public Object t_bs_model(HashMap<String, Object> listModelInfo) throws Exception;
+	
+	//요청 등록(저장)
+	public int t_bs_reg(BusinessVO bsVO, ConfirmUserVO cfVO, MultipartHttpServletRequest mhsq) throws Exception;
+	
+	//승인자 등록
+	public	int t_bs_reg_confirm(HashMap<String, Object> cfVO) throws Exception;
+	
+	//요청 수정
+	public Object t_bs_modify(BusinessVO bsVO, ConfirmUserVO cfVO, MultipartHttpServletRequest mhsq) throws Exception;
+	
+	public Object t_bs_reg_history(BusinessVO bsVO) throws Exception;
+	
+	//요청 리스트 
+	public Object t_bs_list(HashMap<String, Object> listInfo) throws Exception;
+	
+	//요청 리스트 엑셀
+	public Object t_bs_list_excel(HashMap<String, Object> listInfo) throws Exception;
+	
+	//리스트 총 갯수
+	public int t_bs_listCnt(HashMap<String, Object> listInfo) throws Exception;
+	
+	//요청 상세보기
+	public Object t_bs_list_view(int rstNo) throws Exception;
+	
+	//요청수정이력 
+	public List<BusinessVO> t_bs_list_view_hist(int rstNo) throws Exception;
+	
+	//요청 상세보기
+	public HashMap<String, Object> t_bs_list_view_hist3(HashMap<String, Integer> paramInfo) throws Exception;
+	public Object t_bs_list_view_hist2(int history_no) throws Exception;
+	
+	//수정하기
+	public Object t_bs_update(BusinessVO bsVO) throws Exception;
+	
+	//수요공급 신증설 및 돌발 오픈 기간 구하기
+	public HashMap<String, Integer> request_period_chk() throws Exception;
+	
+	//삭제
+	public int t_bs_del(HashMap<String, Object> map) throws Exception;
+			
+    // 이전페이지 
+    public int request_prev_no(int rstNo) throws Exception;
+    // 다음페이지
+    public int request_next_no(int rstNo) throws Exception;
+
+	//준공착공 상세보기
+	public ConstructVO t_construct_view(int rstNo) throws Exception;
+	public List<ConstructMemVO> t_construct_mem(int const_no) throws Exception;
+	//public List<HashMap<String, String>> t_construct_mem(int const_no) throws Exception;
+	
+	public int t_construct_reg(ConstructVO csVO, Map<String, Object> paramMap) throws Exception;
+	public int t_construct_modi(ConstructVO csVO, Map<String, Object> paramMap) throws Exception;
+	public int t_construct_stat_change(Map<String, Object> paramMap) throws Exception;
+	public int t_construct_modi_ed(ConstructVO csVO) throws Exception;
+}

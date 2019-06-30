@@ -1,0 +1,106 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<jsp:useBean id="paramFn" class="kr.co.kt.common.ParamValidatChk" />
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<%@ include file = "/resources/inc/meta.jsp" %>
+<script type="text/javascript" src="/resources/js/facility.js" charset="utf-8" ></script>
+<script type="text/javascript" src="/resources/js/jquery.form.min.js" charset="utf-8" ></script>
+<link rel="stylesheet" href="/resources/css/facility.css">
+</head>
+<body>
+<%@ include file = "/resources/inc/header_nav.jsp" %>
+<%@ include file = "/resources/inc/aside.jsp" %>
+<section>
+    <h1 class="list">4P-AGW</h1>
+
+    <div class="contents_form">
+        <!-- 타이틀, 경로 -->
+        <div class="divDocTitle">자산 관리</div>
+
+		<div class="searchArea">
+		<form name="searchForm" method="get" action="mac">
+		<fieldset>
+		<legend>검색폼</legend>
+			<select name="searchType">
+				<option value="a.agw_mac" ${pageInfo.searchType eq 'a.agw_mac'? 'selected' : '' }>AGW-MAC</option>
+				<option value="a.epon_mac" ${pageInfo.searchType eq 'a.epon_mac'? 'selected' : '' }>EPON-MAC</option>
+				<option value="a.serial_num" ${pageInfo.searchType eq 'a.serial_num'? 'selected' : '' }>S/N</option>
+			</select>
+			<span class="groupText">
+			<input type="text" name="companyCode" class="readonly" readonly="readonly" value="1853E0">
+			<input type="text" name="searchTxt" maxlength="6" value="${pageInfo.searchTxt }">
+			</span>
+			<input type="image" src="/resources/img/btn_search.gif" alt="검색" />
+		</fieldset>
+		</form>
+		</div>
+		<div class="btnArea">
+		<form name="excelUploadForm" id="excelUploadForm" enctype="multipart/form-data" method="post" action="excelUpload" onSubmit="return FormChkModule(this);">
+		<fieldset>
+		<legend>엑셀 업로드 폼</legend>
+			<input type="file" name="excelFile" />
+			<input type="image" src="/resources/img/b_save.gif" alt="저장" />
+			<a href="mac_write" onclick="return popLink(this.href, 450, 220);"><img src="/resources/img/btn_regist.gif" alt="등록" /></a>
+		</fieldset>
+		</form>
+		</div>
+    	<table class="listTable"  border="0" cellspacing="0" cellpadding="0">
+    		<thead>
+    		<tr>
+    			<th width="60">번호</th>
+    			<th width="160">요청번호</th>
+    			<th width="90">COLCODE</th>
+    			<th>S/N</th>
+    			<th>AGW-MAC</th>
+    			<th>EPON MAC</th>
+    			<th width="100">등록자</th>
+    			<th width="100">등록일</th>
+    			<th width="100">등록 유형</th>	
+    			<th width="140">수정/삭제</th>
+    		</tr>
+    		</thead>
+    		<tbody>
+    		<c:if test="${not empty macList }">
+    		<c:forEach items="${macList }" var="vo">
+    		<fmt:formatDate value="${vo.input_dt }" var="input_dt" pattern="yyyy/MM/dd" />
+    		<tr>
+    			<td>${vo.rownum }</td>
+    			<td>${vo.doc_no }</td>
+    			<td>${vo.colcode }</td>
+    			<td>${vo.serial_num }</td>
+    			<td>${paramFn.toMacAddress(vo.agw_mac) }</td>
+    			<td>${paramFn.toMacAddress(vo.epon_mac) }</td>
+    			<td>${vo.input_nm }</td>
+    			<td>${input_dt }</td>
+    			<td>${vo.excel_yn }</td>
+    			<td>
+    				<c:if test="${vo.excel_yn eq '개별' }">
+    				<input type="image" src="/resources/img/btn_modify.gif"
+    					alt="수정" onclick="return macUpdate(this,'${vo.mac_no}','modify');"/>
+    				<input type="image" src="/resources/img/btn_delete.gif"
+    					alt="삭제" onclick="return macUpdate(this,'${vo.mac_no}','delete');"/>
+    				</c:if>
+    			</td>
+    		</tr>    		
+    		</c:forEach>
+    		</c:if>
+    		<c:if test="${empty macList }">
+    		<tr>
+    			<td colspan="6" class="h100">등록된 내용이 없습니다.</td>
+    		</tr>
+    		</c:if>
+    		</tbody>
+    	
+    	</table>
+    	<!-- paging -->
+    	<%@ include file="/resources/inc/paging.jsp" %>
+	</div>
+</section>
+<%@ include file = "/resources/inc/footer.jsp" %>
+
+</body>
+</html>

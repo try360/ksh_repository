@@ -1,0 +1,54 @@
+package kr.co.kt.agwne.dao.impl;
+
+import java.util.HashMap;
+
+import javax.validation.Valid;
+
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import kr.co.kt.agwne.dao.NeossDAO;
+import kr.co.kt.agwne.dto.ModelInfoVO;
+import kr.co.kt.agwne.dto.data.NeossData;
+
+@Repository
+public class NeossDAOImpl implements NeossDAO {
+
+	@Autowired
+	private SqlSession session;
+
+	private static final String Namespace = "kr.co.kt.agwne.agw4pMapper";
+	
+	@Override
+	public void t_bs_modify(@Valid NeossData neossVO) {
+		session.update(Namespace +".t_bs_modify", neossVO);
+	}
+
+	@Override
+	public int t_bs_reg(@Valid NeossData neossVO) {
+		session.insert(Namespace + ".t_bs_reg", neossVO);
+		session.update(Namespace + ".t_bs_reg_doc", neossVO);
+    	return neossVO.getNeoss_no();
+	}
+
+	@Override
+	public void insert_inettie(ModelInfoVO infoVO) {
+		session.insert(Namespace +".insert_inettie", infoVO);
+	}
+
+	@Override
+	public void update_inettie(ModelInfoVO infoVO) {
+		session.update(Namespace +".update_inettie", infoVO);
+	}
+
+	@Override
+	public Object select_inettie(int neoss_no) {
+		return session.selectOne(Namespace +".select_inettie", neoss_no);
+	}
+
+	@Override
+	public void insert_confirm_temp(HashMap<String, Object> map) {
+		session.insert(Namespace +".insert_confirm_temp", map);
+	}
+}

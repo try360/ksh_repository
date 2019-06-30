@@ -1,0 +1,119 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file FacilityDAOImpl.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.dao.impl;
+
+import java.util.HashMap;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.naming.Name;
+
+import kr.co.kt.agwne.dto.*;
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.stereotype.Repository;
+
+import kr.co.kt.agwne.dao.FacilityDAO;
+
+@Repository
+public class FacilityDAOImpl implements FacilityDAO {
+
+	@Inject
+	private SqlSession session;
+	
+	private static final String Namespace = "kr.co.kt.agwne.facilityMapper";
+	
+	@Override
+	public Object selectMacAll(HashMap<String, Object> map) {
+		return session.selectList(Namespace +".selectMacAll", map);
+	}
+
+	@Override
+	public Object selectMacCnt(HashMap<String, Object> map) {
+		return session.selectOne(Namespace +".selectMacCnt", map);
+	}
+
+	@Override
+	public int selectDuplicate(String agw_mac) {
+		return session.selectOne(Namespace +".selectDuplicate", agw_mac);
+	}
+
+	@Override
+	public void insertOrUpdateExcelUpload(MacVO vo) {
+		session.insert(Namespace +".insertOrUpdateExcelUpload", vo);
+	}
+
+	@Override
+	public void updateExcelFile(MacExcelVO excelVO) {
+		session.update(Namespace +".updateExcelFile", excelVO);
+	}
+
+	@Override
+	public MacExcelVO selectMacExcel(int excel_no) {
+		return session.selectOne(Namespace +".selectMacExcel", excel_no);
+	}
+	
+	@Override
+	public void insertOrUpdateMac(MacOneVO vo) {
+		session.insert(Namespace + ".insertOrUpdateMac", vo);
+	}
+
+	@Override
+	public int excelUploadChk(String agw_mac) {
+		return session.selectOne(Namespace + ".excelUploadChk",agw_mac);
+	}
+
+	@Override
+	public void macDelete(HashMap<String, Object> map) {
+		session.update(Namespace + ".macDelete", map);
+	}
+	
+	@Override
+	public MacOneVO macOneInfo(int mac_no) {
+		return session.selectOne(Namespace + ".macOneInfo", mac_no);
+	}
+
+	@Override
+	public int macUploadChk(String agw_mac) {
+		return session.selectOne(Namespace + ".macUploadChk", agw_mac);
+	}
+
+	@Override
+	public void updateOK(MacOneVO vo) { session.update(Namespace + ".updateOK", vo);	}
+
+    @Override
+	public Object reformFacilList(SearchReformFacilVO vo) { return session.selectList(Namespace + ".reformFacilList", vo); }
+
+    @Override
+    public Object reformSearchCode() { return session.selectList(Namespace + ".reformSearchCode"); }
+
+    @Override
+    public Object reformSearchVendor() { return session.selectList(Namespace + ".reformSearchVendor"); }
+
+	@Override
+	public int select_BarcodeDuplicate(String barcode) {
+		return session.selectOne(Namespace +".select_BarcodeDuplicate", barcode);
+	}
+
+	@Override
+	public void insertOrUpdate_BarcodeExcelUpload(ReformFacilVO vo) {
+		session.insert(Namespace +".insertOrUpdate_BarcodeExcelUpload", vo);
+	}
+
+}

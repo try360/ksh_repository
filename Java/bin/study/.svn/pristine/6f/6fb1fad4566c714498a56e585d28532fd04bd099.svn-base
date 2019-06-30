@@ -1,0 +1,272 @@
+/**
+ * KT 직원조회 팝업 스크립트 (네트워크부문과 Customer부문만 불러옴
+ * 2018/06/20
+ * create : YSY
+ * write  : BSS
+ */
+
+$(function(){
+	
+    $("#usrSearchBtnSub").click(function(){
+    		searchAction();
+    	});
+    $("input[name=emp_name]").keydown(function(key){
+    	if(key.keyCode == 13){
+    		searchAction();
+    	}
+    });
+    
+    
+    $("#inputResult").click(function(){
+    	var selRadio = $(":input:radio[name=checkOne]:checked").val();
+    	if(selRadio==undefined){
+    		alert("담당자를 선택 후 등록 버튼을 눌러주세요.");
+    		return;
+    	}
+    	var confirmUsrResult = selRadio.split(',');
+    	var idx = $("#confirm_no").val();
+    	if($("#w_gubun").val() == "request" ){
+        	$("#confirmArea #user_no_"+idx).val(confirmUsrResult[0]);
+        	$("#confirmArea #t_"+idx).val(confirmUsrResult[1]);
+        	$("#confirmArea #span_"+idx).text(confirmUsrResult[2]+' > '+confirmUsrResult[3]);
+        	if(confirmUsrResult[4]!="undefined"){
+    			$("#mem_"+idx+"_depart").text(confirmUsrResult[4]);
+    		}
+    	}else if($("#w_gubun").val() == "request_view"){
+    		$(".modelPerson_val").remove();
+    		$("#mem_"+idx+"_depart").text(confirmUsrResult[2]+' > '+confirmUsrResult[3]);
+    		if(confirmUsrResult[4]!="undefined"){
+    			$("#mem_"+idx+"_depart").text(confirmUsrResult[4]);
+    		}
+        	$("#mem_"+idx+"_name").text(confirmUsrResult[1]);
+        	$("#mem_"+idx+"_id").val(confirmUsrResult[0]);
+    	}else if ($("#w_gubun").val() == "4p/request_view") {
+    		var tr = $(":input:radio[name=checkOne]:checked").parents("tr");
+    		var result = exLiAdd(tr, selRadio);
+    		if (result != "OK") {
+    			return;
+    		}
+    	} else if($("#w_gubun").val() == "userRoleAgw"){
+    		$("#approval_list #user_no_"+idx).val(confirmUsrResult[0]);
+    		$("#approval_list #emp_name_"+idx).text(confirmUsrResult[1]);
+    		$("#approval_list #appr_name_"+idx).text(confirmUsrResult[2]+'/'+confirmUsrResult[3]);
+    		
+    	}else if($("#w_gubun").val() == "managerEmail"){
+    		if(idx==01){
+    			if($("#rTO").val() == ""){
+    				$("#rTO").val(confirmUsrResult[1]+"<"+confirmUsrResult[5]+">");
+    			}else{
+    				$("#rTO").val($("#rTO").val()+";"+confirmUsrResult[1]+"<"+confirmUsrResult[5]+">");
+    			}
+    		}else if(idx==02){
+    			if($("#rCC").val() == ""){
+    				$("#rCC").val(confirmUsrResult[1]+"<"+confirmUsrResult[5]+">");
+    			}else{
+    				$("#rCC").val($("#rCC").val()+";"+confirmUsrResult[1]+"<"+confirmUsrResult[5]+">");
+    			}
+    		}else if(idx==03){
+    			if($("#rBCC").val() == ""){
+    				$("#rBCC").val(confirmUsrResult[1]+"<"+confirmUsrResult[5]+">");
+    			}else{
+    				$("#rBCC").val($("#rBCC").val()+";"+confirmUsrResult[1]+"<"+confirmUsrResult[5]+">");
+    			}
+    		}
+    	}
+    	
+    	closeSearchPop();
+    	
+    });
+    
+    $(".popinTitle .ui-icon").css("cursor", "pointer");
+    $(".popinTitle .ui-icon").click(function(){
+    	if(confirm("직원검색 창을 닫으시겠습니까?")) {
+    		closeSearchPop();
+    	}
+    })
+    
+    //체크박스나 라디오버튼은 attr로 변경해도 변화가없다. 1.6버전 이상부터 attr/prop 역할로 나눠짐
+    /*$('#allCheck').click(function(){
+    	$("input[name=checkOne]:checkbox").each(function(){
+    		if($('#allCheck').is(":checked")){
+    			$(this).prop("checked",true);
+    		}else{
+    			$(this).prop("checked",false);
+    		}
+    		
+    	});
+    });*/
+  $(document).on("dblclick","#bodyResult tr", function(){
+	var selRadio = $("#"+$(this).attr("id")+" td input").val();
+	if(selRadio==undefined){
+		alert("담당자를 선택 후 등록 버튼을 눌러주세요.");
+		return;
+	}
+	var confirmUsrResult = selRadio.split(',');
+	var idx = $("#confirm_no").val();
+	if($("#w_gubun").val() == "request" ){
+    	$("#confirmArea #user_no_"+idx).val(confirmUsrResult[0]);
+    	$("#confirmArea #t_"+idx).val(confirmUsrResult[1]);
+    	$("#confirmArea #span_"+idx).text(confirmUsrResult[2]+' > '+confirmUsrResult[3]);
+    	if(confirmUsrResult[4]!="undefined"){
+			$("#mem_"+idx+"_depart").text(confirmUsrResult[4]);
+		}
+	}else if($("#w_gubun").val() == "request_view"){
+		$(".modelPerson_val").remove();
+		$("#mem_"+idx+"_depart").text(confirmUsrResult[3]);
+		if(confirmUsrResult[4]!="undefined"){
+			$("#mem_"+idx+"_depart").text(confirmUsrResult[4]);
+		}
+    	$("#mem_"+idx+"_name").text(confirmUsrResult[1]+' ('+confirmUsrResult[5]+') - ' );
+    	$("#mem_"+idx+"_id").val(confirmUsrResult[0]);
+	} else if ($("#w_gubun").val() == "4p/request_view") {
+		var tr = $(this);
+		var result = exLiAdd(tr, selRadio);
+		if (result != "OK") {
+			return;
+		}
+	} else if($("#w_gubun").val() == "userRoleAgw"){
+		
+		$("#approval_list #user_no_"+idx).val(confirmUsrResult[0]);
+		$("#approval_list #emp_name_"+idx).text(confirmUsrResult[1]);
+		$("#approval_list #appr_name_"+idx).text(confirmUsrResult[2]+'/'+confirmUsrResult[3]);
+		
+	} else if($("#w_gubun").val() == "managerEmail"){
+		if(idx=="01"){
+			if($("#rTO").val()!=""){
+				$("#rTO").val($("#rTO").val()+";"+confirmUsrResult[1]+"<"+confirmUsrResult[5]+">");
+			}else{ $("#rTO").val(confirmUsrResult[1]+"<"+confirmUsrResult[5]+">"); }
+		}else if(idx=="02"){
+			if($("#rCC").val()!=""){
+				$("#rCC").val($("#rCC").val()+";"+confirmUsrResult[1]+"<"+confirmUsrResult[5]+">");
+			}else{ $("#rCC").val(confirmUsrResult[1]+"<"+confirmUsrResult[5]+">"); }
+		}else if(idx=="03"){
+			if($("#rBCC").val()!=""){
+				$("#rBCC").val($("#rBCC").val()+";"+confirmUsrResult[1]+"<"+confirmUsrResult[5]+">");
+			}else{ $("#rBCC").val(confirmUsrResult[1]+"<"+confirmUsrResult[5]+">"); }
+		}
+	}
+	
+	closeSearchPop();
+  });
+    
+    
+});
+
+function closeWinAt00(winName, expiredays){
+	setCookieAt00(winName, "done", expiredays);
+	window.close();
+}
+
+function ktSearch(emp_name){
+	console.log("ktSearch");
+	$.ajax({
+		url : "/include/usrSearchSelectAjax",
+		data :{
+			'emp_name' : emp_name
+		},
+		type : "POST",
+		success : function(response){
+			$("#notice span").remove();
+			$("#bodyResult tr").remove();
+
+			if(response.length == 0){
+				$("#notice").append('<span>"검색 결과가 없습니다."</span>');
+			}else{
+				$("#notice").append('<span>"<b>'+response.length+'</b> 건의 검색 결과가 있습니다. <b>더블클릭</b>하여 추가하세요."</span>');
+			}
+			
+			var rst;
+				for(key in response){
+					rst = response[key].dept_1_nm+' > <b>'+response[key].dept_4_nm+'</b>';
+					if(response[key].ex_biz_company_nm!=null){
+						rst = '협력업체 > '+response[key].ex_biz_company_nm;
+					}
+					var data="";
+					if($("#w_gubun").val() == "managerEmail"){
+						data = response[key].email_address;
+					}else{
+						data = toTelNum(response[key].phone_number.replace(/-/gi,""));
+					}
+					var appendStr = "<tr id=\"tr_"+ key +"\" style=\"cursor:pointer;\">" +
+					"<td>"+ rst +"</td>" +
+					"<td width=\"80\">"+ response[key].emp_name +"</td>" +
+					"<td width=\"130\"><strong>"+ data +"</strong></td>"+
+					"<td width=\"40\">" +
+					"<input type=\"radio\" id=\"chk"+ key +"\" name=\"checkOne\" value=\""+ response[key].user_no +","+ response[key].emp_name +","+ response[key].dept_1_nm +","+ response[key].dept_4_nm +","+ response[key].ex_biz_company_nm +","+ data +"\" />" +
+					"</td>"+
+					"</tr>";
+					$("#bodyResult").append(appendStr);
+
+			}
+		},
+		error: function(result){
+			alert("조회 실패");
+		}
+	});
+}
+function exSearch(emp_name){
+	console.log("exSearch");
+	$.ajax({
+		url : "/include/usrExSearchAjax",
+		data :{
+			'emp_name' : emp_name
+		},
+		type : "POST",
+		success : function(response){
+			$("#notice span").remove();
+			$("#bodyResult tr").remove();
+
+			if(response.length == 0){
+				$("#notice").append('<span>"검색 결과가 없습니다."</span>');
+			}else{
+				$("#notice").append('<span>"<b>'+response.length+'</b> 건의 검색 결과가 있습니다. <b>더블클릭</b>하여 추가하세요."</span>');
+			}
+			
+			var rst;
+			for(key in response){
+				rst = response[key].dept_1_nm+' > <b>'+response[key].dept_4_nm+'</b>';
+				if(response[key].ex_biz_company_nm!=null){
+					rst = '협력업체 > '+response[key].ex_biz_company_nm;
+				}
+				var appendStr = "<tr id=\"tr_"+ key +"\" style=\"cursor:pointer;\">" +
+				"<td>"+ response[key].office_nm +"</td>" +
+				"<td width=\"100\">"+ response[key].ex_company_nm +"</td>" +
+				"<td width=\"80\">"+ response[key].ex_emp_nm +"</td>" +
+				"<td width=\"180\"><strong>"+ response[key].email_address +"</strong></td>" +
+				"<td width=\"40\">" +
+				"<input type=\"radio\" id=\"chk"+ key +"\" name=\"checkOne\" value=\""+ response[key].ex_mail_no +"\" />" +
+				"</td>"+
+				"</tr>";
+				$("#bodyResult").append(appendStr);
+
+			}
+		},
+		error: function(result){
+			alert("조회 실패");
+		}
+	});
+}
+
+function exLiAdd(tr, selRadio){
+	var result = 0;
+	$("input[name='mem_04_id']").each(function(){
+		if ($(this).val() == selRadio) {
+			alert("이미 추가되어 있습니다.");
+			result++;
+			return false;
+		}
+	});
+	if (result > 0) {
+		return false;
+	}
+	var td = tr.children();
+	var html = "<li>" +
+			"<b>"+ td.eq(1).text() +"</b> " +
+			"<"+ td.eq(2).text() +"> "+
+			td.eq(3).text() +
+			"<input type='hidden' name='mem_04_id' id='mem_04_id' value='"+  selRadio +"' />" +
+			"</li>";
+	$(".exList").append(html);
+	return "OK";
+}
+

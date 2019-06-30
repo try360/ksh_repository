@@ -1,0 +1,397 @@
+package kr.co.kt.common;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import kr.co.kt.agwne.dto.AttachVO;
+import kr.co.kt.agwne.dto.MacExcelVO;
+import kr.co.kt.agwne.service.AttachService;
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2010-11-22
+ * @ file UserApprValidation.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+@Component
+public class Attachment extends ParamValidatChk {
+
+	private static final Logger logger = LoggerFactory.getLogger(Attachment.class);
+
+	@Autowired
+	private AttachService service;
+	
+	@Value("#{config['attach.path']}")
+	private String rootFolder;
+	@Value("#{config['attach.extension']}")
+	private String accessExt;
+	@Value("#{config['attach.maxsize']}")
+	private long maxSize;
+	@Value("#{config['attach.totMaxsize']}")
+	private long totMaxSize;
+	
+	private MultipartHttpServletRequest mhsq;
+	private int reference_no;						// attach_no, bbs_no
+	private String user_id;							// user_id in Session
+	private String table_gb;
+	private MacExcelVO excelVO;
+	private int err = 0;
+	
+	public Attachment() {
+		super();
+		err = 0;
+	}
+
+	public void Attachment(MultipartHttpServletRequest mhsq, int reference_no, String user_id, String table_gb) throws Exception {
+		//super();
+		this.mhsq = mhsq;
+		this.reference_no = reference_no;
+		this.user_id = user_id;
+		this.table_gb = table_gb;
+		logger.info("attach.path:"+ rootFolder +";attach.extension:"+ accessExt +";maxSize:"+ maxSize +";totMaxSize:"+ totMaxSize);
+		err = 0;
+		FileSave();
+	}
+
+	public void Attachment(MultipartHttpServletRequest mhsq, String user_id) throws Exception {
+		//super();
+		this.mhsq = mhsq;
+		this.user_id = user_id;
+//		logger.info("attach.path:"+ rootFolder +";attach.extension:"+ accessExt +";maxSize:"+ maxSize +";totMaxSize:"+ totMaxSize);
+		err = 0;
+		ExcelSave();
+	}
+
+	public MultipartHttpServletRequest getMhsq() {
+		return mhsq;
+	}
+
+	public void setMhsq(MultipartHttpServletRequest mhsq) {
+		this.mhsq = mhsq;
+	}
+
+	public int getReference_no() {
+		return reference_no;
+	}
+
+	public void setReference_no(int reference_no) {
+		this.reference_no = reference_no;
+	}
+
+	public String getUser_id() {
+		return user_id;
+	}
+
+	public void setUser_id(String user_id) {
+		this.user_id = user_id;
+	}
+	
+	public int getErrorCode() {
+		return err;
+	}
+	
+	public String getErrorMsg() {
+		String result = "";
+		switch (err) {
+		case 0:
+			result = "정상 첨부 처리 되었습니다.";
+			break;
+		case 1:
+			result = "해당 확장자는 업로드 하실 수 없습니다.";
+			break;
+		case 2:
+			result = maxSize +"KB 이상 파일은 업로드 하실 수 없습니다.";
+			break;
+		case 3:
+			result = "첨부 된 파일의 총 용량이 "+ totMaxSize +"KB 이상 업로드 하실 수 없습니다.";
+			break;
+		case 9:
+			result = "첨부 된 파일이 없습니다.";
+			break;
+		default:
+			break;
+		}
+		
+		return result;
+	}
+	
+
+	/*
+	 *  2018-04-03 ysy
+	 *  파일 저장
+	 *  @Param MultipartHttpServletRequest - 파일정보
+	 *  @return int(0:ok/1:extDenied/2:sizeDenied/3:totSizeDenied/9:etcDenied)
+	 *  @exception IllegalStateException, IOException
+	 */
+	@Transactional
+	@SuppressWarnings("null")
+	private int FileSave() throws IllegalStateException, IOException {
+		
+		if (mhsq == null) return 0;
+		
+		String subpath = makeDirectory();
+				
+		List<MultipartFile> mf = mhsq.getFiles("filenames");
+//		logger.info("mf.size()>>>>>"+ mf.size());
+		if (mf.size() == 1 && mf.get(0).getOriginalFilename().equals("")) {
+			err = 9;
+		} else {
+			int totFilesize = 0;
+			List<HashMap<String, Object>> fileList = new ArrayList<HashMap<String,Object>>();
+			for (int i=0; i < mf.size(); i++) {
+				MultipartFile obj = mf.get(i);
+				String originalFilename = obj.getOriginalFilename();
+//				logger.info("mf.originalFilename>>>>>"+ originalFilename);
+				String ext = getExtension(originalFilename);
+				String newFilename = newFilenameMaker(ext, subpath);
+				String savePath = rootFolder + subpath + newFilename;
+				
+				long filesize = obj.getSize();
+				totFilesize += filesize;
+//				logger.info("filesize>>>>>"+ filesize);
+				if (accessExt.indexOf("|"+ ext +"|")>0) {
+					err = 1;
+					break;
+				}
+				if (filesize > maxSize) {
+					err = 2;
+					break;
+				}
+				if (totFilesize > totMaxSize) {
+					err = 3;
+					break;
+				}
+				
+				HashMap<String, Object> filemap = new HashMap<>();
+				filemap.put("filepath", subpath);
+				filemap.put("filename", originalFilename);
+				filemap.put("filename_n", newFilename);
+				filemap.put("filesize", filesize);
+				filemap.put("savePath", savePath);
+				filemap.put("MultipartFile", obj);
+				logger.info("filename="+ originalFilename +";filename_n="+ newFilename +";filesize="+ filesize +";");
+				fileList.add(filemap);
+			}
+			logger.info("errorCode====="+ err);
+			logger.info("fileLise.size====="+ fileList.size());
+			if (err == 0) {
+				for (int i=0; i < fileList.size(); i++) {
+					HashMap<String, Object> filemap = fileList.get(i);
+					String savePath = (String) filemap.get("savePath");
+					MultipartFile obj = (MultipartFile) filemap.get("MultipartFile");
+					AttachVO vo = new AttachVO();
+					vo.setRef_no(reference_no);
+					vo.setFilepath((String) filemap.get("filepath"));
+					vo.setFilename((String) filemap.get("filename"));
+					vo.setFilename_n((String) filemap.get("filename_n"));
+					vo.setFilesize((long) filemap.get("filesize"));
+					vo.setInput_id(user_id);
+					vo.setTable_gb(table_gb);
+					
+					obj.transferTo(new File(savePath));
+					logger.info(service.getClass().toString());
+					service.insert(vo);
+				}
+			}
+		}
+		
+		return err;
+	}
+	
+	private int ExcelSave() throws IllegalStateException, IOException {
+		
+		if (mhsq == null) return 0;
+		
+		String subpath = makeDirectory();
+		MultipartFile obj = mhsq.getFile("excelFile");
+//		logger.info("mf.size()>>>>>"+ mf.size());
+		if (obj == null) {
+			err = 9;
+		} else {
+			String originalFilename = obj.getOriginalFilename();
+			logger.info("mf.originalFilename>>>>>"+ originalFilename);
+			String ext = getExtension(originalFilename);
+			String newFilename = newFilenameMaker(ext, subpath);
+			String savePath = rootFolder + subpath + newFilename;
+				
+			long filesize = obj.getSize();
+			logger.info("filesize>>>>>"+ filesize);
+			if (accessExt.indexOf("|"+ ext +"|")>0) {
+				err = 1;
+				return err;
+			}
+				
+			HashMap<String, Object> filemap = new HashMap<>();
+			filemap.put("filepath", subpath);
+			filemap.put("filename", originalFilename);
+			filemap.put("filename_n", newFilename);
+			filemap.put("filesize", filesize);
+			filemap.put("savePath", savePath);
+			filemap.put("filepath", rootFolder + subpath);
+			filemap.put("MultipartFile", obj);
+			logger.info("filename="+ originalFilename +";filename_n="+ newFilename +";filesize="+ filesize +";");
+			
+			if (err == 0) {
+				String savePath1 = (String) filemap.get("savePath");
+				MacExcelVO vo = new MacExcelVO();
+				vo.setUpload_file((String) filemap.get("filename"));
+				vo.setFilename_new((String) filemap.get("filename_n"));
+				vo.setFilepath((String) filemap.get("filepath"));
+				vo.setInput_id(user_id);
+				setExcelVO(vo);
+				obj.transferTo(new File(savePath1));
+				service.insertExcel(vo);
+			}
+		}
+		
+		return err;
+	}
+
+	
+	public MacExcelVO getExcelVO() {
+		return excelVO;
+	}
+
+	public void setExcelVO(MacExcelVO excelVO) {
+		this.excelVO = excelVO;
+	}
+
+	/*
+	 * 2018-04-03 ysy
+	 * 저장 디렉토리 생성
+	 * @param void
+	 * @return void
+	 * @exception
+	 */
+	private String makeDirectory() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/");
+		String currentYM = sdf.format(new Date());
+		String result = rootFolder + currentYM;
+		File dir = new File(result);
+		if (!dir.isDirectory()) {
+			dir.mkdirs();
+		}
+		
+		return currentYM;
+	}
+	
+	/*
+	 * 2018-04-03 ysy
+	 * 파일명에서 확장자 추출
+	 * @param String filename 
+	 * @return String
+	 * @exception
+	 */
+	private String getExtension(String fileName) {
+		String ext = "";
+		if (fileName.indexOf(".")>0) {
+			ext = fileName.substring(fileName.lastIndexOf("."), fileName.length());
+		} else {
+			ext = ".0";
+		}
+		return ext;
+	}
+	
+	/*
+	 * 2018-04-03 ysy
+	 * UNIQUE한 파일명 생성
+	 * @param String ext - 사용할 파일 확장자
+	 * @return String - 새로운 파일명을 리턴
+	 * @exception
+	 */
+	private String newFilenameMaker(String ext, String subpath) {
+		String genId = UUID.randomUUID().toString().replaceAll("-", "");
+		String newFilename = "";
+		
+		boolean result = true;
+		int num = 0;
+		while(result) {
+			newFilename = genId + ext;
+			String newFilepath = rootFolder + subpath + newFilename;
+			File newFile = new File(newFilepath);
+			if (newFile.exists()) {
+				genId = genId +"_"+ ++num;  
+			} else {
+				result = false;
+			}
+		}
+		
+		return newFilename;
+	}
+	
+	/*
+	 * 2018-04-03 ysy
+	 * 파일 하나 삭제
+	 * @param
+	 * @return void
+	 * @exception
+	 */
+	public void deleteFile(int ref_no, String input_id) {
+		AttachVO vo = service.selectOne(ref_no);
+		vo.setInput_id(input_id);
+		String filename = vo.getFilename();
+		String subpath = vo.getFilepath();
+		String filepath = rootFolder + subpath + filename;
+		
+		File file = new File(filepath);
+		if (file.exists()) {
+			file.delete();
+		}
+		
+		service.deleteOne(vo);
+	}
+	
+	/*
+	 * 2018-04-03 ysy
+	 * 게시글의 모든 파일 삭제
+	 * @param
+	 * @return void
+	 * @exception
+	 */
+	public void deleteAllFile() {
+		List<AttachVO> list = service.select(reference_no, table_gb);
+		for (int i=0;i<list.size();i++) {
+			AttachVO vo = list.get(i);
+			
+			String filename = vo.getFilename();
+			String subpath = vo.getFilepath();
+			String filepath = rootFolder + subpath + filename;
+			
+			File file = new File(filepath);
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+		AttachVO vo = new AttachVO();
+		vo.setRef_no(reference_no);
+		vo.setInput_id(user_id);
+		service.deleteAll(vo);
+	}
+	
+}

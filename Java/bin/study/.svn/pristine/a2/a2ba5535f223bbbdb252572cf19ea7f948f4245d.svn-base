@@ -1,0 +1,45 @@
+/**
+ * agw-ne
+ *
+ * Copyright ¨Ï 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file EmailListVO.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ¨Ï 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.dto;
+
+import kr.co.kt.common.PagingInfo;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@EqualsAndHashCode(callSuper=false)
+@SuppressWarnings("serial")
+@Data
+@Getter @Setter @ToString
+public class EmailListVO extends PagingInfo {
+	String borgcode;
+	String orgcode;
+	String no_emp;
+	String clazz;
+	String erp_job;
+	String step;
+	String email;
+	String reg_id;
+	String reg_date;
+	String upt_id;
+	String upt_date;
+}

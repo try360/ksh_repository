@@ -1,0 +1,1355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.kt.agwne.agw4pMapper">
+<resultMap id="period" type="HashMap">
+	<result javaType = "int" column="b_01" property="b_01"/>
+	<result javaType = "int" column="b_02" property="b_02"/>
+</resultMap>
+<resultMap id="const_mem" type="HashMap">
+	<result javaType = "String" column="const_mem_no" property="const_mem_no"/>
+	<result javaType = "String" column="mem_cd" property="mem_cd"/>
+	<result javaType = "String" column="const_no" property="const_no"/>
+	<result javaType = "String" column="member_id" property="member_id"/>
+	<result javaType = "String" column="department" property="department"/>
+	<result javaType = "String" column="member_nm" property="member_nm"/>			
+</resultMap>
+<resultMap id="modelInfo" type="HashMap">
+	<result javaType = "int" column="id" property="id"/>
+	<result javaType = "String" column="nm" property="nm"/>
+	<result javaType = "String" column="ip" property="ip"/>
+	<result javaType = "String" column="ktis_ip" property="ktis_ip"/>
+	<result javaType = "String" column="in_dt" property="in_dt"/>
+</resultMap>
+	<!-- 2018-04-19 배수산
+		광전화수요공급 코드들 가져오기 -->
+	<select id="t_bs_code" parameterType="map" resultType="codeVO">
+	 <![CDATA[
+			SELECT 
+				seq, code_gb , code_nm , code , column_nm
+			FROM 
+				agwne.t_code 
+			WHERE 
+				del_yn is FALSE 
+			  and agw_cd = '03'
+			ORDER 
+				by code_gb, seq	
+	 ]]>
+    </select>
+    <select id="t_bs_code_pots" resultMap="modelInfo" parameterType="String">
+	 <![CDATA[
+		select a.id
+		     , a.nm
+			 , a.ip
+		  from agwne.t_pots a
+         where a.region = #{region}
+		 order by a.nm asc
+	 ]]>
+    </select>
+    <select id="t_bs_code_ipsec" resultMap="modelInfo">
+	 <![CDATA[
+			SELECT id, nm, ip, del_yn FROM agwne.t_ipsec_info where del_yn = false ORDER BY id 
+	 ]]>
+    </select>
+    <select id="t_bs_code_emsIp" resultMap="modelInfo">
+	 <![CDATA[
+			SELECT id, ktis_ip, mih_ip  FROM agwne.t_agw_4p_gw_ems_info ORDER BY id 
+	 ]]>
+    </select>
+    <!-- 장비정보 -->
+    <select id="t_bs_model" parameterType="map" resultType="modelVO">
+	 <![CDATA[
+			SELECT B.cost_no, B.supply_nm, A.model_cd, B.type, B.line_num, A.agw_cd,
+				   B.cost_supply, B.cost_construct, B.cost_etc, B.cost_total,
+					(case when B.supply_nm != '' then '['||B.supply_nm||']' else '' end) ||B.model_cd||
+					(case when B.type != '' then '('||B.type||')' else '' end) ||
+					'/'||B.line_num 
+					AS model_nick 
+			FROM agwne.t_model A
+			     inner join agwne.t_cost B ON (A.model_cd = B.model_cd and B.del_yn = false and B.agw_cd = '03')
+			WHERE A.del_yn  is false
+			  and A.agw_cd = '03'
+			ORDER by A.seq asc
+	 ]]>
+    </select>
+    <!-- 수요공급요청등록 -->
+    <insert id="t_bs_reg" parameterType="neossDt" useGeneratedKeys="true" keyProperty="neoss_no" keyColumn="neoss_no">
+	    <![CDATA[
+	    	INSERT INTO agwne.t_neoss(
+	    		business_cd,
+				office_no,
+				buildshape_cd,
+				section_nm,
+				post,
+				post_old,
+				address1,
+				address2,
+				address_old,
+				share_cd,
+				build_cd,
+				household_no,
+				supply_cd,
+				direct_yn,
+				model_no,
+				model_num,
+				move_dt,
+				supply_dt,
+				reason_cd,
+				reason,
+				status_cd,
+				request_yn,
+				del_yn,
+				input_id,
+				update_id,
+				input_dt,
+				time_stamp,
+				expense1,
+				expense2,
+				expense3,
+				tot_expense,
+				agw_cd,
+				telnum,
+				device_num,
+				line_type,
+				agree_yn,
+				power_yn,
+				ospia,
+				docseq
+	    	)values(
+	    		 #{business_cd}
+	    		, #{office_no}
+	    		, #{buildshape_cd}
+	    		, #{section_nm}
+	    		, #{post}
+	    		, #{post_old}
+	    		, #{address1}
+	    		, #{address2}
+	    		, #{address_old}
+	    		, #{share_cd}
+	    		, #{build_cd}
+	    		, #{household_no}
+	    		, #{supply_cd}
+	    		]]>
+	    		<if test="!direct_yn">
+	    		, FALSE
+	    		</if>
+	    		<if test="direct_yn">
+	    		, TRUE
+	    		</if>
+	    		<![CDATA[
+	    		, #{model_no}
+	    		, #{model_num}
+	    		, to_date(#{supply_dt}, 'yyyy-mm-dd')
+	    		, to_date(#{supply_dt}, 'yyyy-mm-dd')
+	    		, #{reason_cd}
+	    		, #{reason}
+	    		, #{status_cd}
+	    		 ]]>
+	    		<if test="!request_yn">
+	    		, FALSE
+	    		</if>
+	    		<if test="request_yn">
+	    		, TRUE
+	    		</if>
+	    	<![CDATA[
+	    		, FALSE
+	    		, #{input_id}
+	    		, #{update_id}
+	    		, now()
+	    		, now()
+	    		, #{expense1}
+	    		, #{expense2}
+	    		, #{expense3}
+	    		, #{tot_expense}
+	    		, '03'
+	    		, #{telnum}
+	    		, #{device_num}
+	    		, #{line_type}
+	    		, #{agree_yn}
+	    		, #{power_yn}
+	    		, #{ospia}
+	    		, (select coalesce(max(docseq), 0) +1
+					 from agwne.t_neoss
+				    where del_yn = false
+				      and to_char(input_dt, 'yyyyMM') = to_char(now(), 'yyyyMM')
+	    		  )
+	    	)
+	    	]]>
+		<selectKey keyProperty="neoss_no" resultType="int" order="AFTER">
+		 <![CDATA[
+		   select CURRVAL('agwne.t_neoss_neoss_no_seq')
+		  ]]>
+		</selectKey>
+    </insert>
+    <update id="t_bs_reg_doc" parameterType="bsVO">
+    <![CDATA[
+		UPDATE agwne.t_neoss SET doc_no = (
+			SELECT '4P'||'-'||to_char(a.input_dt, 'yymm')||'-'||doc.org_initial||'-'||lpad(a.docseq::varchar,5,'0') as doc_no
+			FROM agwne.t_neoss a 
+               LEFT OUTER JOIN agwne.t_bonbu_level b on (a.office_no = b.orgscode) 
+			   LEFT OUTER JOIN agwne.t_org_naming doc on b.bonbu = doc.orgscode where a.neoss_no = #{neoss_no} ) 
+	 		WHERE neoss_no=#{neoss_no}
+	 ]]>
+    </update>
+    <update id="t_bs_modify" parameterType="neossDt">
+     <![CDATA[
+    	UPDATE agwne.t_neoss SET 
+					buildshape_cd 	= #{buildshape_cd},
+					office_no		= #{office_no},
+					section_nm 		= #{section_nm},
+					post 			= #{post},
+					address1 		= #{address1} ,
+					address2		= #{address2} ,
+					post_old		= #{post_old} ,
+					address_old		= #{address_old} ,
+					share_cd		= #{share_cd} ,
+					build_cd		= #{build_cd} ,
+					household_no	= #{household_no} ,
+					supply_cd		= #{supply_cd} ,
+					model_no		= #{model_no} ,
+					model_num		= #{model_num} ,
+					supply_dt		= to_date(#{supply_dt}, 'yyyy-mm-dd'),
+					reason_cd		= #{reason_cd} ,
+					reason			= #{reason} ,
+					status_cd		= #{status_cd} ,
+		]]>
+					<if test="!direct_yn">
+		    		direct_yn		= FALSE,
+		    		</if>
+		    		<if test="direct_yn">
+		    		direct_yn		= TRUE,
+	    			</if>
+					<if test="!request_yn">
+		    		request_yn		= FALSE,
+		    		</if>
+		    		<if test="request_yn">
+		    		request_yn		= TRUE,
+	    			</if>
+	    			<if test="!del_yn">
+		    		del_yn			= FALSE,
+		    		</if>
+		    		<if test="del_yn">
+		    		del_yn			= TRUE,
+	    			</if>
+	    			
+					<![CDATA[
+					update_id		= #{update_id}
+					, time_stamp		= now()
+					, expense1 		= #{expense1}
+					, expense2 		= #{expense2}
+					, expense3 		= #{expense3}
+					, tot_expense	= #{tot_expense}
+					, telnum		= #{telnum}
+					, device_num	= #{device_num}
+					, line_type		= #{line_type}
+					]]>
+					<if test="!agree_yn">
+					, agree_yn = false
+					</if>
+					<if test="agree_yn">
+					, agree_yn = true
+					</if>
+					<if test="!power_yn">
+					, power_yn = false
+					</if>
+					<if test="power_yn">
+					, power_yn = true
+					</if>
+					<![CDATA[
+			WHERE 		
+					neoss_no = #{neoss_no}		
+					]]>
+	    	
+    </update>
+    
+        <!-- 수요공급요청등록 -->
+    <insert id="t_bs_reg_history" parameterType="bsVO" useGeneratedKeys="true" keyProperty="history_no" keyColumn="history_no">
+      <![CDATA[
+      INSERT INTO agwne.t_neoss_history (
+                neoss_no,
+                business_cd,
+				office_no,
+				buildshape_cd,
+				section_nm,
+				post,
+				address1,
+				address2,
+				share_cd,
+				build_cd,
+				distance_cd,
+				household_no,
+				supply_cd,
+				direct_yn,
+				model_no,
+				model_num,
+				move_dt,
+				supply_dt,
+				change_dt,
+				decide_dt,
+				reason_cd,
+				reason,
+				baud_num,
+				status_cd,
+				request_yn,
+				del_yn,
+				input_id,
+				update_id,
+				input_dt,
+				time_stamp) SELECT   
+				                neoss_no,
+				                business_cd,
+								office_no,
+								buildshape_cd,
+								section_nm,
+								post,
+								address1,
+								address2,
+								share_cd,
+								build_cd,
+								distance_cd,
+								household_no,
+								supply_cd,
+								direct_yn,
+								model_no,
+								model_num,
+								move_dt,
+								supply_dt,
+								change_dt,
+								decide_dt,
+								reason_cd,
+								reason,
+								baud_num,
+								status_cd,
+								request_yn,
+								del_yn,
+								input_id,
+								update_id,
+								input_dt,
+								time_stamp 
+							FROM agwne.t_neoss WHERE neoss_no = ${neoss_no}
+      ]]>
+      	<selectKey keyProperty="history_no" resultType="int" order="AFTER">
+		 <![CDATA[
+		   select CURRVAL('agwne.t_neoss_history_history_no_seq')
+		  ]]>
+		</selectKey>
+    </insert>
+    
+    <!-- 수요공급요청리스트 -->
+    <select id="t_bs_list" parameterType="map" resultType="bsVO">
+	<![CDATA[
+		SELECT ROW_NUMBER()OVER(ORDER BY A.neoss_no ASC) as rnum
+		     , A.neoss_no
+			 , A.status_cd
+			 , A.request_yn
+			 , D.office_0 as search_bonbu
+			 , office_no
+			 , D.office_1
+			 , D.office_2
+			 , D.office_3
+			 , DA.orgname as office_nm
+			 , DB.orgname as branch_nm
+			 , C.code_nm as buildshape_nm
+			 , A.buildshape_cd
+			 , A.section_nm
+			 , A.household_no
+			 , A.input_id
+			 , E.emp_name
+			 , E.ex_agency_nm
+			 , to_char(a.input_dt,'yyyy-mm-dd') input_dt
+			 , A.input_dt search_dt
+			 , A.doc_no
+			 , H.code_nm as status
+			 , J.kuksa_nm
+		  FROM agwne.t_neoss A
+			   LEFT OUTER JOIN agwne.t_code C ON (A.buildshape_cd = C.code AND C.column_nm = 'buildshape_cd' AND C.agw_cd ='03' AND C.del_yn = false)
+			   LEFT OUTER JOIN (
+								SELECT orgscode
+				                     , CAST(hierarchy[1] as varchar(64)) office_0
+				   					 , CAST(hierarchy[2] as varchar(64)) office_1
+							 		 , COALESCE(CAST(hierarchy[3] as varchar(64)), orgscode) office_2
+				   				     , CAST((CASE WHEN hierarchy[4] = hierarchy[3] THEN null ELSE hierarchy[4] END) as varchar(64)) office_3 
+				                  FROM agwne.t_bonbu_level		   
+			   ) D ON (A.office_no = D.orgscode )
+			   LEFT OUTER JOIN agwne.t_org_user E on (A.input_id = E.no_emp)
+			   LEFT OUTER JOIN agwne.t_code H ON (H.code = CONCAT(A.status_cd, A.request_yn) AND H.agw_cd = '03' AND H.column_nm = 'status_cd' AND H.del_yn = false)
+			   LEFT OUTER JOIN agwne.t_bonbu_level DA ON (D.office_0 = DA.orgscode)
+			   LEFT OUTER JOIN agwne.t_bonbu_level DB ON (D.office_1 = DB.orgscode)
+			   LEFT OUTER JOIN agwne.t_olt_pots_fms_mac J ON (A.neoss_no = J.neoss_no AND J.del_yn = false)
+		 where A.del_yn = false
+		   and A.agw_cd = '03'
+
+			]]>	
+			<if test="myOrgCheck.equals('on')"  > 
+			<![CDATA[
+				AND D.office_0 in ( select bonbu from agwne.t_org_mapping where region =#{region} and use_yn='Y')
+			]]>
+			</if>
+			<if test="date_format != null and !date_format.equals('')">
+			<![CDATA[
+				and to_char(A.input_dt, '${date_format}') >= '${st_date}' and  to_char(A.input_dt, '${date_format}') <= '${ed_date}' 
+			]]>
+			</if>
+			<if test="office_0 != null and office_0 != ''"   >
+			<![CDATA[
+				and D.office_0 =#{office_0}
+			]]>
+			</if>			
+			<if test="office_1 != null and office_1 != ''" >
+			<![CDATA[
+				and D.office_1 = #{office_1} 
+			]]>
+			</if>
+			<if test="office_2 != null and office_2 != ''">
+			<![CDATA[
+				and D.office_2 = #{office_2} 
+			]]>
+			</if>
+			<if test="office_3 != null and office_3 != ''">
+			<![CDATA[
+				and D.office_3 = #{office_3} 
+			]]>
+			</if>	
+			<if test="buildshape_cd != null and !buildshape_cd.equals('')">
+			<![CDATA[
+				and A.buildshape_cd = '${buildshape_cd}' 
+			]]>
+			</if>	
+			<if test="searchTxt != null and !searchTxt.equals('')">
+				<if test="searchType != null and !searchType.equals('')">
+					<![CDATA[
+						and ${searchType} like '%${searchTxt}%' 
+					]]>
+				</if>
+			</if>		
+			<if test="status != null and !status.equals('')">
+			<![CDATA[
+				and H.code = '${status}' 
+			]]>
+			</if>						
+	<![CDATA[	
+			ORDER BY A.neoss_no desc
+			LIMIT ${recordsPerPage} OFFSET ${startRecord}
+	]]>	
+    </select>
+    
+    <!-- 수요공급요청엑셀 -->
+    <select id="t_bs_list_excel" parameterType="map" resultType="4pExcelVO">
+    <![CDATA[
+			SELECT 
+						a.neoss_no, doc_no, status, office_nm, branch_nm, branch_nm2, branch_nm3, address, post, direct_yn, model_nm, buildshape_nm, share_nm, build_nm, reason_nm, reason, section_nm, household_no, model_no, model_num, 
+						supply_cd, direct_yn, move_dt, supply_dt, decide_dt, input_dt, expense1, expense2, expense3, tot_expense, prev_status, telnum, device_num, line_type, agree_yn, power_yn, ospia, input_id, ex_agency_nm, gubun, kuksa_nm, olt_nm,
+						inet_tie, managed_ip, subnetmask, gw_ip, olt_user_id, olt_user_name, olt_dept_name, olt_phone_number, olt_in_dt, pots_id,pots_nm, mg_id, start_lln, ems_ip, ems_ip_nm, ems_ktis_ip, ems_mih_ip, pots_user_id, pots_user_name, pots_dept_name, pots_phone_number, 
+						pots_in_dt, colcode, fm_user_id, fm_user_name, fm_dept_name, fm_phone_number, fm_in_dt, mac, epon_mac, mac_user_id, mac_user_name, mac_dept_name, mac_phone_number, mac_in_dt, megaco_ip, ipsec_ip_nm, fac_address, fac_org_name,
+						p1.contents contents_01 ,p2.contents contents_02,p3.contents contents_03,p4.contents contents_04,p5.contents contents_05 ,p6.contents contents_06 ,p99.contents contents_99
+			FROM (		
+							SELECT		   A.neoss_no
+								 , A.doc_no
+								 , H.code_nm as status
+								 , DA.orgname as office_nm
+								 , DB.orgname as branch_nm
+								 , DC.orgname as branch_nm2
+								 , DD.orgname as branch_nm3
+								 , A.address_old||' '||A.address2 AS address
+								 , A.post
+								 , (CASE WHEN costs.supply_nm != '' THEN '['|| costs.supply_nm ||'] ' ELSE '' end) || costs.model_cd ||
+								   (CASE WHEN costs.type != '' then '('|| costs.type ||') ' else '' end) || '/' || costs.line_num AS model_nm 
+								 , CA.code_nm as buildshape_nm
+								 , CB.code_nm as share_nm
+								 , CC.code_nm as build_nm
+								 , CD.code_nm as distance_nm
+								 , CE.code_nm as reason_nm
+								 , A.reason
+								 , A.section_nm
+								 , A.household_no
+								 , A.model_no
+								 , A.model_num
+								 , A.supply_cd
+								 , (case when A.direct_yn = 't' then '직영' else '-' end ) as direct_yn
+								 , A.move_dt
+								 , A.supply_dt
+								 , A.change_dt
+								 , A.decide_dt
+								 , to_char(A.input_dt,'yyyy-mm-dd')  as input_dt
+								 , A.status_cd
+								 , A.request_yn
+								 , A.expense1
+								 , A.expense2
+								 , A.expense3
+								 , A.tot_expense
+								 , A.prev_status
+								 , A.telnum
+								 , A.device_num
+								 , A.line_type || '차 RN' as line_type
+								 , (case when A.agree_yn = 't' then '완료' else '미완료' end ) as agree_yn
+								 , (case when A.power_yn is true then '필요' else '불필요' end) as power_yn 
+								 , A.ospia
+								 , E.emp_name as input_id
+								 , E.ex_agency_nm
+								 , A.input_dt search_dt			 
+								 , sbinfo.gubun
+								 , sbinfo.kuksa_nm
+								 , sbinfo.olt_nm
+								 , sbinfo.inet_tie
+								 , sbinfo.managed_ip
+								 , sbinfo.subnetmask
+								 , sbinfo.gw_ip
+								 , sbinfo.olt_user_id
+								 , olt.emp_name as olt_user_name
+								 , olt.dept_name as olt_dept_name
+								 , olt.phone_number as olt_phone_number
+								 , sbinfo.olt_in_dt
+								 , sbinfo.pots_id
+								 , potsNm.nm as pots_nm
+								 , sbinfo.mg_id
+								 , sbinfo.start_lln
+								 , sbinfo.ems_ip
+								 , ems.nm as ems_ip_nm
+								 , ems.mih_ip as ems_mih_ip
+								 , ems.ktis_ip as ems_ktis_ip
+								 , sbinfo.pots_user_id
+								 , pots.emp_name as pots_user_name
+								 , pots.dept_name as pots_dept_name
+								 , pots.phone_number as pots_phone_number
+								 , sbinfo.pots_in_dt
+								 , sbinfo.colcode
+								 , sbinfo.fm_user_id
+								 , fm.emp_name as fm_user_name
+								 , fm.dept_name as fm_dept_name
+								 , fm.phone_number as fm_phone_number
+								 , sbinfo.fm_in_dt
+								 , sbinfo.mac
+								 , sbinfo.mac_user_id
+								 , mac.emp_name as mac_user_name
+								 , mac.dept_name as mac_dept_name
+								 , mac.phone_number as mac_phone_number
+								 , sbinfo.mac_in_dt 
+								 , sbinfo.megaco_ip
+								 , sbinfo.ipsec_ip
+								 , ipsec.ip as ipsec_ip_nm
+								 , fac.address as fac_address
+								 , DF.office_nm as fac_org_name
+								 , macinfo.epon_mac
+							  FROM agwne.t_neoss A
+								   LEFT OUTER JOIN (
+													SELECT orgscode
+														 , CAST(hierarchy[1] as varchar(64)) office_0
+														 , CAST(hierarchy[2] as varchar(64)) office_1
+														 , COALESCE(CAST(hierarchy[3] as varchar(64)), orgscode) office_2
+														 , CAST((CASE WHEN hierarchy[4] = hierarchy[3] THEN null ELSE hierarchy[4] END) as varchar(64)) office_3 
+													  FROM agwne.t_bonbu_level		   
+								   ) D ON (A.office_no = D.orgscode )
+								   LEFT OUTER JOIN agwne.t_org_user E on (A.input_id = E.no_emp)
+								   LEFT OUTER JOIN agwne.t_code H ON (H.code = CONCAT(A.status_cd, A.request_yn) AND H.agw_cd = '03' AND H.column_nm = 'status_cd')
+								   LEFT OUTER JOIN agwne.t_code CA ON (A.buildshape_cd = CA.code and CA.column_nm = 'buildshape_cd' and CA.del_yn = false and CA.agw_cd = '03')
+								   LEFT OUTER JOIN agwne.t_code CB ON (A.share_cd= CB.code and CB.column_nm='share_cd' and CB.del_yn = false and CB.agw_cd = '03')
+								   LEFT OUTER JOIN agwne.t_code CC ON (A.build_cd = CC.code and CC.column_nm='build_cd' and CC.del_yn = false and CC.agw_cd = '03')
+								   LEFT OUTER JOIN agwne.t_code CD ON (A.distance_cd = CD.code and CD.column_nm='distance_cd' and CD.del_yn = false and CD.agw_cd = '03')
+								   LEFT OUTER JOIN agwne.t_code CE ON (A.reason_cd = CE.code and CE.column_nm='reason_cd' and CE.del_yn = false and CE.agw_cd = '03')
+								   LEFT OUTER JOIN agwne.t_cost costs ON (A.model_no = costs.cost_no and costs.del_yn is FALSE and costs.agw_cd = '03')	
+								   LEFT OUTER JOIN agwne.t_bonbu_level DA ON (D.office_0 = DA.orgscode)
+								   LEFT OUTER JOIN agwne.t_bonbu_level DB ON (D.office_1 = DB.orgscode)
+								   LEFT OUTER JOIN agwne.t_bonbu_level DC ON (D.office_2 = DC.orgscode)
+								   LEFT OUTER JOIN agwne.t_bonbu_level DD ON (D.office_3 = DD.orgscode)
+								   LEFT OUTER JOIN agwne.t_olt_pots_fms_mac sbinfo on (A.neoss_no = sbinfo.neoss_no)
+								   LEFT OUTER JOIN agwne.t_org_user as olt on (sbinfo.olt_user_id = olt.no_emp)
+								   LEFT OUTER JOIN agwne.t_org_user as pots on (sbinfo.pots_user_id = pots.no_emp)
+								   LEFT OUTER JOIN agwne.t_org_user as fm on (sbinfo.fm_user_id = fm.no_emp)
+								   LEFT OUTER JOIN agwne.t_org_user as mac on (sbinfo.mac_user_id = mac.no_emp)
+								   LEFT OUTER JOIN agwne.t_facilities as fac on (sbinfo.colcode = fac.colcode and sbinfo.managed_ip = fac.managed_ip)
+								   LEFT OUTER JOIN agwne.t_bonbu_level as DF on (fac.office_cd = DF.orgscode)
+								   LEFT OUTER JOIN agwne.t_pots as potsNm on (sbinfo.pots_id = potsNm.id)
+								   LEFT OUTER JOIN agwne.t_ipsec_info as ipsec on (cast(sbinfo.ipsec_ip as integer) = ipsec.id and ipsec.del_yn = false)
+								   LEFT OUTER JOIN agwne.t_agw_4p_gw_ems_info as ems on (cast(sbinfo.ems_ip as integer) = ems.id)
+								   LEFT OUTER JOIN agwne.t_mac macinfo on (sbinfo.mac = macinfo.agw_mac and macinfo.del_yn = false)
+							 where A.del_yn = false
+							   and A.agw_cd = '03'
+					]]>	
+			<if test="myOrgCheck.equals('on')"  > 
+			<![CDATA[
+				AND D.office_0 in ( select bonbu from agwne.t_org_mapping where region =#{region} and use_yn='Y')
+			]]>
+			</if>
+			<if test="date_format != null and !date_format.equals('')">
+			<![CDATA[
+				and to_char(A.input_dt, '${date_format}') >= '${st_date}' and  to_char(A.input_dt, '${date_format}') <= '${ed_date}' 
+			]]>
+			</if>
+			<if test="office_0 != null and office_0 != ''"   >
+			<![CDATA[
+				and D.office_0 =#{office_0}
+			]]>
+			</if>			
+			<if test="office_1 != null and office_1 != ''" >
+			<![CDATA[
+				and D.office_1 = #{office_1} 
+			]]>
+			</if>
+			<if test="office_2 != null and office_2 != ''">
+			<![CDATA[
+				and D.office_2 = #{office_2} 
+			]]>
+			</if>
+			<if test="office_3 != null and office_3 != ''">
+			<![CDATA[
+				and D.office_3 = #{office_3} 
+			]]>
+			</if>	
+			<if test="buildshape_cd != null and !buildshape_cd.equals('')">
+			<![CDATA[
+				and A.buildshape_cd = '${buildshape_cd}' 
+			]]>
+			</if>	
+			<if test="searchTxt != null and !searchTxt.equals('')">
+				<if test="searchType != null and !searchType.equals('')">
+					<![CDATA[
+						and ${searchType} like '%${searchTxt}%' 
+					]]>
+				</if>
+			</if>		
+			<if test="status != null and !status.equals('')">
+			<![CDATA[
+				and H.code = '${status}' 
+			]]>
+			</if>	
+		<![CDATA[
+				) a 
+				LEFT OUTER JOIN (select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = a.neoss_no and status_cd = '01' and del_yn is false and current_yn is true)) p1 on a.neoss_no=p1.neoss_no
+				LEFT OUTER JOIN (select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = a.neoss_no and status_cd = '02' and del_yn is false and current_yn is true)) p2 on a.neoss_no=p2.neoss_no
+				LEFT OUTER JOIN (select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = a.neoss_no and status_cd = '03' and del_yn is false and current_yn is true)) p3 on a.neoss_no=p3.neoss_no
+				LEFT OUTER JOIN (select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = a.neoss_no and status_cd = '04' and del_yn is false and current_yn is true)) p4 on a.neoss_no=p4.neoss_no
+				LEFT OUTER JOIN (select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = a.neoss_no and status_cd = '05' and del_yn is false and current_yn is true)) p5 on a.neoss_no=p5.neoss_no
+				LEFT OUTER JOIN (select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = a.neoss_no and status_cd = '06' and del_yn is false and current_yn is true)) p6 on a.neoss_no=p6.neoss_no
+				LEFT OUTER JOIN (select process_no, neoss_no, status_cd, contents from agwne.t_process a where process_no = (select max(process_no) from agwne.t_process where neoss_no = a.neoss_no and status_cd = '99' and del_yn is false and current_yn is true)) p99 on a.neoss_no=p99.neoss_no
+
+				ORDER BY neoss_no desc 
+		]]>   
+    </select>
+    
+    <select id="t_bs_listCnt" parameterType="map" resultType="int">
+    		<![CDATA[
+			SELECT 
+					count(*) as totalRecordCount
+		  FROM agwne.t_neoss A
+		  	   LEFT OUTER JOIN (
+								select neoss_no
+									 , agw_cd
+									 , status_cd
+									 , max(user_no) user_no
+								  from agwne.t_confirm
+								 where del_yn = false
+								   and agw_cd = '03'
+								 group by neoss_no, agw_cd, status_cd				   
+			   ) B ON (A.neoss_no = B.neoss_no AND B.status_cd=(CASE A.status_cd WHEN '99' THEN '01' ELSE A.status_cd END))
+			   LEFT OUTER JOIN agwne.t_code C ON (A.buildshape_cd = C.code AND C.column_nm = 'buildshape_cd' AND C.agw_cd ='03' AND C.del_yn = false)
+			   LEFT OUTER JOIN (
+								SELECT orgscode
+				                     , CAST(hierarchy[1] as varchar(64)) office_0
+				   					 , CAST(hierarchy[2] as varchar(64)) office_1
+							 		 , COALESCE(CAST(hierarchy[3] as varchar(64)), orgscode) office_2
+				   				     , CAST((CASE WHEN hierarchy[4] = hierarchy[3] THEN null ELSE hierarchy[4] END) as varchar(64)) office_3 
+				                  FROM agwne.t_bonbu_level		   
+			   ) D ON (A.office_no = D.orgscode )
+			   LEFT OUTER JOIN agwne.t_org_user E on (A.input_id = E.no_emp)
+			   LEFT OUTER JOIN agwne.t_code H ON (H.code = CONCAT(A.status_cd, A.request_yn) AND H.agw_cd = '03' AND H.column_nm = 'status_cd' AND H.del_yn = false)
+			   LEFT OUTER JOIN agwne.t_bonbu_level DA ON (D.office_0 = DA.orgscode)
+			   LEFT OUTER JOIN agwne.t_bonbu_level DB ON (D.office_1 = DB.orgscode)
+		 where A.del_yn = false
+		   and A.agw_cd = '03'
+
+			]]>	
+			<if test="myOrgCheck.equals('on')"  > 
+			<![CDATA[
+				AND D.office_0 in ( select bonbu from agwne.t_org_mapping where region =#{region} and use_yn='Y')
+			]]>
+			</if>
+			<if test="date_format != null and !date_format.equals('')">
+			<![CDATA[
+				and to_char(A.input_dt, '${date_format}') >= '${st_date}' and  to_char(A.input_dt, '${date_format}') <= '${ed_date}' 
+			]]>
+			</if>
+			<if test="office_0 != null and office_0 != ''"   >
+			<![CDATA[
+				and D.office_0 =#{office_0}
+			]]>
+			</if>			
+			<if test="office_1 != null and office_1 != ''" >
+			<![CDATA[
+				and D.office_1 = #{office_1} 
+			]]>
+			</if>
+			<if test="office_2 != null and office_2 != ''">
+			<![CDATA[
+				and D.office_2 = #{office_2} 
+			]]>
+			</if>
+			<if test="office_3 != null and office_3 != ''">
+			<![CDATA[
+				and D.office_3 = #{office_3} 
+			]]>
+			</if>	
+			<if test="buildshape_cd != null and !buildshape_cd.equals('')">
+			<![CDATA[
+				and A.buildshape_cd = '${buildshape_cd}' 
+			]]>
+			</if>	
+			<if test="searchTxt != null and !searchTxt.equals('')">
+				<if test="searchType != null and !searchType.equals('')">
+					<![CDATA[
+						and ${searchType} like '%${searchTxt}%' 
+					]]>
+				</if>
+			</if>		
+			<if test="status != null and !status.equals('')">
+			<![CDATA[
+				and H.code = '${status}' 
+			]]>
+			</if>						
+    </select>
+    
+    <!-- 수요공급요청 상세보기 -->
+ 	<select id ="t_bs_list_view" parameterType="int" resultType="bsVO">
+	<![CDATA[
+		SELECT A.neoss_no
+			 , A.business_cd
+			 , D.office_nm
+			 , A.office_no
+			 , A.post
+			 , A.address1
+			 , A.address2
+			 , A.address_old
+			 , A.post_old
+			 , (CASE WHEN H.supply_nm != '' THEN '['|| H.supply_nm ||'] ' ELSE '' end) || h.model_cd ||
+			   (CASE WHEN H.type != '' then '('|| H.type ||') ' else '' end) || '/' || h.line_num AS model_nm 
+			 , CA.code_nm as buildshape_nm
+			 , CB.code_nm as share_nm
+			 , CC.code_nm as build_nm
+			 , CD.code_nm as distance_nm
+			 , CE.code_nm as reason_nm
+			 , A.buildshape_cd
+			 , A.share_cd
+			 , A.build_cd
+			 , A.distance_cd
+			 , A.reason_cd
+			 , A.reason
+			 , A.section_nm
+			 , A.household_no
+			 , A.model_no
+			 , A.model_num
+			 , A.supply_cd
+			 , A.direct_yn
+			 , A.move_dt
+			 , A.supply_dt
+			 , A.change_dt
+			 , A.decide_dt
+			 , to_char(A.input_dt,'yyyy-mm-dd')  as input_dt
+			 , B.emp_name
+			 , A.input_id
+			 , A.status_cd
+			 , A.request_yn
+			 , A.expense1
+			 , A.expense2
+			 , A.expense3
+			 , A.tot_expense
+			 , A.doc_no
+			 , A.prev_status
+			 , A.telnum
+			 , A.device_num
+			 , A.line_type
+			 , A.agree_yn
+			 , A.power_yn
+			 , A.ospia
+			 , CF.code_nm AS status
+			 , E.region
+		  FROM agwne.t_neoss A
+		  	   LEFT OUTER JOIN agwne.t_org_user B ON (A.input_id = B.no_emp)
+		  	   LEFT OUTER JOIN agwne.t_code CA ON (A.buildshape_cd = CA.code and CA.column_nm = 'buildshape_cd' and CA.del_yn = false and CA.agw_cd = '03')
+			   LEFT OUTER JOIN agwne.t_code CB ON (A.share_cd= CB.code and CB.column_nm='share_cd' and CB.del_yn = false and CB.agw_cd = '03')
+			   LEFT OUTER JOIN agwne.t_code CC ON (A.build_cd = CC.code and CC.column_nm='build_cd' and CC.del_yn = false and CC.agw_cd = '03')
+			   LEFT OUTER JOIN agwne.t_code CD ON (A.distance_cd = CD.code and CD.column_nm='distance_cd' and CD.del_yn = false and CD.agw_cd = '03')
+			   LEFT OUTER JOIN agwne.t_code CE ON (A.reason_cd = CE.code and CE.column_nm='reason_cd' and CE.del_yn = false and CE.agw_cd = '03')
+			   LEFT OUTER JOIN agwne.t_code CF ON (CF.code = CONCAT(A.status_cd, A.request_yn) and CF.del_yn = false and CF.agw_cd = '03' and CF.column_nm = 'status_cd')
+		   	   LEFT OUTER JOIN agwne.t_cost H ON (A.model_no = H.cost_no and H.del_yn is FALSE and H.agw_cd = '03')
+			   LEFT OUTER JOIN agwne.t_bonbu_level D ON (A.office_no = D.orgscode)
+			   LEFT OUTER JOIN agwne.t_org_mapping E ON (D.bonbu = E.bonbu)
+		 WHERE A.del_yn = false
+		   AND A.agw_cd = '03'
+		   AND A.neoss_no = #{rstNo}
+	]]>
+ 	</select>
+    
+        
+    <!-- 수요공급요청이력 리스트 -->
+ 	<select id ="t_bs_list_view_hist" parameterType="int" resultType="bsVO">
+							<!-- y.orgnameabbr as office_nm, -->
+		<![CDATA[ 
+						SELECT 
+							row_number()over(order by history_no asc ) as rnum,
+							history_no,
+							neoss_no, 
+							to_char(a.action_dt,'yyyy-mm-dd HH:mi') time_stamp,
+							usr.emp_name as update_id,
+							usr.office_nm,
+							usr.phone_number
+			FROM
+							agwne.t_neoss_history a 
+							LEFT OUTER JOIN agwne.t_org_user usr on (a.action_id = usr.no_emp)	
+			WHERE
+							a.del_yn is FALSE
+							and a.agw_cd = '03'
+							and neoss_no =#{rstNo}
+							
+			ORDER BY		a.history_no DESC
+		]]>
+ 	</select>
+
+ 	<!-- 수요공급요청이력 리스트 -->
+ 	<select id ="t_bs_list_view_hist3" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+ 	<![CDATA[
+				 SELECT a.history_no, a.neoss_no, 
+				        b3.orgname office_nm_present, 
+				        b1.orgname branch_nm_present, 
+				        b4.orgname office_nm_history, 
+				        b2.orgname branch_nm_history,
+				        a.post_present,
+				        a.post_history,
+				        a.address1_present,
+				        a.address1_history,
+				        a.address2_present,
+				        a.address2_history,
+				        a.reason_present,
+				        a.reason_history,
+				        a.section_nm_present,
+				        a.section_nm_history,
+				        a.household_no_present,
+				        a.household_no_history,
+				        a.model_num_present,
+				        a.model_num_history,
+				        a.supply_dt_present,
+				        a.supply_dt_history,
+				        (case when g1.supply_nm != '' then '['||g1.supply_nm||']' else '' end) ||g1.model_cd||
+						(case when g1.type != '' then '('||g1.type||')' else '' end) ||
+						'/'||g1.line_num AS model_nm_present, 
+				        (case when g2.supply_nm != '' then '['||g2.supply_nm||']' else '' end) ||g2.model_cd||
+						(case when g2.type != '' then '('||g2.type||')' else '' end) ||
+						'/'||g2.line_num AS model_nm_history,
+				        c1.code_nm as buildshape_nm_present,
+				        c2.code_nm as buildshape_nm_history,
+				        d1.code_nm as share_nm_present,
+				        d2.code_nm as share_nm_history,
+				        e1.code_nm as build_nm_present,
+				        e2.code_nm as build_nm_history,
+				        f1.code_nm as reason_nm_present,
+				        f2.code_nm as reason_nm_history,
+						a.expense1_history,
+						a.expense1_present,
+						a.expense2_history,
+						a.expense2_present,
+						a.expense3_history,
+						a.expense3_present,
+						a.tot_expense_history,
+						a.tot_expense_present,
+						a.ospia_present,
+						a.ospia_history,
+						a.telnum_present,
+						a.telnum_history,
+						a.device_num_present,
+						a.device_num_history,
+						a.supply_cd_present,
+						a.supply_cd_history,
+						a.line_type_present, a.line_type_history,
+						a.agree_yn_present, a.agree_yn_history,
+						a.power_yn_present, a.power_yn_history,
+						a.direct_yn_present, a.direct_yn_history
+				 FROM (
+
+						    SELECT
+						            a.history_no,
+						            a.neoss_no,
+						            b.supply_dt as supply_dt_present , a.supply_dt supply_dt_history,
+						            b.move_dt as move_dt_present , a.move_dt move_dt_history,
+						            b.reason as reason_present ,  a.reason  reason_history,
+						            b.section_nm as section_nm_present ,  a.section_nm  section_nm_history,
+						            b.household_no as household_no_present ,  a.household_no   household_no_history,
+						            b.business_cd as business_cd_present ,  a.business_cd   business_cd_history,
+						            b.model_num as model_num_present ,  a.model_num   model_num_history,
+						            b.office_no as office_no_present ,  a.office_no   office_no_history,
+						            b.post as post_present ,  a.post  post_history,
+						            b.address1 as address1_present ,  a.address1   address1_history,
+						            b.address2 as address2_present ,  a.address2   address2_history,
+						            b.model_no as model_no_present ,  a.model_no   model_no_history,
+						            b.supply_cd as supply_cd_present ,  a.supply_cd  supply_cd_history,
+						            b.buildshape_cd as buildshape_cd_present ,  a.buildshape_cd  buildshape_cd_history,
+						            b.share_cd as share_cd_present ,  a.share_cd  share_cd_history,
+						            b.build_cd as build_cd_present , a.build_cd  build_cd_history,
+						            b.reason_cd as reason_cd_present , a.reason_cd  reason_cd_history,
+									b.expense1 as expense1_present , a.expense1 expense1_history,
+									b.expense2 as expense2_present ,  a.expense2 expense2_history,
+									b.expense3 as expense3_present , a.expense3  expense3_history,
+									b.tot_expense as tot_expense_present ,  a.tot_expense  tot_expense_history,
+									b.ospia as ospia_present, a.ospia ospia_history,
+									b.telnum as telnum_present, a.telnum telnum_history,
+									b.device_num as device_num_present, a.device_num device_num_history,
+									b.line_type as line_type_present, a.line_type line_type_history,
+									b.agree_yn as agree_yn_present, a.agree_yn as agree_yn_history,
+									b.power_yn as power_yn_present, a.power_yn as power_yn_history,
+									b.direct_yn as direct_yn_present, a.direct_yn as direct_yn_history
+						    FROM 
+						        agwne.t_neoss_history a left outer join agwne.t_neoss b on a.neoss_no=b.neoss_no
+						    WHERE 
+						        a.neoss_no=#{neoss_no}   and a.history_no=#{history_no}  and a.del_yn IS FALSE and a.agw_cd = '03'
+						    ) a 
+	                           	LEFT OUTER JOIN agwne.t_bonbu_level b1 ON (a.office_no_present = b1.orgscode) 
+	                            LEFT OUTER JOIN agwne.t_bonbu_level b2 on (a.office_no_history = b2.orgscode)
+	                            LEFT OUTER JOIN agwne.t_bonbu_level b3 ON (b1.porgscode = b3.orgscode)
+	                            LEFT OUTER JOIN agwne.t_bonbu_level b4 ON (b2.porgscode = b4.orgscode)
+	                            LEFT OUTER JOIN agwne.t_code c1 ON (a.buildshape_cd_present = c1.code and c1.column_nm = 'buildshape_cd' and c1.del_yn is FALSE and c1.agw_cd = '03')
+	                            LEFT OUTER JOIN agwne.t_code c2 ON (a.buildshape_cd_history = c2.code and c2.column_nm = 'buildshape_cd' and c2.del_yn is FALSE and c2.agw_cd = '03')
+	                            LEFT OUTER JOIN agwne.t_code d1 ON (a.share_cd_present = d1.code and d1.column_nm='share_cd' and d1.del_yn is FALSE and d1.agw_cd = '03')
+	                            LEFT OUTER JOIN agwne.t_code d2 ON (a.share_cd_history = d2.code and d2.column_nm='share_cd' and d2.del_yn is FALSE and d2.agw_cd = '03')
+								LEFT OUTER JOIN agwne.t_code e1 ON (a.build_cd_present = e1.code and e1.column_nm='build_cd' and e1.del_yn is FALSE and e1.agw_cd = '03')
+	                            LEFT OUTER JOIN agwne.t_code e2 ON (a.build_cd_history = e2.code and e2.column_nm='build_cd' and e2.del_yn is FALSE and e2.agw_cd = '03')
+	                            LEFT OUTER JOIN agwne.t_code f1 ON (a.reason_cd_present = f1.code and f1.column_nm='reason_cd' and f1.del_yn is FALSE and f1.agw_cd = '03')
+	                            LEFT OUTER JOIN agwne.t_code f2 ON (a.reason_cd_history = f2.code and f2.column_nm='reason_cd' and f2.del_yn is FALSE and f2.agw_cd = '03')
+	                            LEFT outer JOIN agwne.t_cost g1 ON (a.model_no_present = g1.cost_no and g1.del_yn is FALSE and g1.agw_cd = '03')
+	                            LEFT outer JOIN agwne.t_cost g2 ON (a.model_no_history = g2.cost_no and g2.del_yn is FALSE and g2.agw_cd = '03')	
+
+									
+ 	]]>
+ 	</select>
+ 	
+ 	
+ 	
+    <select id="request_prev_no" parameterType="map" resultType="bsVO">
+    <![CDATA[
+		select    A.neoss_no
+		  FROM agwne.t_neoss A
+		 where    1=1
+		          and A.del_yn is FALSE
+		          and A.agw_cd = '03'
+		          and A.neoss_no < #{rstNo}
+		 order by A.neoss_no desc
+		 limit    1
+    ]]>
+    </select>
+    
+    <select id="request_next_no" parameterType="map" resultType="bsVO">
+    <![CDATA[
+		select A.neoss_no
+		  FROM agwne.t_neoss A
+		 where    1=1
+		          and del_yn is FALSE
+		          and agw_cd = '03'
+		          and neoss_no > #{rstNo}
+		 order by A.neoss_no asc
+		 limit    1
+    ]]>
+    </select>
+    
+    <update id="t_bs_list_update" parameterType="bsVO" >
+    
+    	UPDATE agwne.t_neoss SET
+    		status_cd = #{status_cd}
+    		<if test="status_cd == '01'">
+    		, decide_dt = now()
+    		</if>
+    		<if test="!request_yn">
+	    	, request_yn = FALSE
+	    	</if>
+	    	<if test="request_yn">
+	    	, request_yn = TRUE
+	    	</if>
+	    	<if test="prev_status != null || prev_status != ''">
+	    	, prev_status = #{prev_status}
+	    	</if>
+    	WHERE neoss_no = #{neoss_no}	
+    	
+    
+    </update>
+    
+    
+   <select id="request_period_chk" resultMap="period">
+     <![CDATA[
+		select SUM(CASE WHEN A.business_cd = '01' THEN 1 ELSE 0 END) as b_01
+		     , SUM(CASE WHEN A.business_cd = '02' THEN 1 ELSE 0 END) as b_02
+		  from (
+				select A.period_no
+		             , A.business_cd
+					 , CAST(CONCAT(EXTRACT(YEAR from now()) + A.start_year, '-', A.start_dt) as DATE) as start_date
+					 , CAST(CONCAT(EXTRACT(YEAR from now()) + A.end_year, '-', A.end_dt) as DATE) as end_date
+					 , (CASE WHEN B.user_id IS NULL THEN 0 ELSE 1 END) exception
+				  from agwne.t_period A
+				       LEFT OUTER JOIN agwne.t_period_exception B ON (    B.del_yn = false 
+																  AND A.agw_cd = B.agw_cd 
+														          AND A.business_cd = (CASE B.business_cd WHEN '00' THEN A.business_cd
+																					   ELSE B.business_cd END)
+														  		  AND B.user_id = #{user_id})
+				 where A.del_yn = false
+				   AND A.notify_yn = true
+				   AND A.agw_cd = '4'
+				 order by A.business_cd, A.quarter
+				) A
+		where 1=1 
+		  and (   (current_date >= A.start_date and current_date <= A.end_date)
+	   		   OR A.exception = 1)
+	]]>
+   </select>
+   
+   <insert id="t_construct_reg" parameterType="csVO" useGeneratedKeys="true" keyProperty="const_no" keyColumn="const_no">
+   		<![CDATA[
+   			INSERT INTO agwne.t_construct(
+			    neoss_no
+			    , st_dt
+			    , ed_dt
+			    , const_st_desc
+			    , const_ed_desc
+			    , input_id
+			    , input_dt
+			    , update_id
+			    , time_stamp
+			)VALUES(
+			    #{neoss_no}
+			    ,to_date(#{st_dt},'yyyy-mm-dd')
+			    ,to_date(#{ed_dt},'yyyy-mm-dd')
+			    ,#{const_st_desc}
+			    ,#{const_ed_desc}
+			    ,#{input_id}
+			    ,now()
+			    ,#{input_id}
+			    ,now()
+			)
+   		]]>
+   		<selectKey keyProperty="const_no" resultType="int" order="AFTER">
+		 <![CDATA[
+		   select CURRVAL('agwne.t_construct_const_no_seq')
+		  ]]>
+		</selectKey>
+   </insert>
+     <insert id="t_construct_mem_reg" parameterType="java.util.HashMap">
+     <if test = "list.size > 0 ">
+   		<![CDATA[
+   			INSERT INTO agwne.t_construct_mem(
+			    const_no
+			    , mem_cd
+			    , user_no
+			    , input_id
+			    , input_dt
+			    , update_id
+			    , time_stamp
+			)VALUES
+			]]>
+			<foreach collection="list" item="item" separator=",">
+			<![CDATA[
+			(
+			    #{const_no}
+			    ,#{item.mem_cd}
+			    ,#{item.member_id}
+			    ,#{item.input_id}
+			    ,now()
+			    ,#{item.input_id}
+			    ,now()
+			)
+			]]>
+			</foreach> 
+		</if>
+   </insert>
+     <insert id="t_bs_reg_confirm" parameterType="java.util.HashMap">
+         <if test = "list.size > 0 ">
+   		<![CDATA[
+   			INSERT INTO agwne.t_confirm (
+                     neoss_no
+                    ,agw_cd
+                    ,status_cd
+                    ,user_no
+                    ,input_id
+                    ,update_id
+                    ,input_dt
+                    ,time_stamp
+			)VALUES
+			]]>
+			<foreach collection="list" item="item" separator=",">
+			<![CDATA[
+			(
+			   		 #{item.neoss_no}
+                    ,#{item.agw_cd}
+                    ,#{item.status_cd}
+                    ,#{item.user_no}
+                    ,#{item.input_id}
+                    ,#{item.input_id}
+                    ,now()
+                    ,now()
+			) 
+			]]>
+			</foreach> 
+			</if>
+   </insert>
+	<insert id="insert_confirm_temp" parameterType="Hashmap">
+         <if test = "list.size > 0 ">
+   		<![CDATA[
+   			INSERT INTO agwne.t_confirm_temp (
+                     neoss_no
+                    ,agw_cd
+                    ,status_cd
+                    ,user_no
+                    ,input_id
+                    ,update_id
+                    ,input_dt
+                    ,time_stamp
+			)VALUES
+			]]>
+			<foreach collection="list" item="item" separator=",">
+			<![CDATA[
+			(
+			   		 #{item.neoss_no}
+                    ,#{item.agw_cd}
+                    ,#{item.status_cd}
+                    ,#{item.user_no}
+                    ,#{item.input_id}
+                    ,#{item.input_id}
+                    ,now()
+                    ,now()
+			) 
+			]]>
+			</foreach> 
+			</if>
+	</insert>
+	<update id="update_confirm" parameterType="Hashmap">
+	<![CDATA[
+		update agwne.t_confirm as a set
+		       del_yn = true
+			 , update_id = #{update_id}
+			 , time_stamp = now()
+         where a.confirm_no in (select a.confirm_no
+								  from agwne.t_confirm a
+							  	       left outer join  agwne.t_confirm_temp b on (a.neoss_no = b.neoss_no 
+																				   and a.agw_cd = b.agw_cd 
+																				   and a.status_cd = b.status_cd 
+																				   and a.user_no = b.user_no
+									   )
+								 where a.neoss_no = #{neoss_no}
+								   and b.neoss_no is null)
+	]]>
+	</update>
+	<insert id="insert_confirm" parameterType="Hashmap">
+	<![CDATA[
+		insert into agwne.t_confirm (
+			   neoss_no
+			 , agw_cd
+			 , status_cd
+			 , user_no
+			 , input_id
+			 , update_id
+		)
+		select a.neoss_no
+		     , a.agw_cd
+			 , a.status_cd
+			 , a.user_no
+			 , a.input_id
+			 , a.update_id
+		  from agwne.t_confirm_temp a
+		       left outer join  agwne.t_confirm b on (a.neoss_no = b.neoss_no 
+														   and a.agw_cd = b.agw_cd 
+														   and a.status_cd = b.status_cd 
+														   and a.user_no = b.user_no
+														   and b.del_yn = false
+			   )
+		 where a.neoss_no = #{neoss_no}
+		   and b.neoss_no is null	
+	]]>
+	</insert>
+	<delete id="delete_confirm_temp" parameterType="Hashmap">
+	<![CDATA[
+		delete from agwne.t_confirm_temp
+		 where neoss_no = #{neoss_no}
+	]]>
+	</delete>
+	
+      <update id="t_bs_modi_confirm" parameterType="java.util.HashMap" >
+    <if test = "list.size > 0 ">
+      <foreach collection="list" item="item" separator=";">
+   		UPDATE agwne.t_confirm 
+			SET  user_no = #{item.user_no}
+				,update_id	= #{item.input_id}
+				,time_stamp	= now()
+		WHERE 
+				agw_cd='03'
+				AND neoss_no= #{item.neoss_no}
+				AND status_cd = #{item.status_cd}
+				AND del_yn is false
+	  </foreach>		
+	</if>
+   </update>
+   <update id="t_const_modi" parameterType="csVO">
+  <![CDATA[
+   		UPDATE agwne.t_construct
+			SET neoss_no		= #{neoss_no}
+	]]>		
+		<if test = "st_dt != null || st_dt != ''" >
+		 <![CDATA[
+				,st_dt			= to_date(#{st_dt}, 'yyyy-mm-dd')
+				,const_st_desc	= #{const_st_desc}
+		]]>
+		</if>		
+		<if test = "ed_dt != null || ed_dt != ''" >
+		 <![CDATA[
+				,ed_dt			= to_date(#{ed_dt}, 'yyyy-mm-dd')
+				,const_ed_desc	= #{const_ed_desc}
+		]]>
+		</if>		
+				,update_id		= #{input_id}
+				,time_stamp		= now()
+		WHERE 
+				const_no 		= #{const_no} 
+				and del_yn is false
+   </update>
+   <update id="t_const_modi_expense" parameterType ="csVO">
+		   UPDATE agwne.t_neoss SET 
+		           expense1 		= ${expense1}
+		           , expense2 	= ${expense2} 
+		           , expense3 	= ${expense3} 
+		           , tot_expense 	= ${tot_expense}
+				WHERE 	neoss_no	= ${neoss_no}
+   </update>
+   <delete id="t_const_mem_del" parameterType="int">
+   		DELETE FROM 
+   				agwne.t_construct_mem 
+   		WHERE const_no = #{const_no} 
+   		      AND del_yn IS FALSE
+   
+   </delete>
+   <delete id="t_confirm_mem_del" parameterType="int">
+   		DELETE FROM 
+   				agwne.t_confirm  
+   		WHERE neoss_no = #{neoss_no} 
+   			  AND agw_cd = '03'
+   		      AND del_yn IS FALSE
+   
+   </delete>
+   <update id="t_const_mem_modi" parameterType="java.util.HashMap" >
+    <if test = "list.size > 0 ">
+      <foreach collection="list" item="item" separator=";">
+   		UPDATE agwne.t_construct_mem 
+			SET mem_cd 		= #{item.mem_cd}
+				,member_id	= #{item.member_id}
+				,department	= #{item.department}
+				,member_nm	= #{item.member_nm}
+				,update_id	= #{item.input_id}
+				,time_stamp	= now()
+		WHERE 
+				const_mem_no = #{item.const_mem_no}
+	  </foreach>		
+	</if>
+   </update>
+   <update id="t_construct_stat_change" parameterType="java.util.HashMap">
+   		UPDATE agwne.t_neoss 
+   			
+   			SET 
+   				status_cd = #{status_cd}
+   				, request_yn = #{request_yn}
+   			
+   		WHERE neoss_no=#{neoss_no}  
+   </update>
+   <select id="t_const_view" parameterType="int" resultType="csVO">
+		SELECT 
+		     a.const_no
+		    , a.neoss_no
+		    , to_char(st_dt, 'yyyy-mm-dd') st_dt
+		    , to_char(ed_dt, 'yyyy-mm-dd') ed_dt
+		    , e.contents const_st_desc
+		    , const_ed_desc
+            , d.expense1
+            , d.expense2
+            , d.expense3
+            , d.tot_expense
+		    , a.input_id   
+		FROM agwne.t_construct a
+	        	 LEFT OUTER JOIN agwne.t_neoss d on (a.neoss_no= d.neoss_no and d.del_yn = false and d.agw_cd = '03')
+	        	 left outer join agwne.t_process e on (a.neoss_no = e.neoss_no and e.del_yn = false and e.current_yn = true and e.status_cd = '04' and e.return_yn = false)
+        WHERE a.neoss_no = #{rstNo}
+			  AND a.del_yn is false  
+   </select>
+   <select id="t_const_mem_view" parameterType="int" resultType="csmemVO">
+		<!-- SELECT const_no, mem_cd, mb.no_emp, emp_name, ex_agency_nm, dept_name, ex_biz_company_nm, usr.phone_number
+		FROM (select const_no, mem_cd, no_emp , del_yn  from agwne.t_construct_mem where const_no = (select const_no from agwne.t_construct where neoss_no=#{rstNo}) and del_yn is false) mb 
+		      , agwne.t_org_user usr 
+		WHERE mb.no_emp = usr.no_emp
+		AND	mb.del_yn is false
+		order by mem_cd  -->
+	<![CDATA[
+		select a.const_no
+			 , a.mem_cd
+			 , a.user_no
+			 , usr.ex_emp_nm as emp_name
+			 , c.orgname as ex_agency_nm
+			 , d.orgname as dept_name
+			 , usr.ex_company_nm
+			 , usr.email_address
+		  from agwne.t_construct_mem  a
+			   inner join agwne.t_construct b on (a.const_no = b.const_no and b.neoss_no = #{rstNo})
+			   left outer join agwne.t_org_user_ex_mail usr on (a.user_no = usr.ex_mail_no)
+			   left outer join agwne.t_bonbu_level c on (usr.porgscode = c.orgscode)
+			   left outer join agwne.t_bonbu_level d on (usr.orgscode = d.orgscode)
+		 where a.del_yn = false
+		 order by a.mem_cd asc		
+	]]>		
+   </select>
+   <update id="t_bs_del" parameterType="int">
+   		UPDATE agwne.t_neoss
+   		SET del_yn = true
+   		WHERE neoss_no = #{neoss_no}
+   </update>
+      <update id="t_bs_del_ps" parameterType="int">
+   		UPDATE agwne.t_process
+   		SET del_yn = TRUE
+   		WHERE neoss_no = #{neoss_no}
+   </update>
+   
+	<select id="selectFacilities" parameterType="hashmap" resultType="facilitiesVO">
+	<![CDATA[
+		select a.*, b.office_nm
+		  from agwne.t_facilities a
+			   LEFT OUTER JOIN agwne.t_bonbu_level b on(a.office_cd = b.orgscode)
+		 where managed_ip = #{managed_ip}
+		   and colcode = #{colcode}
+		 limit 1
+	]]>
+	</select>
+	
+	<insert id="insert_inettie" parameterType="mdVO">
+	<![CDATA[
+		insert into agwne.t_olt_pots_fms_mac (
+			   neoss_no
+			 , gubun
+			 , managed_ip
+			 , olt_user_id
+			 , inet_tie
+		) values (
+			   #{neoss_no}
+			 , #{gubun}
+			 , #{managed_ip}
+			 , #{olt_user_id}
+			 , #{inet_tie}
+		)
+	]]>
+	</insert>
+	
+	<update id="update_inettie" parameterType="mdVO">
+	<![CDATA[
+		update agwne.t_olt_pots_fms_mac set
+		       inet_tie = #{inet_tie}
+		 where gubun = #{gubun}
+		   and neoss_no = #{neoss_no}
+	]]>
+	</update>
+	
+	<select id="select_inettie" parameterType="int" resultType="mdVO">
+	<![CDATA[
+		select seq
+		     , neoss_no
+		     , inet_tie
+		  from agwne.t_olt_pots_fms_mac
+		 where del_yn = false
+		   and gubun = '03'
+		   and neoss_no = #{neoss_no}
+	]]>
+	</select>
+</mapper>

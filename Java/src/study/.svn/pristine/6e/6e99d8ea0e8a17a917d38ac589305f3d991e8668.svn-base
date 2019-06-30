@@ -1,0 +1,80 @@
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file ReformService.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import kr.co.kt.agwne.dto.*;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+
+@Transactional
+public interface ReformService {
+	
+	//코드불러오기
+	public Object t_bs_code(HashMap<String, Object> listCodeInfo) throws Exception;
+	//기종불러오기
+	public Object t_bs_model(HashMap<String, Object> listModelInfo) throws Exception;
+	//요청 등록(저장)
+	public int t_bs_reg(ReformVO rfVO, ConfirmUserVO cfVO, MultipartHttpServletRequest mhsq) throws Exception;
+	//승인자 등록
+	public	int t_bs_reg_confirm(HashMap<String, Object> cfVO) throws Exception;
+	//요청 수정
+	public Object t_bs_modify(ReformVO rfVO, ConfirmUserVO cfVO, MultipartHttpServletRequest mhsq) throws Exception;
+	//요청 리스트 
+	public Object t_bs_list(HashMap<String, Object> listInfo) throws Exception;
+	//요청 리스트 엑셀
+	public Object t_bs_list_excel(HashMap<String, Object> listInfo) throws Exception;
+	//리스트 총 갯수
+	public HashMap <String,Integer> t_bs_listCnt(HashMap<String, Object> listInfo) throws Exception;
+	//요청 상세보기
+	public Object t_bs_list_view(int rstNo) throws Exception;
+	//요청 상세보기(이력)
+	public Object  t_bs_list_view_hist(HashMap<String, Integer> paramInfo) throws Exception;
+	//수정하기
+	public Object t_bs_update(BusinessVO bsVO) throws Exception;
+	//삭제
+	public int t_bs_del(int neoss_no) throws Exception;
+    // 이전페이지 
+    public int request_prev_no(int rstNo) throws Exception;
+    // 다음페이지
+    public int request_next_no(int rstNo) throws Exception;
+	//준공착공 상세보기
+	public ConstructVO t_construct_view(int rstNo) throws Exception;
+	public int t_construct_reg(ConstructVO csVO) throws Exception;
+	public int t_construct_modi(ConstructVO csVO, Map<String, Object> paramMap) throws Exception;
+	public int t_construct_stat_change(BusinessVO bsVO) throws Exception;
+	
+	//reform/list 에서 작성자 정보
+	public List<UserInfoVO> search_reg_name() throws Exception;
+	public UserInfoVO r_model_person(int neoss_no) throws Exception;
+	public List<ReformVO> r_history_list(int neoss_no) throws Exception;
+	public List<OrgVO> search_result_org(HashMap<String, Object> listInfo) throws Exception;
+
+	public List<ReformDeviceVO> reform_device_all(String tdx_type) throws Exception;
+	public int reform_chk_device(String device_cd)throws Exception;
+
+	public int reform_useyn_update(ReformVO vo)throws Exception;
+	public int reform_useyn_refresh(ReformVO vo)throws Exception;
+	public int reform_useyn_decide(BusinessVO vo)throws Exception;
+}

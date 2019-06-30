@@ -1,0 +1,11 @@
+<%@ page language="java" contentType="text/html; charset=EUC-KR" pageEncoding="EUC-KR"%>
+<!-- footer -->
+<footer>
+	<img src="/resources/img/footer_logo.gif" alt="kt" />
+    <div>
+        해당 사이트 문의는 담당자에게 연락 바랍니다.<br>
+        네트워크연구기술지원단>통화서비스기술지원팀 : <b>차재현</b>
+    </div>
+    <div>Copyright ⓒ 2018 by KT Corp. All rights reserved.</div>
+</footer>
+<!-- //footer -->

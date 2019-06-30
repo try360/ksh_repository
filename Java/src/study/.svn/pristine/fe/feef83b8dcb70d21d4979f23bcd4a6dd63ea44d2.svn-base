@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.kt.agwne.replyMapper">
+ <!-- 2018-03-14 이상준
+    sample 공지사항 덧글 등록-->
+  <insert id="reply_reg" parameterType="replyVO" useGeneratedKeys="true" keyProperty="reply_no" keyColumn="reply_no"> 
+        <![CDATA[ 
+         INSERT into agwne.t_reply 
+                    (
+                        bbs_no
+                        ,contents
+                        ,input_id 
+                        ,input_dt
+                        ,update_id
+                        ,update_dt
+                     )
+              values( 
+                       #{bbs_no}
+                       ,#{contents}
+                       ,#{input_id} 
+                       ,now()
+                       ,#{input_id}
+                       ,now()
+                   )
+        ]]>
+		
+			<!-- 2018-03-14 이상준 sample 공지사항 덧글 입력후 현재 덧글 번호 리턴 구현중 -->
+			<selectKey keyProperty="reply_no" resultType="int" order="AFTER">
+		        <![CDATA[
+		            select CURRVAL('agwne.t_reply_reply_no_seq')
+		        ]]>
+			</selectKey>
+		
+			<!-- <selectKey keyProperty="replyVO" resultType="int" order="AFTER"> <![CDATA[ 
+				select CURRVAL('agwne.t_reply_reply_no_seq') ]]> </selectKey> --> 
+    </insert>
+	<!-- 2018-03-14 이상준 sample 공지사항 덧글 리스트 가져오기 boardxml로 이동 되었으나 일단 주석처리 -->
+      <!--  <select id="reply_list" parameterType="int" resultType="replyVO">
+	     <![CDATA[ 
+		        select     
+		                 reply_no 
+		                 ,contents
+		                 ,input_id 
+		                 ,input_dt 
+		                 ,update_id 
+		                 ,update_dt 
+		                 ,row_number()over(order by bbs_no asc ) as rnum
+		                 
+		                 from agwne.t_reply
+		                 where     del_yn = false and
+		                           bbs_no = #{bbs_no}
+		                 order by reply_no desc
+	         ]]>
+	    </select> -->
+
+	<!-- 2018-03-14 이상준 sample 공지사항 덧글 삭제 -->
+	<update id="reply_del" parameterType="replyVO">
+       <![CDATA[ 
+           update   agwne.t_reply set
+                    del_yn        = 'true'
+                    ,delete_id    = #{delete_id}
+                    ,delete_dt    = now()
+           where    reply_no        = #{reply_no}
+        ]]>
+	</update>
+	<select id="reply_ajax" parameterType="replyVO" resultType="replyVO">
+	 <![CDATA[ 
+		SELECT  
+				reply_no 
+		        ,contents
+		        ,input_id 
+		        ,input_dt
+		        ,update_id
+		        ,update_dt
+		
+		FROM 
+				agwne.t_reply 
+		
+		WHERE 
+				reply_no= #{reply_no}
+				AND del_yn is FALSE
+		]]>
+	</select>
+	
+	<select id="replyEmailSelect" parameterType="int" resultType="replyVO">
+    <![CDATA[
+		select B.bbs_no
+		     , B.title
+			 , BA.emp_name as bbs_name
+			 , BA.email_address
+		     , A.contents
+			 , A.input_dt
+			 , AA.emp_name as input_name
+			 , B.bbs_gb
+		  from agwne.t_reply A
+		       left outer join agwne.t_bbs B ON (A.bbs_no = B.bbs_no and B.del_yn = false)
+			   left outer join agwne.t_org_user BA ON (B.input_id = BA.no_emp)
+			   left outer join agwne.t_org_user AA ON (A.input_id = AA.no_emp)
+		 where A.del_yn = false
+		   and A.reply_no = #{reply_no}    
+    ]]>
+    </select>
+	
+</mapper>

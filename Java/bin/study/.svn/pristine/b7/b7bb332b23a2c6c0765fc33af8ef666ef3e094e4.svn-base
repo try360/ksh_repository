@@ -1,0 +1,43 @@
+/**
+ * agw-ne
+ *
+ * Copyright ⓒ 2018 kt corp. All rights reserved.
+ *
+ * This is a proprietary software of kt corp, and you may not use this file except in
+ * compliance with license agreement with kt corp. Any redistribution or use of this
+ * software, with or without modification shall be strictly prohibited without prior written
+ * approval of kt corp, and the copyright notice above does not evidence any actual or
+ * intended publication of such software.
+ * 
+ * @ author kt
+ * @ since 2018-04-15
+ * @ file CodeService.java
+ * @ version 1.0
+ * @ see
+ * @ Copyright ⓒ 2018 By kt corp. All rights reserved.
+ */
+
+package kr.co.kt.agwne.service;
+
+import java.util.HashMap;
+
+import kr.co.kt.agwne.dto.CodeVO;
+
+
+public interface CodeService {
+    // 코드 저장
+    public Object code_reg(CodeVO codeVO) throws Exception;                          
+    // 코드 업데이트
+    public Object code_update(CodeVO codeVO) throws Exception;         
+    // 코드 리스트 가져오기
+    public Object code_list(CodeVO codeVO) throws Exception;
+    // 코드 삭제
+    public Object code_del(CodeVO codeVO) throws Exception;
+    // 코드가 기존에 존재하는지 확인
+    public int code_check(CodeVO codeVO) throws Exception;
+
+    public Object codeSelect(HashMap<String, Object> map);
+    
+    public int codeArray(CodeVO codeVO);
+}
+   
