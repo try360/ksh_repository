@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="war" name="agw-ne:war">
-    <output-path>$PROJECT_DIR$/target</output-path>
-    <root id="archive" name="agwne-1.2.3.war">
-      <element id="artifact" artifact-name="agw-ne:war exploded" />
-    </root>
-  </artifact>
-</component>

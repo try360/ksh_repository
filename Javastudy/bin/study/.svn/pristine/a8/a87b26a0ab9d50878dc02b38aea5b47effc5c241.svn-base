@@ -1,9 +1,0 @@
-package kr.co.kt.agwne.web;
-
-import javax.jws.WebService;
-
-//@WebService(serviceName = "weather", endpointInterface = " com.apress.springrecipes.weather.WeatherService")
-public class SoapServiceController {
-
-//    public List<T>
-}

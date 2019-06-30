@@ -1,8 +1,0 @@
-eclipse.preferences.version=1
-encoding//src/main/java=euc-kr
-encoding//src/main/java/kr/co/kt/common/ParamValidatChk.java=UTF-8
-encoding//src/main/webapp/resources/js/business.js=EUC-KR
-encoding//src/main/webapp/resources/js/common.js=EUC-KR
-encoding//src/main/webapp/resources/js/reform_agw.js=UTF-8
-encoding/<project>=euc-kr
-separateDerivedEncodings=true
