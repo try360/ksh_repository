@@ -5,13 +5,44 @@ import java.util.ArrayList;
 class A {
 	String a;
 	String b;
-	
-	
+
 	@Override
 	public String toString() {
 		return "A [a=" + a + ", b=" + b + "]";
 	}
 
+}
+
+class B {
+	String c;
+	String d;
+
+}
+
+class Test {
+	String a;
+	String b;
+
+	@Override
+	public String toString() {
+		return "A [a=" + a + ", b=" + b + "]";
+	}
+
+}
+
+class CallByReferenceTest2 {
+
+	public CallByReferenceTest2() {
+
+		Test test1 = new Test();
+		test1.a = "김승회";
+		Test test2 = test1;
+		test2.b = "김승회";
+
+		System.out.println(test1);
+		System.out.println(test2);
+
+	}
 }
 
 public class CallByReferenceTest {
@@ -32,13 +63,6 @@ public class CallByReferenceTest {
 			list.add(a1);
 
 		}
-System.out.println(list.toString());
+		System.out.println(list.toString());
 	}
- 
-}
-
-class B {
-	String c;
-	String d;
-
 }
